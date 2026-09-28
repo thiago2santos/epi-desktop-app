@@ -2,40 +2,32 @@ name: CI
 
 on:
   pull_request:
-  push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Java 25
+      - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 25
+          java-version: "25"
           cache: maven
 
-      - name: Run unit tests
-        run: mvn --batch-mode --no-transfer-progress clean test
+      - name: Spotless check
+        run: ./mvnw -B spotless:check
 
-  mutation:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Tests
+        run: ./mvnw -B test
 
-      - name: Setup Java 25
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 25
-          cache: maven
+      - name: PMD
+        run: ./mvnw -B pmd:check
 
-      - name: Run mutation tests (PIT)
-        run: mvn --batch-mode --no-transfer-progress -Pmutation clean test org.pitest:pitest-maven:mutationCoverage
+      - name: SpotBugs
+        run: ./mvnw -B -DskipTests compile spotbugs:check
+
+      - name: PIT mutation tests
+        run: ./mvnw -B -Pmutation clean test org.pitest:pitest-maven:mutationCoverage

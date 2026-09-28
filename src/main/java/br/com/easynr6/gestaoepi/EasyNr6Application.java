@@ -8,8 +8,6 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 public class EasyNr6Application {
 
   public static void main(String[] args) {
-    new SpringApplicationBuilder(EasyNr6Application.class)
-        .web(WebApplicationType.NONE)
-        .run(args);
+    new SpringApplicationBuilder(EasyNr6Application.class).web(WebApplicationType.NONE).run(args);
   }
 }

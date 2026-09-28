@@ -33,8 +33,8 @@ Exemplos:
 Uso quando entrega capacidade de engenharia, qualidade, arquitetura ou operacao de software.
 
 Exemplos:
-- setup `release-please`;
-- git hooks;
+- setup de release por tag (`v*`);
+- `pre-commit` (pre-commit/commit-msg/pre-push);
 - hardening de permissao;
 - observabilidade de eventos.
 

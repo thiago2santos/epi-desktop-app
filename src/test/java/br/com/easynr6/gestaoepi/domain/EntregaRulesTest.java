@@ -28,7 +28,8 @@ class EntregaRulesTest {
 
   @Test
   void deveBloquearDevolucaoAnteriorAEntrega() {
-    boolean valida = EntregaRules.devolucaoEmDataValida(LocalDate.now(), LocalDate.now().minusDays(1));
+    boolean valida =
+        EntregaRules.devolucaoEmDataValida(LocalDate.now(), LocalDate.now().minusDays(1));
     assertFalse(valida);
   }
 

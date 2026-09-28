@@ -46,8 +46,8 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 
 ## R0 - Setup de repositorio e governanca de entrega (Must)
 
-- **[TECH]** Configurar `release-please` no repositorio.
-- **[TECH]** Configurar git hooks (padrao de commit, lint/teste local e qualidade minima).
+- **[TECH]** Configurar workflow de release por tag (`v*`) no GitHub Actions.
+- **[TECH]** Configurar `pre-commit` (stages `pre-commit`, `commit-msg`, `pre-push`).
 - **[TECH]** Definir convencao de branch e versionamento semantico.
 - **[TECH]** Criar templates:
   - issue/task;
@@ -157,7 +157,7 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 
 ## Ordem recomendada (com governanca)
 
-1. `R0` setup de repositorio e padroes (`release-please`, hooks, templates)
+1. `R0` setup de repositorio e padroes (release por tag, pre-commit, templates)
 2. `M0` fundacao tecnica e seguranca
 3. `M1` core operacional
 4. `M2` cadastros e regras
@@ -188,8 +188,8 @@ Considerar o MVP pronto quando todos os itens abaixo forem verdadeiros:
 
 ### Sprint R0 - setup e governanca (5-7 dias)
 
-- configurar `release-please`;
-- configurar git hooks;
+- configurar release por tag (`v*`) no GitHub Actions;
+- configurar `pre-commit` para qualidade e seguranca local;
 - criar modelo de issue/spec/checklist de teste;
 - alinhar naming de tickets no Jira com taxonomia `UC`/`FEAT`/`TECH`;
 - registrar baseline do pipeline local de validacao.

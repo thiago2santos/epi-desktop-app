@@ -1,0 +1,102 @@
+# Pre-commit hooks — epi-desktop-app
+# Install:
+#   pre-commit install --hook-type pre-commit --hook-type commit-msg --hook-type pre-push
+# Run (commit): pre-commit run --all-files
+# Run (vulns):  pre-commit run --hook-stage pre-push --all-files
+
+default_install_hook_types: [pre-commit, commit-msg, pre-push]
+default_stages: [pre-commit]
+fail_fast: false
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-added-large-files
+        args: [--maxkb=1024]
+      - id: check-merge-conflict
+      - id: detect-private-key
+      - id: check-symlinks
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.38.0
+    hooks:
+      - id: yamllint
+        args: [-c, config/yamllint.yaml]
+
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+        args: [-x]
+
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v4.4.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args:
+          - feat
+          - fix
+          - chore
+          - docs
+          - style
+          - refactor
+          - perf
+          - test
+          - build
+          - ci
+          - revert
+
+  - repo: local
+    hooks:
+      - id: spotless-apply
+        name: google-java-format (spotless)
+        entry: ./mvnw -q spotless:apply
+        language: system
+        pass_filenames: false
+        files: \.java$
+
+      - id: pmd
+        name: pmd
+        entry: ./mvnw -q pmd:check
+        language: system
+        pass_filenames: false
+        files: \.java$
+
+      - id: spotbugs
+        name: spotbugs
+        entry: ./mvnw -q -DskipTests compile spotbugs:check
+        language: system
+        pass_filenames: false
+        files: \.java$
+
+  - repo: local
+    hooks:
+      - id: owasp-dependency-check
+        name: OWASP Dependency-Check
+        entry: >-
+          bash -c 'if [ -z "${NVD_API_KEY:-}" ]; then
+          echo "SKIP OWASP Dependency-Check: set NVD_API_KEY";
+          exit 0; fi;
+          ./mvnw -q org.owasp:dependency-check-maven:check -DnvdApiKey="$NVD_API_KEY"'
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+        files: ^(pom\.xml|src/.*\.(java|xml))$
+
+      - id: trivy-fs
+        name: Trivy (HIGH/CRITICAL)
+        entry: bash -c 'trivy fs --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --skip-dirs target,.git,.idea --quiet .'
+        language: system
+        pass_filenames: false
+        stages: [pre-push]

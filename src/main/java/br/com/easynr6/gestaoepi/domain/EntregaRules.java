@@ -5,10 +5,10 @@ import java.util.Objects;
 
 public final class EntregaRules {
 
-  private EntregaRules() {
-  }
+  private EntregaRules() {}
 
-  public static boolean podeEntregarLote(LocalDate validadePeca, int saldoAtual, int quantidadeSolicitada) {
+  public static boolean podeEntregarLote(
+      LocalDate validadePeca, int saldoAtual, int quantidadeSolicitada) {
     Objects.requireNonNull(validadePeca, "validadePeca obrigatoria");
     if (quantidadeSolicitada <= 0) {
       return false;
