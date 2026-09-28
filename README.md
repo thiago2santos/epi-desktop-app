@@ -59,14 +59,24 @@ Observacao: o profile `mutation` recompila com release 21 temporariamente, pois 
 ### Pre-commit
 
 ```bash
-pre-commit install --hook-type pre-commit --hook-type commit-msg --hook-type pre-push
+git config core.hooksPath .githooks
+chmod +x .githooks/pre-commit .githooks/commit-msg .githooks/pre-push
+pre-commit install-hooks
 pre-commit run --all-files
 ```
+
+Observacao: os scripts de hook sao versionados em `.githooks` para manter o setup consistente no time.
 
 ## Release
 
 - CI valida PRs na `main`.
 - Release e gerado por tag Git no padrao `v*` (ex.: `v0.1.0`).
+
+## Contribuicao
+
+- Guia de contribuicao: `CONTRIBUTING.md`
+- Templates de issue: `.github/ISSUE_TEMPLATE/`
+- Templates de spec e validacao: `docs/99-governanca/templates/`
 
 ## Documentacao
 

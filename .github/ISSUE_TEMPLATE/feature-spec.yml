@@ -1,0 +1,66 @@
+name: Feature Spec (Spec Curta)
+description: Registro spec-driven para feature antes da implementacao
+title: "[FEAT] "
+labels: ["spec"]
+body:
+  - type: input
+    id: iniciativa
+    attributes:
+      label: Iniciativa/Epico relacionado
+      placeholder: "INI-XX / EP-XXX"
+    validations:
+      required: true
+
+  - type: textarea
+    id: contexto
+    attributes:
+      label: 1) Contexto
+      placeholder: |
+        problema real:
+        ator principal:
+        impacto se nao resolver:
+    validations:
+      required: true
+
+  - type: textarea
+    id: escopo
+    attributes:
+      label: 2) Escopo
+      placeholder: |
+        comportamento no escopo:
+        fora de escopo:
+    validations:
+      required: true
+
+  - type: textarea
+    id: regras
+    attributes:
+      label: 3) Regras de negocio
+      placeholder: |
+        regra 1:
+        regra 2:
+        regra 3:
+    validations:
+      required: true
+
+  - type: textarea
+    id: aceite
+    attributes:
+      label: 4) Criterios de aceite
+      placeholder: |
+        CA-01:
+        CA-02:
+        CA-03:
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencias
+    attributes:
+      label: 5) Dependencias
+      placeholder: |
+        tecnica:
+        dados:
+        decisao:
+    validations:
+      required: true

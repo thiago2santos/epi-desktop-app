@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Hook versioned in repository because core.hooksPath=.githooks
+set -euo pipefail
+
+if command -v pre-commit >/dev/null 2>&1; then
+  exec pre-commit hook-impl --config=.pre-commit-config.yaml --hook-type=commit-msg --hook-dir .githooks -- "$@"
+fi
+
+echo "pre-commit not found. Install it to run repository hooks." 1>&2
+exit 1

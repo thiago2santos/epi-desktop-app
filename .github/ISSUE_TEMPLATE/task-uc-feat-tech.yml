@@ -1,0 +1,74 @@
+name: Task (UC/FEAT/TECH)
+description: Tarefa de implementacao com rastreabilidade e criterio de aceite
+title: "[TECH] "
+labels: ["task"]
+body:
+  - type: dropdown
+    id: tipo
+    attributes:
+      label: Tipo da tarefa
+      description: Classificacao oficial do backlog
+      options:
+        - UC
+        - FEAT
+        - TECH
+    validations:
+      required: true
+
+  - type: textarea
+    id: contexto
+    attributes:
+      label: Contexto
+      description: Problema, ator principal e impacto
+      placeholder: |
+        Problema:
+        Ator:
+        Impacto:
+    validations:
+      required: true
+
+  - type: textarea
+    id: escopo
+    attributes:
+      label: Escopo
+      description: O que entra e o que nao entra
+      placeholder: |
+        No escopo:
+        Fora de escopo:
+    validations:
+      required: true
+
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Criterios de aceite
+      description: Critérios objetivos e mensuráveis
+      placeholder: |
+        CA-01:
+        CA-02:
+        CA-03:
+    validations:
+      required: true
+
+  - type: textarea
+    id: cenarios
+    attributes:
+      label: Cenarios de teste (antes de codar)
+      description: Feliz, bloqueio e borda
+      placeholder: |
+        Cenario feliz:
+        Cenario de bloqueio:
+        Cenario de borda:
+    validations:
+      required: true
+
+  - type: textarea
+    id: docs
+    attributes:
+      label: Documentacao impactada
+      description: Liste arquivos em docs/ e demais artefatos
+      placeholder: |
+        - docs/...
+        - README.md
+    validations:
+      required: true
