@@ -1,7 +1,7 @@
 package br.com.easynr6.gestaoepi.ui;
 
-import br.com.easynr6.gestaoepi.shared.audit.AuditService;
-import br.com.easynr6.gestaoepi.shared.auth.AuthService;
+import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
+import br.com.easynr6.gestaoepi.shared.auth.AuthenticationProvider;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
 import br.com.easynr6.gestaoepi.ui.login.LoginView;
 import br.com.easynr6.gestaoepi.ui.shell.MainShellView;
@@ -14,8 +14,8 @@ public class EasyNr6DesktopApp extends Application {
 
   private static ConfigurableApplicationContext applicationContext;
 
-  private AuthService authService;
-  private AuditService auditService;
+  private AuthenticationProvider authenticationProvider;
+  private AuditTrail auditTrail;
   private Stage stage;
 
   public static void setApplicationContext(ConfigurableApplicationContext applicationContext) {
@@ -25,8 +25,8 @@ public class EasyNr6DesktopApp extends Application {
   @Override
   public void start(Stage primaryStage) {
     this.stage = primaryStage;
-    this.authService = applicationContext.getBean(AuthService.class);
-    this.auditService = applicationContext.getBean(AuditService.class);
+    this.authenticationProvider = applicationContext.getBean(AuthenticationProvider.class);
+    this.auditTrail = applicationContext.getBean(AuditTrail.class);
     this.stage.setTitle("Easy NR6 Gestao de EPI");
     abrirTelaLogin();
     this.stage.show();
@@ -40,13 +40,13 @@ public class EasyNr6DesktopApp extends Application {
   }
 
   private void abrirTelaLogin() {
-    LoginView loginView = new LoginView(authService, this::abrirShellPrincipal);
+    LoginView loginView = new LoginView(authenticationProvider, this::abrirShellPrincipal);
     Scene scene = new Scene(loginView, 460, 320);
     stage.setScene(scene);
   }
 
   private void abrirShellPrincipal(UsuarioAutenticado usuario) {
-    auditService.registrarEventoCritico(
+    auditTrail.registrarEventoCritico(
         usuario.id(),
         "LOGIN_SUCESSO",
         "USUARIO",
@@ -56,9 +56,9 @@ public class EasyNr6DesktopApp extends Application {
     MainShellView shell =
         new MainShellView(
             usuario,
-            auditService,
+            auditTrail,
             () -> {
-              auditService.registrarEventoCritico(
+              auditTrail.registrarEventoCritico(
                   usuario.id(),
                   "LOGOUT",
                   "USUARIO",

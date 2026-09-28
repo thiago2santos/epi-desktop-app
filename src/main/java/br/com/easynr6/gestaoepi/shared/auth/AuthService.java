@@ -5,13 +5,15 @@ import java.sql.SQLException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AuthService {
+@ConditionalOnProperty(name = "easy-nr6.auth.provider", havingValue = "jdbc", matchIfMissing = true)
+public class AuthService implements AuthenticationProvider {
 
   private static final String SELECT_USUARIO_SQL =
       """
@@ -36,6 +38,7 @@ public class AuthService {
     this.passwordEncoder = passwordEncoder;
   }
 
+  @Override
   public Optional<UsuarioAutenticado> autenticar(String login, String senha) {
     List<UsuarioRow> usuarios =
         jdbcTemplate.query(

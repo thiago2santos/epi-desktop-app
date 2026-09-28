@@ -1,6 +1,6 @@
 package br.com.easynr6.gestaoepi.ui.login;
 
-import br.com.easynr6.gestaoepi.shared.auth.AuthService;
+import br.com.easynr6.gestaoepi.shared.auth.AuthenticationProvider;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -14,14 +14,15 @@ import javafx.scene.layout.VBox;
 
 public class LoginView extends VBox {
 
-  private final AuthService authService;
+  private final AuthenticationProvider authenticationProvider;
   private final Consumer<UsuarioAutenticado> onLoginSuccess;
   private final TextField loginField;
   private final PasswordField senhaField;
   private final Label feedbackLabel;
 
-  public LoginView(AuthService authService, Consumer<UsuarioAutenticado> onLoginSuccess) {
-    this.authService = authService;
+  public LoginView(
+      AuthenticationProvider authenticationProvider, Consumer<UsuarioAutenticado> onLoginSuccess) {
+    this.authenticationProvider = authenticationProvider;
     this.onLoginSuccess = onLoginSuccess;
 
     setSpacing(12);
@@ -55,7 +56,7 @@ public class LoginView extends VBox {
   private void autenticar() {
     feedbackLabel.setText("");
     Optional<UsuarioAutenticado> usuario =
-        authService.autenticar(loginField.getText(), senhaField.getText());
+        authenticationProvider.autenticar(loginField.getText(), senhaField.getText());
     if (usuario.isEmpty()) {
       feedbackLabel.setText("Credenciais invalidas ou usuario inativo.");
       return;

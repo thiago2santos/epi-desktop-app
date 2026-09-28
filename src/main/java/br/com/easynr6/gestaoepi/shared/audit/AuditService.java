@@ -4,7 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AuditService {
+public class AuditService implements AuditTrail {
 
   private static final String INSERT_AUDITORIA_SQL =
       """
@@ -18,6 +18,7 @@ public class AuditService {
     this.jdbcTemplate = jdbcTemplate;
   }
 
+  @Override
   public void registrarEventoCritico(
       Long usuarioId, String acao, String entidade, String entidadeId, String detalhes) {
     jdbcTemplate.update(

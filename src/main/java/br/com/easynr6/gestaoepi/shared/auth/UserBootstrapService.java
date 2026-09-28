@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
     name = "easy-nr6.bootstrap-admin.enabled",
     havingValue = "true",
     matchIfMissing = true)
+@ConditionalOnBean(AuthService.class)
 public class UserBootstrapService implements ApplicationRunner {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(UserBootstrapService.class);

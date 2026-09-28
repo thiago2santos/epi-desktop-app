@@ -1,6 +1,6 @@
 package br.com.easynr6.gestaoepi.ui.shell;
 
-import br.com.easynr6.gestaoepi.shared.audit.AuditService;
+import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import br.com.easynr6.gestaoepi.shared.auth.Papel;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
 import java.util.EnumSet;
@@ -15,12 +15,12 @@ import javafx.scene.layout.VBox;
 public class MainShellView extends BorderPane {
 
   private final UsuarioAutenticado usuario;
-  private final AuditService auditService;
+  private final AuditTrail auditTrail;
   private final Label conteudoLabel;
 
-  public MainShellView(UsuarioAutenticado usuario, AuditService auditService, Runnable onLogout) {
+  public MainShellView(UsuarioAutenticado usuario, AuditTrail auditTrail, Runnable onLogout) {
     this.usuario = usuario;
-    this.auditService = auditService;
+    this.auditTrail = auditTrail;
     setLeft(buildSidebar());
     setTop(buildHeader(onLogout));
     this.conteudoLabel = new Label("Selecione um modulo para comecar.");
@@ -47,7 +47,7 @@ public class MainShellView extends BorderPane {
       button.setOnAction(
           event -> {
             conteudoLabel.setText("Modulo selecionado: " + modulo.label);
-            auditService.registrarEventoCritico(
+            auditTrail.registrarEventoCritico(
                 usuario.id(),
                 "ACESSO_MODULO",
                 "MODULO",

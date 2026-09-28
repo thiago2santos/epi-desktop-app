@@ -67,6 +67,18 @@ pre-commit run --all-files
 
 Observacao: os scripts de hook sao versionados em `.githooks` para manter o setup consistente no time.
 
+## Autenticacao (desacoplada)
+
+- A UI depende da porta `AuthenticationProvider`.
+- A trilha de auditoria depende da porta `AuditTrail`.
+- Implementacao atual (infra): JDBC local (`AuthService` + `AuditService`).
+
+Para trocar provedor (ex.: Keycloak), adicione nova implementacao das portas e mude:
+
+```bash
+EASYNR6_AUTH_PROVIDER=keycloak
+```
+
 ## Release
 
 - CI valida PRs na `main`.
