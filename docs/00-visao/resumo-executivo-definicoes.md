@@ -112,7 +112,7 @@
 - Produto: `Easy NR6 Gestao de EPI`.
 - Dominio principal: `easynr6.com.br`.
 - Group base sugerido: `br.com.easynr6`.
-- Artifact sugerido: `gestao-de-epi`.
+- Artifact sugerido: `epi-desktop-app`.
 
 Observacao tecnica:
 - para pacote Java, usar sem hifen (ex.: `br.com.easynr6.gestaoepi`);

@@ -14,7 +14,7 @@ Sistema desktop para gestao de EPI conforme NR-6, com foco em rastreabilidade ju
 ## Identificadores do projeto
 
 - Group: `br.com.easynr6`
-- Artifact: `gestao-de-epi`
+- Artifact: `epi-desktop-app`
 - Package base: `br.com.easynr6.gestaoepi`
 
 ## Como rodar localmente

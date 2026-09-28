@@ -2,7 +2,7 @@ spring:
   main:
     web-application-type: none
   application:
-    name: easy-nr6-gestao-de-epi
+    name: easy-nr6-epi-desktop-app
   datasource:
     driver-class-name: org.sqlite.JDBC
     url: ${EASYNR6_DB_URL:jdbc:sqlite:easynr6.db}

@@ -5,7 +5,7 @@
   "packages": {
     ".": {
       "release-type": "java",
-      "package-name": "br.com.easynr6:gestao-de-epi",
+      "package-name": "br.com.easynr6:epi-desktop-app",
       "changelog-path": "CHANGELOG.md"
     }
   }
