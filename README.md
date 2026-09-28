@@ -31,7 +31,7 @@ Sistema desktop para gestao de EPI conforme NR-6, com foco em rastreabilidade ju
 Para executar aplicacao:
 
 ```bash
-./mvnw spring-boot:run
+./mvnw javafx:run
 ```
 
 ## Qualidade

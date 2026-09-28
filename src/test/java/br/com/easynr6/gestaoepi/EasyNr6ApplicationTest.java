@@ -4,7 +4,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(
-    properties = {"spring.datasource.url=jdbc:sqlite::memory:", "spring.flyway.enabled=false"})
+    properties = {
+      "spring.datasource.url=jdbc:sqlite::memory:",
+      "spring.flyway.enabled=false",
+      "easy-nr6.bootstrap-admin.enabled=false"
+    })
 class EasyNr6ApplicationTest {
 
   @Test
