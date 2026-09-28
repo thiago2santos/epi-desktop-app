@@ -1,0 +1,12 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "release-type": "java",
+  "pull-request-title-pattern": "chore${scope}: release ${version}",
+  "packages": {
+    ".": {
+      "release-type": "java",
+      "package-name": "br.com.easynr6:gestao-de-epi",
+      "changelog-path": "CHANGELOG.md"
+    }
+  }
+}

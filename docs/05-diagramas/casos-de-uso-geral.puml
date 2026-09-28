@@ -1,0 +1,133 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam actorStyle awesome
+
+title Sistema de Controle de EPI - Casos de Uso (Visao Geral)
+
+actor Admin
+actor SESMT
+actor Almoxarife
+actor Consulta
+actor Trabalhador
+
+rectangle "Sistema de Controle de EPI" {
+
+  package "Admin" {
+    usecase "UC-ADM-01\nCadastrar usuario" as UC_ADM_01
+    usecase "UC-ADM-02\nAtribuir papel" as UC_ADM_02
+    usecase "UC-ADM-03\nConfigurar parametros" as UC_ADM_03
+  }
+
+  package "Cadastros" {
+    usecase "UC-CAD-01\nCadastrar empresa/unidade" as UC_CAD_01
+    usecase "UC-CAD-02\nCadastrar setor/funcao" as UC_CAD_02
+    usecase "UC-CAD-03\nCadastrar trabalhador" as UC_CAD_03
+    usecase "UC-CAD-04\nCadastrar EPI" as UC_CAD_04
+    usecase "UC-CAD-05\nVincular CA ao EPI" as UC_CAD_05
+    usecase "UC-CAD-06\nInativar cadastro" as UC_CAD_06
+  }
+
+  package "Lotes e Estoque" {
+    usecase "UC-LOT-01\nRegistrar recebimento de lote" as UC_LOT_01
+    usecase "UC-LOT-02\nConsultar saldo/validade" as UC_LOT_02
+  }
+
+  package "Matriz" {
+    usecase "UC-MAT-01\nDefinir matriz funcao/GHE x EPI" as UC_MAT_01
+    usecase "UC-MAT-02\nDefinir periodicidade" as UC_MAT_02
+  }
+
+  package "Entrega (Core)" {
+    usecase "UC-ENT-01\nRegistrar entrega de EPI" as UC_ENT_01
+    usecase "UC-ENT-02\nRegistrar aceite do termo" as UC_ENT_02
+    usecase "UC-ENT-03\nConsultar historico de entrega" as UC_ENT_03
+  }
+
+  package "Pos-Entrega" {
+    usecase "UC-POS-01\nRegistrar devolucao/descarte" as UC_POS_01
+    usecase "UC-POS-02\nRegistrar estorno de entrega" as UC_POS_02
+    usecase "UC-POS-03\nConsultar pendencias" as UC_POS_03
+  }
+
+  package "Relatorios" {
+    usecase "UC-REL-01\nFicha por trabalhador/periodo" as UC_REL_01
+    usecase "UC-REL-02\nHistorico por EPI/CA/lote" as UC_REL_02
+    usecase "UC-REL-03\nRelatorio de cobertura" as UC_REL_03
+    usecase "UC-REL-04\nRelatorio de consumo/budget" as UC_REL_04
+    usecase "UC-TRV-03\nExportar PDF" as UC_TRV_03
+  }
+
+  package "Transversais" {
+    usecase "UC-TRV-01\nAutenticar usuario" as UC_TRV_01
+    usecase "UC-TRV-02\nRegistrar auditoria" as UC_TRV_02
+  }
+}
+
+Admin --> UC_ADM_01
+Admin --> UC_ADM_02
+Admin --> UC_ADM_03
+Admin --> UC_CAD_01
+Admin --> UC_CAD_02
+Admin --> UC_CAD_03
+Admin --> UC_CAD_06
+Admin --> UC_POS_02
+Admin --> UC_REL_04
+Admin --> UC_TRV_01
+
+SESMT --> UC_CAD_01
+SESMT --> UC_CAD_02
+SESMT --> UC_CAD_03
+SESMT --> UC_CAD_04
+SESMT --> UC_CAD_05
+SESMT --> UC_CAD_06
+SESMT --> UC_MAT_01
+SESMT --> UC_MAT_02
+SESMT --> UC_ENT_01
+SESMT --> UC_ENT_02
+SESMT --> UC_ENT_03
+SESMT --> UC_POS_01
+SESMT --> UC_POS_02
+SESMT --> UC_POS_03
+SESMT --> UC_REL_01
+SESMT --> UC_REL_02
+SESMT --> UC_REL_03
+SESMT --> UC_REL_04
+SESMT --> UC_TRV_01
+
+Almoxarife --> UC_LOT_01
+Almoxarife --> UC_LOT_02
+Almoxarife --> UC_ENT_01
+Almoxarife --> UC_ENT_02
+Almoxarife --> UC_ENT_03
+Almoxarife --> UC_POS_01
+Almoxarife --> UC_POS_03
+Almoxarife --> UC_TRV_01
+
+Consulta --> UC_LOT_02
+Consulta --> UC_ENT_03
+Consulta --> UC_POS_03
+Consulta --> UC_REL_01
+Consulta --> UC_REL_02
+Consulta --> UC_REL_03
+Consulta --> UC_REL_04
+Consulta --> UC_TRV_01
+
+Trabalhador --> UC_ENT_02
+
+UC_ENT_01 ..> UC_ENT_02 : <<include>>
+UC_ENT_01 ..> UC_TRV_02 : <<include>>
+UC_POS_01 ..> UC_TRV_02 : <<include>>
+UC_POS_02 ..> UC_TRV_02 : <<include>>
+UC_ADM_01 ..> UC_TRV_02 : <<include>>
+UC_ADM_02 ..> UC_TRV_02 : <<include>>
+UC_ADM_03 ..> UC_TRV_02 : <<include>>
+
+UC_REL_01 ..> UC_TRV_03 : <<include>>
+UC_REL_02 ..> UC_TRV_03 : <<include>>
+UC_REL_03 ..> UC_TRV_03 : <<include>>
+UC_REL_04 ..> UC_TRV_03 : <<include>>
+
+@enduml
+

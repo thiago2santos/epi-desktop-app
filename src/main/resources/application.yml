@@ -1,0 +1,16 @@
+spring:
+  main:
+    web-application-type: none
+  application:
+    name: easy-nr6-gestao-de-epi
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    url: ${EASYNR6_DB_URL:jdbc:sqlite:easynr6.db}
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+logging:
+  level:
+    root: INFO

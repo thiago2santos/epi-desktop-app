@@ -1,0 +1,19 @@
+CREATE TABLE IF NOT EXISTS usuario (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    login TEXT NOT NULL UNIQUE,
+    senha_hash TEXT NOT NULL,
+    ativo INTEGER NOT NULL DEFAULT 1,
+    criado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS auditoria (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    instante TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    usuario_id INTEGER NOT NULL,
+    acao TEXT NOT NULL,
+    entidade TEXT NOT NULL,
+    entidade_id TEXT NOT NULL,
+    detalhes TEXT,
+    FOREIGN KEY (usuario_id) REFERENCES usuario (id)
+);

@@ -1,0 +1,93 @@
+<mxfile host="app.diagrams.net" modified="2026-09-28T05:02:00.000Z" agent="5.0" version="22.1.0" type="device">
+  <diagram id="casos-uso-geral" name="Pagina-1">
+    <mxGraphModel dx="1700" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="sys" value="Sistema de Controle de EPI" style="rounded=0;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="280" y="80" width="1320" height="820" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="a_admin" value="Admin" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="120" width="60" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="a_sesmt" value="SESMT" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="280" width="60" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="a_almox" value="Almoxarife" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="450" width="60" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="a_consulta" value="Consulta" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="620" width="60" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="a_trab" value="Trabalhador" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1660" y="430" width="60" height="120" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc_admin" value="Gerenciar usuarios e papeis" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="140" width="280" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc_cad" value="Manter cadastros mestres&#xa;(empresa, unidade, funcao, trabalhador, EPI, CA)" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="700" y="140" width="360" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc_lote" value="Registrar recebimento&#xa;e consultar lotes/saldo" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="140" width="300" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc_matriz" value="Definir matriz funcao/GHE x EPI&#xa;e periodicidade" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="430" y="300" width="360" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc_entrega" value="Registrar entrega de EPI&#xa;(evento imutavel)" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="840" y="310" width="320" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc_termo" value="Registrar aceite do termo&#xa;de responsabilidade" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1210" y="315" width="320" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc_pos" value="Registrar devolucao, descarte&#xa;e estorno" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="500" y="500" width="330" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc_consulta" value="Consultar historico e&#xa;pendencias operacionais" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="900" y="500" width="320" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="uc_rel" value="Gerar relatorios&#xa;(ficha, historico, cobertura, consumo)" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="560" y="680" width="380" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc_pdf" value="Exportar PDF" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="700" width="200" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="uc_audit" value="Auditoria append-only&#xa;(automatico)" style="ellipse;whiteSpace=wrap;html=1;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="670" width="260" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e_admin_1" style="endArrow=none;html=1;" edge="1" parent="1" source="a_admin" target="uc_admin"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e_admin_2" style="endArrow=none;html=1;" edge="1" parent="1" source="a_admin" target="uc_cad"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e_admin_3" style="endArrow=none;html=1;" edge="1" parent="1" source="a_admin" target="uc_rel"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="e_sesmt_1" style="endArrow=none;html=1;" edge="1" parent="1" source="a_sesmt" target="uc_cad"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e_sesmt_2" style="endArrow=none;html=1;" edge="1" parent="1" source="a_sesmt" target="uc_matriz"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e_sesmt_3" style="endArrow=none;html=1;" edge="1" parent="1" source="a_sesmt" target="uc_entrega"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e_sesmt_4" style="endArrow=none;html=1;" edge="1" parent="1" source="a_sesmt" target="uc_pos"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e_sesmt_5" style="endArrow=none;html=1;" edge="1" parent="1" source="a_sesmt" target="uc_rel"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="e_almox_1" style="endArrow=none;html=1;" edge="1" parent="1" source="a_almox" target="uc_lote"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e_almox_2" style="endArrow=none;html=1;" edge="1" parent="1" source="a_almox" target="uc_entrega"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e_almox_3" style="endArrow=none;html=1;" edge="1" parent="1" source="a_almox" target="uc_pos"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e_almox_4" style="endArrow=none;html=1;" edge="1" parent="1" source="a_almox" target="uc_consulta"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="e_cons_1" style="endArrow=none;html=1;" edge="1" parent="1" source="a_consulta" target="uc_consulta"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e_cons_2" style="endArrow=none;html=1;" edge="1" parent="1" source="a_consulta" target="uc_rel"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="e_trab_1" style="endArrow=none;html=1;" edge="1" parent="1" source="a_trab" target="uc_termo"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="e_inc_1" value="&lt;&lt;include&gt;&gt;" style="dashed=1;endArrow=open;html=1;" edge="1" parent="1" source="uc_entrega" target="uc_termo"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e_inc_2" value="&lt;&lt;include&gt;&gt;" style="dashed=1;endArrow=open;html=1;" edge="1" parent="1" source="uc_rel" target="uc_pdf"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e_inc_3" value="&lt;&lt;include&gt;&gt;" style="dashed=1;endArrow=open;html=1;" edge="1" parent="1" source="uc_entrega" target="uc_audit"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e_inc_4" value="&lt;&lt;include&gt;&gt;" style="dashed=1;endArrow=open;html=1;" edge="1" parent="1" source="uc_pos" target="uc_audit"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
+

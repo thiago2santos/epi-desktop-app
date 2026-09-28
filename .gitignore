@@ -1,0 +1,22 @@
+# Build outputs
+target/
+out/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local database/runtime
+*.db
+*.db-wal
+*.db-shm
+data/
+logs/
+
+# Java crash logs
+hs_err_pid*

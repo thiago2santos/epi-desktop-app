@@ -1,0 +1,34 @@
+Fala, Bruno! Tudo bem?
+
+To te chamando porque avançamos bastante no desenho do sistema de controle de EPI e já estamos quase no ponto de começar a codar pra valer.  
+Pra não construir nada fora da realidade de vocês, preciso muito da tua ajuda pra fechar alguns pontos práticos do dia a dia.
+
+Se puder, me responde quando der (pode ser por áudio também, sem problema):
+
+1) **Instalação e uso no PC**  
+- No PC de vocês dá pra instalar/rodar app baixado da internet sem dor de cabeça?  
+- Tem alguma trava de TI/antivírus/política que costuma bloquear?
+
+2) **Atualização**  
+- Pra vocês, atualização manual (baixar nova versão e instalar) atende no começo?
+
+3) **Backup e recuperação**  
+- Se o PC der problema, como vocês preferem que funcione backup/recuperação?  
+- Quem pode ser responsável por isso aí na unidade?
+
+4) **Operação no dia a dia**  
+- Quais são os 3 cenários mais comuns na entrega? (primeira entrega, troca por desgaste, extravio etc.)  
+- O que hoje mais atrasa no balcão?
+
+5) **Validação do recebimento**  
+- Na prática, no começo, assinatura simples no sistema já resolve pra vocês?  
+- Ou vocês já precisam de algo mais forte de cara?
+
+6) **Relatórios essenciais**  
+- Quais relatórios você considera obrigatórios pra rotina e pra apresentar pro gestor?
+
+7) **Critério de “deu certo”**  
+- O que precisa funcionar muito bem pra você falar: “ok, esse sistema já ajuda de verdade”?
+
+Se quiser, a gente marca 20 min e fecha isso em ligação rapidinho.  
+Tua visão é essencial pra eu acertar essa primeira versão.

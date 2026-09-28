@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gestão de EPI com Conformidade NR-6 | Easy NR6 Gestão de EPI</title>
+  <meta name="description" content="Solução especializada em gestão de EPI conforme NR-6, com rastreabilidade por trabalhador, lote e CA. Controle operacional, evidências jurídicas e indicadores para budget." />
+  <meta name="robots" content="index,follow" />
+  <meta property="og:title" content="Gestão de EPI com Conformidade NR-6" />
+  <meta property="og:description" content="Controle, rastreabilidade e relatórios de EPI para operação e auditoria." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://easynr6.com.br/" />
+  <meta property="og:image" content="https://easynr6.com.br/og-image.png" />
+
+  <!-- GA4: troque G-XXXXXXXXXX pelo seu Measurement ID -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag("js", new Date());
+    gtag("config", "G-XXXXXXXXXX");
+  </script>
+
+  <style>
+    :root {
+      --bg: #f5f8fc;
+      --surface: #ffffff;
+      --surface-soft: #f0f5ff;
+      --text: #10213a;
+      --muted: #58677d;
+      --primary: #0047b3;
+      --primary-hover: #003a92;
+      --secondary: #117f5b;
+      --border: #d6e0ef;
+      --shadow: 0 8px 26px rgba(16, 33, 58, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.55;
+    }
+    .container {
+      width: min(1120px, 92%);
+      margin: 0 auto;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      gap: 14px;
+    }
+    .brand {
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      color: var(--primary);
+    }
+    .btn {
+      display: inline-block;
+      text-decoration: none;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 11px 16px;
+      transition: 0.18s ease;
+      text-align: center;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary {
+      border-color: var(--border);
+      color: var(--text);
+      background: var(--surface);
+    }
+    .btn-secondary:hover { border-color: #b8c8de; }
+    .hero {
+      padding: 56px 0 28px;
+      display: grid;
+      grid-template-columns: 1.25fr 0.95fr;
+      gap: 26px;
+      align-items: start;
+    }
+    .hero-box,
+    .proof-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+    .tag {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #eaf1ff;
+      color: #17408b;
+      font-weight: 600;
+      font-size: 0.86rem;
+      margin-bottom: 12px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(1.95rem, 4.2vw, 2.75rem);
+      line-height: 1.16;
+    }
+    .subtitle {
+      margin: 14px 0 0;
+      color: var(--muted);
+      max-width: 760px;
+    }
+    .cta-row {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .confidence {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    .proof-title {
+      margin: 0 0 10px;
+      font-size: 1.06rem;
+    }
+    .proof-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+    }
+    .proof-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fbfdff;
+      padding: 10px;
+      font-size: 0.95rem;
+    }
+    section {
+      margin-top: 24px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--surface);
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+    h2 {
+      margin: 0 0 8px;
+      font-size: 1.48rem;
+      line-height: 1.2;
+    }
+    .section-sub {
+      margin: 0 0 18px;
+      color: var(--muted);
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      background: #fbfdff;
+    }
+    .card h3 {
+      margin: 0 0 6px;
+      font-size: 1.02rem;
+    }
+    .muted { color: var(--muted); }
+    .highlight-strip {
+      margin-top: 14px;
+      border-radius: 12px;
+      border: 1px solid #cce1d9;
+      background: #eef9f4;
+      color: #0b5e43;
+      padding: 12px 14px;
+      font-weight: 600;
+    }
+    ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+    li { margin-bottom: 6px; }
+    form {
+      display: grid;
+      gap: 10px;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid #bfcde0;
+      border-radius: 9px;
+      padding: 10px;
+      font: inherit;
+      color: var(--text);
+      background: #fff;
+    }
+    textarea { resize: vertical; }
+    .small {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .faq-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .footer-cta {
+      margin-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    footer {
+      padding: 28px 0 36px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    @media (max-width: 920px) {
+      .hero { grid-template-columns: 1fr; }
+      .faq-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container header-row">
+      <div class="brand">Easy NR6 Gestão de EPI</div>
+      <a class="btn btn-primary js-cta-demo" href="#form-lead">Agendar demonstração</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero" id="inicio" style="border:none;box-shadow:none;background:transparent;padding-left:0;padding-right:0;">
+      <div class="hero-box">
+        <span class="tag">Solução especializada em NR-6</span>
+        <h1>Conformidade NR-6 com rastreabilidade completa e visão gerencial do consumo</h1>
+        <p class="subtitle">
+          Estruture o ciclo de EPI do cadastro ao relatório final, com registro por trabalhador, lote e CA.
+          Reduza risco jurídico, aumente eficiência operacional e ganhe base confiável para decisões de budget.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn-primary js-cta-demo" href="#form-lead">Solicitar demonstração</a>
+          <a class="btn btn-secondary js-cta-whatsapp" target="_blank" rel="noopener"
+             href="https://wa.me/55SEUNUMERO?text=Oi%2C%20quero%20conhecer%20a%20solu%C3%A7%C3%A3o%20de%20gest%C3%A3o%20de%20EPI%20conforme%20NR-6">
+            Falar com especialista
+          </a>
+        </div>
+        <p class="confidence">
+          Desenvolvido para operações industriais e estruturas multiunidade, com governança de dados e histórico confiável para auditorias.
+        </p>
+      </div>
+
+      <aside class="proof-box">
+        <h2 class="proof-title">Para decisores de SST e operação</h2>
+        <ul class="proof-list">
+          <li class="proof-item"><strong>Compliance:</strong> registro de fornecimento extraível para auditorias e fiscalizações.</li>
+          <li class="proof-item"><strong>Operação:</strong> fluxo orientado para SESMT e almoxarifado com padrão consistente.</li>
+          <li class="proof-item"><strong>Gestão:</strong> indicadores de consumo por unidade, setor e função.</li>
+          <li class="proof-item"><strong>Governança:</strong> estorno formal, histórico preservado e rastreabilidade completa dos registros.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <section id="desafios">
+      <h2>Problemas que custam tempo, dinheiro e exposição jurídica</h2>
+      <p class="section-sub">
+        A maior parte das empresas não perde apenas controle operacional. Perde previsibilidade, padrão e capacidade de resposta em auditorias.
+      </p>
+      <div class="grid-3">
+        <div class="card">
+          <h3>Controle disperso</h3>
+          <p class="muted">Informação fragmentada dificulta saber quem recebeu qual EPI, com qual CA e em qual data.</p>
+        </div>
+        <div class="card">
+          <h3>Decisão de compra reativa</h3>
+          <p class="muted">Sem visão de consumo por perfil, o budget sofre com excessos, faltas e reposição fora do tempo ideal.</p>
+        </div>
+        <div class="card">
+          <h3>Risco de não conformidade</h3>
+          <p class="muted">Em fiscalização ou disputa trabalhista, a dificuldade não é informar: é provar com rapidez e consistência.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="solucao">
+      <h2>Uma operação de EPI desenhada para conformidade e escala</h2>
+      <p class="section-sub">A solução organiza o ciclo completo de EPI em três frentes operacionais.</p>
+      <div class="grid-3">
+        <div class="card">
+          <h3>Antes da entrega</h3>
+          <p class="muted">Cadastro de EPI e CA, recebimento por lote, saldo e matriz por função/GHE com periodicidade.</p>
+        </div>
+        <div class="card">
+          <h3>Durante a entrega</h3>
+          <p class="muted">Registro imutável por trabalhador com vinculação de lote/CA e validação do recebimento.</p>
+        </div>
+        <div class="card">
+          <h3>Depois da entrega</h3>
+          <p class="muted">Devolução, estorno formal, histórico completo das movimentações e relatórios extraíveis para operação e compliance.</p>
+        </div>
+      </div>
+      <div class="highlight-strip">
+        Resultado esperado: mais controle operacional no dia a dia e mais segurança de informação para a gestão.
+      </div>
+    </section>
+
+    <section id="relatorios">
+      <h2>Evidências e relatórios para rotina e tomada de decisão</h2>
+      <div class="grid-3">
+        <div class="card">
+          <h3>Conformidade</h3>
+          <ul>
+            <li>Ficha por trabalhador e período</li>
+            <li>Histórico por EPI, CA e lote</li>
+            <li>Pendências de devolução</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Operação</h3>
+          <ul>
+            <li>Cobertura por trabalhador ativo</li>
+            <li>Status de vigência por matriz</li>
+            <li>Rastreabilidade de eventos</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Gestão e budget</h3>
+          <ul>
+            <li>Consumo por unidade, setor e função</li>
+            <li>Base para previsão de reposição</li>
+            <li>Leitura consolidada para decisores</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="form-lead">
+      <h2>Solicite uma demonstração orientada ao seu cenário</h2>
+      <p class="section-sub">Compartilhe seu contexto e retornamos com uma conversa objetiva sobre aderência operacional.</p>
+
+      <form id="leadForm" action="https://formspree.io/f/SEU_FORM_ID" method="POST">
+        <div class="form-grid">
+          <input name="nome" placeholder="Nome" required />
+          <input name="empresa" placeholder="Empresa" required />
+          <input name="cargo" placeholder="Cargo" required />
+          <input name="cidade_uf" placeholder="Cidade/UF" required />
+          <input type="email" name="email" placeholder="Email corporativo" required />
+          <input name="whatsapp" placeholder="WhatsApp" required />
+          <select name="quantidade_unidades" required>
+            <option value="">Quantidade de unidades</option>
+            <option value="1">1</option>
+            <option value="2-5">2-5</option>
+            <option value="6-10">6-10</option>
+            <option value="11+">11+</option>
+          </select>
+          <select name="faixa_colaboradores" required>
+            <option value="">Número de colaboradores</option>
+            <option value="ate-200">Até 200</option>
+            <option value="201-1000">201 a 1000</option>
+            <option value="1001-5000">1001 a 5000</option>
+            <option value="5000+">Acima de 5000</option>
+          </select>
+        </div>
+        <textarea name="dor_principal" rows="4" placeholder="Qual desafio operacional de EPI você quer resolver primeiro?" required></textarea>
+        <button class="btn btn-primary" type="submit">Quero conversar com a equipe</button>
+      </form>
+      <p class="small">
+        Ao enviar, você concorda com o tratamento dos dados para contato profissional.
+      </p>
+    </section>
+
+    <section id="faq">
+      <h2>Perguntas frequentes</h2>
+      <div class="faq-grid">
+        <div class="card">
+          <h3>Como a solução apoia conformidade com NR-6?</h3>
+          <p class="muted">A operação registra fornecimento com rastreabilidade de trabalhador, lote e CA, permitindo extração de relatórios para auditoria.</p>
+        </div>
+        <div class="card">
+          <h3>Atende estruturas com várias unidades?</h3>
+          <p class="muted">Sim. O modelo de dados considera segregação por unidade e consolidação corporativa para gestão central.</p>
+        </div>
+        <div class="card">
+          <h3>Qual perfil de empresa se beneficia mais?</h3>
+          <p class="muted">Operações com alto volume de colaboradores, necessidade de padrão entre unidades e pressão por rastreabilidade jurídica.</p>
+        </div>
+        <div class="card">
+          <h3>O que é avaliado na demonstração?</h3>
+          <p class="muted">Fluxo operacional, aderência à rotina do SESMT/almoxarifado, relatórios esperados e estratégia de evolução de escala.</p>
+        </div>
+      </div>
+      <div class="footer-cta">
+        <a class="btn btn-primary js-cta-demo" href="#form-lead">Agendar demonstração</a>
+        <a class="btn btn-secondary js-cta-whatsapp" target="_blank" rel="noopener"
+           href="https://wa.me/55SEUNUMERO?text=Oi%2C%20quero%20agendar%20uma%20demonstra%C3%A7%C3%A3o%20da%20solu%C3%A7%C3%A3o%20de%20gest%C3%A3o%20de%20EPI%20conforme%20NR-6">
+          Falar no WhatsApp
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="container">
+    <p>© <span id="year"></span> Easy NR6. Todos os direitos reservados.</p>
+    <p class="small">Solução orientada à conformidade NR-6, rastreabilidade e governança de dados.</p>
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    function track(eventName, params) {
+      if (typeof gtag === "function") {
+        gtag("event", eventName, params || {});
+      }
+      if (!window.location.hostname || window.location.hostname === "localhost") {
+        console.log("track", eventName, params || {});
+      }
+    }
+
+    var demoBtns = document.querySelectorAll(".js-cta-demo");
+    demoBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        track("click_agendar_demo", { origem: "landing" });
+      });
+    });
+
+    var waBtns = document.querySelectorAll(".js-cta-whatsapp");
+    waBtns.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        track("click_whatsapp", { origem: "landing" });
+      });
+    });
+
+    var leadForm = document.getElementById("leadForm");
+    leadForm.addEventListener("submit", function () {
+      track("submit_form_lead", { origem: "landing" });
+    });
+
+    track("view_page", { page: window.location.pathname || "/" });
+  </script>
+</body>
+</html>
+
