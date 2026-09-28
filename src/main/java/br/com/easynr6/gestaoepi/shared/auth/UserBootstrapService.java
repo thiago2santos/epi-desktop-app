@@ -7,6 +7,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
     havingValue = "true",
     matchIfMissing = true)
 @ConditionalOnBean(AuthService.class)
+@Order(10)
 public class UserBootstrapService implements ApplicationRunner {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(UserBootstrapService.class);
