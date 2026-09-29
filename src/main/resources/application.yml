@@ -20,3 +20,5 @@ easy-nr6:
     provider: ${EASYNR6_AUTH_PROVIDER:jdbc}
   bootstrap-admin:
     enabled: ${EASYNR6_BOOTSTRAP_ADMIN_ENABLED:true}
+    mode: ${EASYNR6_BOOTSTRAP_ADMIN_MODE:dev}
+    password: ${EASYNR6_BOOTSTRAP_ADMIN_PASSWORD:}

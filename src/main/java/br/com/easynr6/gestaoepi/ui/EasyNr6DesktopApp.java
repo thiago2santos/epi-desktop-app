@@ -2,7 +2,10 @@ package br.com.easynr6.gestaoepi.ui;
 
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import br.com.easynr6.gestaoepi.shared.auth.AuthenticationProvider;
+import br.com.easynr6.gestaoepi.shared.auth.CredentialManager;
+import br.com.easynr6.gestaoepi.shared.auth.UserAdministrationService;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
+import br.com.easynr6.gestaoepi.ui.login.ChangePasswordView;
 import br.com.easynr6.gestaoepi.ui.login.LoginView;
 import br.com.easynr6.gestaoepi.ui.shell.MainShellView;
 import javafx.application.Application;
@@ -15,6 +18,8 @@ public class EasyNr6DesktopApp extends Application {
   private static ConfigurableApplicationContext applicationContext;
 
   private AuthenticationProvider authenticationProvider;
+  private CredentialManager credentialManager;
+  private UserAdministrationService userAdministrationService;
   private AuditTrail auditTrail;
   private Stage stage;
 
@@ -26,6 +31,8 @@ public class EasyNr6DesktopApp extends Application {
   public void start(Stage primaryStage) {
     this.stage = primaryStage;
     this.authenticationProvider = applicationContext.getBean(AuthenticationProvider.class);
+    this.credentialManager = applicationContext.getBean(CredentialManager.class);
+    this.userAdministrationService = applicationContext.getBean(UserAdministrationService.class);
     this.auditTrail = applicationContext.getBean(AuditTrail.class);
     this.stage.setTitle("Easy NR6 Gestao de EPI");
     abrirTelaLogin();
@@ -40,9 +47,17 @@ public class EasyNr6DesktopApp extends Application {
   }
 
   private void abrirTelaLogin() {
-    LoginView loginView = new LoginView(authenticationProvider, this::abrirShellPrincipal);
+    LoginView loginView =
+        new LoginView(
+            authenticationProvider, this::abrirShellPrincipal, this::abrirTelaTrocaObrigatoria);
     Scene scene = new Scene(loginView, 460, 320);
     stage.setScene(scene);
+  }
+
+  private void abrirTelaTrocaObrigatoria(UsuarioAutenticado usuario) {
+    ChangePasswordView view =
+        new ChangePasswordView(credentialManager, usuario, this::abrirShellPrincipal);
+    stage.setScene(new Scene(view, 520, 340));
   }
 
   private void abrirShellPrincipal(UsuarioAutenticado usuario) {
@@ -57,6 +72,7 @@ public class EasyNr6DesktopApp extends Application {
         new MainShellView(
             usuario,
             auditTrail,
+            userAdministrationService,
             () -> {
               auditTrail.registrarEventoCritico(
                   usuario.id(),

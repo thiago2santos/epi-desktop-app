@@ -1,8 +1,9 @@
 package br.com.easynr6.gestaoepi.ui.login;
 
 import br.com.easynr6.gestaoepi.shared.auth.AuthenticationProvider;
+import br.com.easynr6.gestaoepi.shared.auth.AuthenticationResult;
+import br.com.easynr6.gestaoepi.shared.auth.AuthenticationStatus;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
-import java.util.Optional;
 import java.util.function.Consumer;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -16,14 +17,18 @@ public class LoginView extends VBox {
 
   private final AuthenticationProvider authenticationProvider;
   private final Consumer<UsuarioAutenticado> onLoginSuccess;
+  private final Consumer<UsuarioAutenticado> onPasswordChangeRequired;
   private final TextField loginField;
   private final PasswordField senhaField;
   private final Label feedbackLabel;
 
   public LoginView(
-      AuthenticationProvider authenticationProvider, Consumer<UsuarioAutenticado> onLoginSuccess) {
+      AuthenticationProvider authenticationProvider,
+      Consumer<UsuarioAutenticado> onLoginSuccess,
+      Consumer<UsuarioAutenticado> onPasswordChangeRequired) {
     this.authenticationProvider = authenticationProvider;
     this.onLoginSuccess = onLoginSuccess;
+    this.onPasswordChangeRequired = onPasswordChangeRequired;
 
     setSpacing(12);
     setPadding(new Insets(24));
@@ -55,13 +60,27 @@ public class LoginView extends VBox {
 
   private void autenticar() {
     feedbackLabel.setText("");
-    Optional<UsuarioAutenticado> usuario =
+    AuthenticationResult resultado =
         authenticationProvider.autenticar(loginField.getText(), senhaField.getText());
-    if (usuario.isEmpty()) {
-      feedbackLabel.setText("Credenciais invalidas ou usuario inativo.");
+    senhaField.clear();
+    AuthenticationStatus status = resultado.status();
+    if (status == AuthenticationStatus.SUCCESS && resultado.usuario() != null) {
+      onLoginSuccess.accept(resultado.usuario());
       return;
     }
-    senhaField.clear();
-    onLoginSuccess.accept(usuario.get());
+    if (status == AuthenticationStatus.FORCE_PASSWORD_CHANGE && resultado.usuario() != null) {
+      onPasswordChangeRequired.accept(resultado.usuario());
+      return;
+    }
+    feedbackLabel.setText(mensagemErro(status));
+  }
+
+  private static String mensagemErro(AuthenticationStatus status) {
+    return switch (status) {
+      case BLOCKED -> "AUTH-002 Conta temporariamente bloqueada. Tente novamente mais tarde.";
+      case NO_ROLE -> "AUTH-012 Usuario sem papel operacional. Contate o admin.";
+      case INACTIVE_USER -> "AUTH-013 Usuario inativo. Contate o admin.";
+      default -> "AUTH-001 Credenciais invalidas.";
+    };
   }
 }
