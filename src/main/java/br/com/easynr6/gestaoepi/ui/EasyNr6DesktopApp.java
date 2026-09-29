@@ -50,14 +50,18 @@ public class EasyNr6DesktopApp extends Application {
     LoginView loginView =
         new LoginView(
             authenticationProvider, this::abrirShellPrincipal, this::abrirTelaTrocaObrigatoria);
-    Scene scene = new Scene(loginView, 460, 320);
+    stage.setMaximized(false);
+    Scene scene = new Scene(loginView, 620, 760);
     stage.setScene(scene);
+    stage.centerOnScreen();
   }
 
   private void abrirTelaTrocaObrigatoria(UsuarioAutenticado usuario) {
+    stage.setMaximized(false);
     ChangePasswordView view =
         new ChangePasswordView(credentialManager, usuario, this::abrirShellPrincipal);
-    stage.setScene(new Scene(view, 520, 340));
+    stage.setScene(new Scene(view, 620, 420));
+    stage.centerOnScreen();
   }
 
   private void abrirShellPrincipal(UsuarioAutenticado usuario) {
@@ -83,6 +87,7 @@ public class EasyNr6DesktopApp extends Application {
               abrirTelaLogin();
             });
 
-    stage.setScene(new Scene(shell, 1180, 760));
+    stage.setScene(new Scene(shell, 1280, 800));
+    stage.setMaximized(true);
   }
 }

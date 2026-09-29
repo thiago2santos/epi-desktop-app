@@ -57,6 +57,12 @@ public class UserAdministrationService {
       """;
   private static final String DELETE_USUARIO_PAPEIS_SQL =
       "DELETE FROM usuario_papel WHERE usuario_id = :usuarioId";
+  private static final String DELETE_PAPEL_USUARIO_SQL =
+      """
+      DELETE FROM usuario_papel
+      WHERE usuario_id = :usuarioId
+        AND papel_id = (SELECT id FROM papel WHERE codigo = :codigo)
+      """;
   private static final String DELETE_USUARIO_SQL = "DELETE FROM usuario WHERE id = :usuarioId";
 
   private final NamedParameterJdbcTemplate jdbcTemplate;
@@ -141,6 +147,29 @@ public class UserAdministrationService {
         "USUARIO",
         String.valueOf(usuarioId),
         "Papel atribuido: " + papel.name());
+  }
+
+  @Transactional
+  public void removerPapel(Long adminId, Long usuarioId, Papel papel) {
+    validarAdmin(adminId);
+    if (!usuarioExiste(usuarioId)) {
+      throw new IllegalArgumentException("AUTH-009 Usuario alvo inexistente.");
+    }
+    int removidos =
+        jdbcTemplate.update(
+            DELETE_PAPEL_USUARIO_SQL,
+            new MapSqlParameterSource()
+                .addValue("usuarioId", usuarioId)
+                .addValue("codigo", papel.name()));
+    if (removidos == 0) {
+      throw new IllegalArgumentException("AUTH-017 Papel nao encontrado para o usuario.");
+    }
+    auditTrail.registrarEventoCritico(
+        adminId,
+        "PAPEL_REMOVIDO",
+        "USUARIO",
+        String.valueOf(usuarioId),
+        "Papel removido: " + papel.name());
   }
 
   @Transactional
@@ -268,6 +297,11 @@ public class UserAdministrationService {
   public void resetarCredencialPorLogin(Long adminId, String loginAlvo, String novaSenha) {
     UsuarioAdminResumo usuario = buscarUsuarioPorLogin(loginAlvo);
     resetarCredencial(adminId, usuario.id(), usuario.login(), novaSenha);
+  }
+
+  public void removerPapelPorLogin(Long adminId, String loginAlvo, Papel papel) {
+    UsuarioAdminResumo usuario = buscarUsuarioPorLogin(loginAlvo);
+    removerPapel(adminId, usuario.id(), papel);
   }
 
   public void editarUsuarioPorLogin(
