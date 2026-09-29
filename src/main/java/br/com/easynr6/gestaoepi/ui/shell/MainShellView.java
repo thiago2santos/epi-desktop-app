@@ -1,10 +1,12 @@
 package br.com.easynr6.gestaoepi.ui.shell;
 
+import br.com.easynr6.gestaoepi.modules.employee.application.EmployeeManagementService;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import br.com.easynr6.gestaoepi.shared.auth.Papel;
 import br.com.easynr6.gestaoepi.shared.auth.UserAdministrationService;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
 import br.com.easynr6.gestaoepi.ui.admin.UserAdministrationView;
+import br.com.easynr6.gestaoepi.ui.cadastros.EmployeeManagementView;
 import br.com.easynr6.gestaoepi.ui.operacao.EntregaWizardView;
 import java.util.EnumSet;
 import javafx.geometry.Insets;
@@ -25,16 +27,19 @@ public class MainShellView extends BorderPane {
   private final UsuarioAutenticado usuario;
   private final AuditTrail auditTrail;
   private final UserAdministrationService userAdministrationService;
+  private final EmployeeManagementService employeeManagementService;
   private final Label conteudoLabel;
 
   public MainShellView(
       UsuarioAutenticado usuario,
       AuditTrail auditTrail,
       UserAdministrationService userAdministrationService,
+      EmployeeManagementService employeeManagementService,
       Runnable onLogout) {
     this.usuario = usuario;
     this.auditTrail = auditTrail;
     this.userAdministrationService = userAdministrationService;
+    this.employeeManagementService = employeeManagementService;
     setLeft(buildSidebar());
     setTop(buildHeader(onLogout));
     this.conteudoLabel = new Label("Selecione um modulo para comecar.");
@@ -126,6 +131,9 @@ public class MainShellView extends BorderPane {
     }
     if (modulo == Modulo.ADMINISTRACAO) {
       return new UserAdministrationView(usuario, userAdministrationService);
+    }
+    if (modulo == Modulo.CADASTROS) {
+      return new EmployeeManagementView(usuario, employeeManagementService);
     }
     conteudoLabel.setText("Modulo selecionado: " + modulo.label);
     return conteudoLabel;
