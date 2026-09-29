@@ -24,19 +24,17 @@ public class KeycloakAuthenticationProvider implements AuthenticationProvider {
   private static final Logger LOGGER =
       LoggerFactory.getLogger(KeycloakAuthenticationProvider.class);
 
-  private final ObjectMapper objectMapper;
+  private final ObjectMapper objectMapper = new ObjectMapper();
   private final HttpClient httpClient;
   private final String tokenEndpoint;
   private final String clientId;
   private final String clientSecret;
 
   public KeycloakAuthenticationProvider(
-      ObjectMapper objectMapper,
       @Value("${easy-nr6.auth.keycloak.base-url:http://localhost:8080}") String baseUrl,
       @Value("${easy-nr6.auth.keycloak.realm:easynr6}") String realm,
       @Value("${easy-nr6.auth.keycloak.client-id:easy-nr6-desktop}") String clientId,
       @Value("${easy-nr6.auth.keycloak.client-secret:}") String clientSecret) {
-    this.objectMapper = objectMapper;
     this.httpClient = HttpClient.newHttpClient();
     this.tokenEndpoint =
         baseUrl.replaceAll("/+$", "")
