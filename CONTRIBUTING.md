@@ -84,3 +84,16 @@ Para evitar mistura de idiomas no código e facilitar manutenção:
 - Não renomear tudo retroativamente de uma vez.
 - Aplicar a convenção em toda nova implementação.
 - Quando tocar código legado misto, normalizar idioma no trecho alterado sempre que viável.
+
+### Vocabulário canônico (anti tradução literal)
+
+Antes de criar nomes novos no domínio, confirmar o termo canônico deste projeto.
+
+- `Employee` (não `Worker`) para pessoa que recebe EPI.
+- `Role` para papel de acesso.
+- `Credential` para credencial/senha no contexto de autenticação.
+- `Authentication` e `Authorization` para fluxos de acesso.
+- `AuditTrail` para trilha de auditoria.
+- `StockLot` para lote de estoque (quando o módulo de estoque evoluir).
+
+Regra: evitar tradução direta palavra a palavra sem validar semântica de negócio e uso no contexto corporativo.
