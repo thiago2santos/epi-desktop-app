@@ -47,7 +47,7 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 - `R0`: concluido (workflow release, hooks de qualidade, templates de governanca).
 - `M0`: concluido (shell desktop, autenticacao com resultado tipado, RBAC, auditoria append-only, politica de credenciais em runtime).
 - `M0` hardening arquitetural: concluido (identidade desacoplada por `ports + use cases + adapters`, com fachadas compativeis para UI).
-- `M1`: pendente e priorizado como proxima frente (cadastros essenciais e validacoes cruzadas).
+- `M1`: em andamento (primeiro cadastro essencial entregue: empregado + funcao/setor minimo para vinculo).
 - `M2`: permanece bloqueado por DoR ate fechamento real de M1.
 
 ## Priorizacao por modulo (ordem de implementacao)

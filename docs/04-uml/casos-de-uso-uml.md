@@ -141,19 +141,21 @@ Cada caso de uso segue o formato:
 - **Pos-condicoes**: Funcoes disponiveis para cadastro de trabalhador e matriz.
 - **Regras relacionadas**: unicidade por unidade.
 
-### UC-CAD-03 — Cadastrar trabalhador
+### UC-CAD-03 — Cadastrar empregado (trabalhador)
 - **Atores**: SESMT, Admin
 - **Descricao**: Inclui trabalhador apto a receber EPI.
-- **Pre-condicoes**: Funcao cadastrada.
+- **Pre-condicoes**: Funcao e setor cadastrados e ativos.
 - **Gatilho**: Admissao ou regularizacao de cadastro.
 - **Fluxo principal**:
   1. Operador informa matricula, nome, funcao e setor.
   2. Marca status ativo.
-  3. Confirma cadastro.
+  3. Sistema valida coerencia entre funcao e setor.
+  4. Confirma cadastro.
 - **Fluxos alternativos/excecoes**:
   - Matricula ja existente: sistema recusa.
+  - Funcao/setor inativos ou inconsistentes: sistema recusa.
 - **Pos-condicoes**: Trabalhador disponivel para entrega.
-- **Regras relacionadas**: matricula unica; rastreabilidade de status.
+- **Regras relacionadas**: matricula unica; rastreabilidade de status; consistencia funcao-setor.
 
 ### UC-CAD-04 — Cadastrar EPI
 - **Atores**: SESMT
