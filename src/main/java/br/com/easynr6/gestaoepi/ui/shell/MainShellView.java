@@ -6,7 +6,7 @@ import br.com.easynr6.gestaoepi.shared.auth.Papel;
 import br.com.easynr6.gestaoepi.shared.auth.UserAdministrationService;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
 import br.com.easynr6.gestaoepi.ui.admin.UserAdministrationView;
-import br.com.easynr6.gestaoepi.ui.cadastros.EmployeeManagementView;
+import br.com.easynr6.gestaoepi.ui.cadastros.CadastrosManagementView;
 import br.com.easynr6.gestaoepi.ui.operacao.EntregaWizardView;
 import java.util.EnumSet;
 import javafx.geometry.Insets;
@@ -133,7 +133,7 @@ public class MainShellView extends BorderPane {
       return new UserAdministrationView(usuario, userAdministrationService);
     }
     if (modulo == Modulo.CADASTROS) {
-      return new EmployeeManagementView(usuario, employeeManagementService);
+      return new CadastrosManagementView(usuario, employeeManagementService);
     }
     conteudoLabel.setText("Modulo selecionado: " + modulo.label);
     return conteudoLabel;

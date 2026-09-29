@@ -259,6 +259,11 @@ public class EmployeeManagementView extends VBox {
     employees.setAll(employeeService.listEmployees(actor.id(), searchField.getText()));
   }
 
+  public void refreshReferenceData() {
+    reloadDepartments();
+    refreshEmployees();
+  }
+
   private void reloadDepartments() {
     departments.setAll(employeeService.listActiveDepartments());
     if (!departments.isEmpty()) {

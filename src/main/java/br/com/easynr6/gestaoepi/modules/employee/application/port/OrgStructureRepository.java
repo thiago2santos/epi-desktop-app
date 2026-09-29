@@ -9,6 +9,39 @@ public interface OrgStructureRepository {
 
   Optional<JobRoleOption> findJobRoleById(Long jobRoleId);
 
+  boolean departmentExists(Long departmentId);
+
+  boolean jobRoleExists(Long jobRoleId);
+
+  boolean existsDepartmentByName(String name);
+
+  boolean existsDepartmentByNameExcludingId(String name, Long departmentId);
+
+  Long createDepartment(String name, boolean active);
+
+  void updateDepartment(Long departmentId, String name, boolean active);
+
+  void setDepartmentActive(Long departmentId, boolean active);
+
+  boolean hasActiveJobRoles(Long departmentId);
+
+  boolean existsJobRoleByNameInDepartment(String name, Long departmentId);
+
+  boolean existsJobRoleByNameInDepartmentExcludingId(
+      String name, Long departmentId, Long jobRoleId);
+
+  Long createJobRole(String name, Long departmentId, boolean active);
+
+  void updateJobRole(Long jobRoleId, String name, Long departmentId, boolean active);
+
+  void setJobRoleActive(Long jobRoleId, boolean active);
+
+  boolean hasActiveEmployeesByJobRole(Long jobRoleId);
+
+  List<DepartmentSummary> listDepartmentsByTerm(String term);
+
+  List<JobRoleSummary> listJobRolesByTerm(String term);
+
   List<DepartmentOption> listActiveDepartments();
 
   List<JobRoleOption> listActiveJobRolesByDepartment(Long departmentId);
@@ -16,4 +49,9 @@ public interface OrgStructureRepository {
   record DepartmentOption(Long id, String name, boolean active) {}
 
   record JobRoleOption(Long id, String name, Long departmentId, boolean active) {}
+
+  record DepartmentSummary(Long id, String name, boolean active) {}
+
+  record JobRoleSummary(
+      Long id, String name, Long departmentId, String departmentName, boolean active) {}
 }
