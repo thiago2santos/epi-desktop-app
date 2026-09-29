@@ -47,7 +47,7 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 - `R0`: concluido (workflow release, hooks de qualidade, templates de governanca).
 - `M0`: concluido (shell desktop, autenticacao com resultado tipado, RBAC, auditoria append-only, politica de credenciais em runtime).
 - `M0` hardening arquitetural: concluido (identidade desacoplada por `ports + use cases + adapters`, com fachadas compativeis para UI).
-- `M1`: em andamento (primeiro cadastro essencial entregue: empregado + funcao/setor minimo para vinculo).
+- `M1`: em andamento (UC-CAD-03 concluida: cadastro de empregado com consistencia funcao/setor, status ativo/inativo, auditoria e testes de integracao).
 - `M2`: permanece bloqueado por DoR ate fechamento real de M1.
 
 ## Priorizacao por modulo (ordem de implementacao)
@@ -209,7 +209,7 @@ M2 (core operacional governado) so pode iniciar quando todos os itens abaixo est
 
 ### 1) Dados mestres minimos prontos (M1)
 
-- [ ] Cadastro de trabalhador ativo disponivel (matricula, nome, funcao/setor).
+- [x] Cadastro de trabalhador ativo disponivel (matricula, nome, funcao/setor).
 - [ ] Cadastro de EPI com CA valido disponivel para entrega.
 - [ ] Lotes cadastrados com validade da peca e saldo disponivel.
 - [ ] Matriz funcao/GHE x EPI ativa para os perfis piloto.
