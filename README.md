@@ -56,6 +56,12 @@ Executar mutacao com PIT:
 
 Observacao: o profile `mutation` recompila com release 21 temporariamente, pois o ecossistema do PIT ainda pode atrasar no suporte completo ao bytecode Java 25.
 
+Para rodar apenas os modulos mais criticos de regra e seguranca:
+
+```bash
+./mvnw -Pmutation-critical clean test org.pitest:pitest-maven:mutationCoverage
+```
+
 ### Pre-commit
 
 ```bash

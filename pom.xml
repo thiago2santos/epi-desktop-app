@@ -27,6 +27,8 @@
     <pitest.version>1.17.1</pitest.version>
     <pitest.junit5.plugin.version>1.2.2</pitest.junit5.plugin.version>
     <pitest.compiler.release>21</pitest.compiler.release>
+    <pitest.target.classes>br.com.easynr6.gestaoepi.*</pitest.target.classes>
+    <pitest.target.tests>br.com.easynr6.gestaoepi.*</pitest.target.tests>
   </properties>
 
   <dependencyManagement>
@@ -226,12 +228,10 @@
         </dependencies>
         <configuration>
           <targetClasses>
-            <param>br.com.easynr6.gestaoepi.*</param>
-            <param>br.com.easynr6.gestaoepi.**.*</param>
+            <param>${pitest.target.classes}</param>
           </targetClasses>
           <targetTests>
-            <param>br.com.easynr6.gestaoepi.*</param>
-            <param>br.com.easynr6.gestaoepi.**.*</param>
+            <param>${pitest.target.tests}</param>
           </targetTests>
           <threads>4</threads>
           <outputFormats>
@@ -251,6 +251,40 @@
       <properties>
         <maven.compiler.release>${pitest.compiler.release}</maven.compiler.release>
       </properties>
+    </profile>
+    <profile>
+      <id>mutation-critical</id>
+      <properties>
+        <maven.compiler.release>${pitest.compiler.release}</maven.compiler.release>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.pitest</groupId>
+            <artifactId>pitest-maven</artifactId>
+            <configuration>
+              <targetClasses>
+                <param>br.com.easynr6.gestaoepi.shared.auth.*</param>
+                <param>br.com.easynr6.gestaoepi.identity.*</param>
+                <param>br.com.easynr6.gestaoepi.identity.**.*</param>
+                <param>br.com.easynr6.gestaoepi.domain.*</param>
+              </targetClasses>
+              <targetTests>
+                <param>br.com.easynr6.gestaoepi.shared.auth.*</param>
+                <param>br.com.easynr6.gestaoepi.identity.*</param>
+                <param>br.com.easynr6.gestaoepi.identity.**.*</param>
+                <param>br.com.easynr6.gestaoepi.domain.*</param>
+              </targetTests>
+              <mutationThreshold>70</mutationThreshold>
+              <coverageThreshold>0</coverageThreshold>
+              <avoidCallsTo>
+                <avoidCallsTo>org.slf4j</avoidCallsTo>
+                <avoidCallsTo>java.util.logging</avoidCallsTo>
+              </avoidCallsTo>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 </project>
