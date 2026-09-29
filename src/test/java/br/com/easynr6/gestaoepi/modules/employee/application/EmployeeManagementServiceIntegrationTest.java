@@ -1,5 +1,6 @@
 package br.com.easynr6.gestaoepi.modules.employee.application;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -86,7 +87,7 @@ class EmployeeManagementServiceIntegrationTest {
             () ->
                 employeeManagementService.createEmployee(
                     adminId, "MTR-4004", "Mismatch", departmentOperacaoId, sesmtRoleId, true));
-    assertEquals("EMP-003 Job role does not belong to selected department.", ex.getMessage());
+    assertEquals("CAD-003 Inconsistencia entre funcao e setor.", ex.getMessage());
   }
 
   @Test
@@ -126,6 +127,79 @@ class EmployeeManagementServiceIntegrationTest {
     assertEquals(0, active);
     assertEquals(1, updateAudit);
     assertEquals(1, deactivateAudit);
+  }
+
+  @Test
+  void shouldRejectDuplicateEmployeeCode() {
+    long adminId = createUserWithRole("admin.employee.duplicate", Papel.ADMIN);
+    long departmentId = findDepartmentIdByName("Operacao");
+    long jobRoleId = findJobRoleIdByNameAndDepartment("Almoxarife", departmentId);
+
+    employeeManagementService.createEmployee(
+        adminId, "MTR-7007", "Primeiro Cadastro", departmentId, jobRoleId, true);
+
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                employeeManagementService.createEmployee(
+                    adminId, " MTR-7007 ", "Duplicado", departmentId, jobRoleId, true));
+    assertEquals("CAD-001 Matricula ja existente.", ex.getMessage());
+  }
+
+  @Test
+  void shouldRejectInactiveJobRole() {
+    long adminId = createUserWithRole("admin.employee.inactive-role", Papel.ADMIN);
+    long departmentId = findDepartmentIdByName("Operacao");
+    long jobRoleId = findJobRoleIdByNameAndDepartment("Almoxarife", departmentId);
+    jdbcTemplate.update("UPDATE job_role SET active = 0 WHERE id = ?", jobRoleId);
+
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                employeeManagementService.createEmployee(
+                    adminId, "MTR-8008", "Role Inativa", departmentId, jobRoleId, true));
+    assertEquals("CAD-002 Funcao invalida ou inativa.", ex.getMessage());
+  }
+
+  @Test
+  void shouldNormalizeCodeAndNameWhenCreatingEmployee() {
+    long adminId = createUserWithRole("admin.employee.normalize", Papel.ADMIN);
+    long departmentId = findDepartmentIdByName("Operacao");
+    long jobRoleId = findJobRoleIdByNameAndDepartment("Almoxarife", departmentId);
+
+    long employeeId =
+        employeeManagementService.createEmployee(
+            adminId, "  mtr-9009 ", "  Nome com espacos  ", departmentId, jobRoleId, true);
+
+    String storedCode =
+        jdbcTemplate.queryForObject(
+            "SELECT employee_code FROM employee WHERE id = ?", String.class, employeeId);
+    String storedName =
+        jdbcTemplate.queryForObject(
+            "SELECT full_name FROM employee WHERE id = ?", String.class, employeeId);
+
+    assertEquals("MTR-9009", storedCode);
+    assertEquals("Nome com espacos", storedName);
+  }
+
+  @Test
+  void shouldAllowIdempotentDeactivateWhenAlreadyInactive() {
+    long adminId = createUserWithRole("admin.employee.idempotent", Papel.ADMIN);
+    long departmentId = findDepartmentIdByName("Operacao");
+    long jobRoleId = findJobRoleIdByNameAndDepartment("Almoxarife", departmentId);
+
+    long employeeId =
+        employeeManagementService.createEmployee(
+            adminId, "MTR-10010", "Inativo Idempotente", departmentId, jobRoleId, false);
+
+    assertDoesNotThrow(
+        () -> employeeManagementService.setEmployeeStatus(adminId, employeeId, false));
+    Integer active =
+        jdbcTemplate.queryForObject(
+            "SELECT active FROM employee WHERE id = ?", Integer.class, employeeId);
+    assertEquals(0, active);
   }
 
   private long createUserWithRole(String loginBase, Papel role) {

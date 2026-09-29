@@ -40,7 +40,7 @@ class EmployeePolicyTest {
         assertThrows(
             IllegalArgumentException.class,
             () -> policy.validateDepartmentAndRole(department, jobRole));
-    assertEquals("EMP-003 Job role does not belong to selected department.", ex.getMessage());
+    assertEquals("CAD-003 Inconsistencia entre funcao e setor.", ex.getMessage());
   }
 
   @Test
