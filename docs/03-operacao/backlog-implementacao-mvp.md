@@ -48,7 +48,11 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 - `M0`: concluido (shell desktop, autenticacao com resultado tipado, RBAC, auditoria append-only, politica de credenciais em runtime).
 - `M0` hardening arquitetural: concluido (identidade desacoplada por `ports + use cases + adapters`, com fachadas compativeis para UI).
 - `M1`: em andamento (UC-CAD-03 concluida: cadastro de empregado com consistencia funcao/setor, status ativo/inativo, auditoria e testes de integracao).
+- `M1` cadastros organizacionais: concluido para baseline (UC-CAD-02 com setores e funcoes, inativacao/reativacao controlada, validacoes de dependencia e auditoria).
 - `M2`: permanece bloqueado por DoR ate fechamento real de M1.
+
+> **Footnote de governanca (obrigatorio antes de release):**
+> testes de usabilidade de campo ainda pendentes para o novo modulo `Cadastros` (abas `Empregados`, `Setores`, `Funcoes`), incluindo validacao de fluxo ponta a ponta por key user.
 
 ## Priorizacao por modulo (ordem de implementacao)
 
@@ -210,6 +214,7 @@ M2 (core operacional governado) so pode iniciar quando todos os itens abaixo est
 ### 1) Dados mestres minimos prontos (M1)
 
 - [x] Cadastro de trabalhador ativo disponivel (matricula, nome, funcao/setor).
+- [x] Cadastro de setor e funcao disponivel (com status e validacoes de dependencia).
 - [ ] Cadastro de EPI com CA valido disponivel para entrega.
 - [ ] Lotes cadastrados com validade da peca e saldo disponivel.
 - [ ] Matriz funcao/GHE x EPI ativa para os perfis piloto.
