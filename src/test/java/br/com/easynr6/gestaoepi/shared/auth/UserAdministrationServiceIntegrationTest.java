@@ -115,6 +115,43 @@ class UserAdministrationServiceIntegrationTest {
     assertEquals(1, auditoriaCount);
   }
 
+  @Test
+  void devePermitirRemocaoDePapelPorAdminEAuditar() {
+    long adminId = inserirUsuarioComPapel("admin-remove-papel", Papel.ADMIN);
+    long alvoId = criarUsuarioSemPapel("alvo.remove.papel");
+
+    userAdministrationService.atribuirPapel(adminId, alvoId, Papel.CONSULTA);
+    userAdministrationService.removerPapel(adminId, alvoId, Papel.CONSULTA);
+
+    Integer papeisRestantes =
+        jdbcTemplate.queryForObject(
+            "SELECT COUNT(1) FROM usuario_papel WHERE usuario_id = ?", Integer.class, alvoId);
+    Integer auditoriaCount =
+        jdbcTemplate.queryForObject(
+            """
+            SELECT COUNT(1) FROM auditoria
+            WHERE acao = 'PAPEL_REMOVIDO' AND entidade = 'USUARIO' AND entidade_id = ?
+            """,
+            Integer.class,
+            String.valueOf(alvoId));
+
+    assertEquals(0, papeisRestantes);
+    assertEquals(1, auditoriaCount);
+  }
+
+  @Test
+  void deveRecusarRemocaoDePapelQuandoAtorNaoForAdmin() {
+    long adminId = inserirUsuarioComPapel("admin-remove-denied", Papel.ADMIN);
+    long sesmtId = inserirUsuarioComPapel("sesmt-remove-denied", Papel.SESMT);
+    long alvoId = criarUsuarioSemPapel("alvo.remove.denied");
+
+    userAdministrationService.atribuirPapel(adminId, alvoId, Papel.CONSULTA);
+
+    assertThrows(
+        AuthorizationDeniedException.class,
+        () -> userAdministrationService.removerPapel(sesmtId, alvoId, Papel.CONSULTA));
+  }
+
   private long inserirUsuarioComPapel(String loginBase, Papel papel) {
     long usuarioId = criarUsuarioSemPapel(loginBase + "." + System.nanoTime());
     jdbcTemplate.update(

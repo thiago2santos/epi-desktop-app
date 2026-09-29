@@ -57,17 +57,19 @@ Cada caso de uso segue o formato:
   - Credencial marcada para troca obrigatoria no primeiro acesso.
 - **Regras relacionadas**: unicidade de login; politica de senha forte; auditoria obrigatoria.
 
-### UC-ADM-02 — Atribuir papel ao usuario
+### UC-ADM-02 — Gerenciar papeis do usuario
 - **Atores**: Admin
-- **Descricao**: Vincula papel funcional (Admin, SESMT, Almoxarife, Consulta).
+- **Descricao**: Atribui e remove papeis funcionais (Admin, SESMT, Almoxarife, Consulta).
 - **Pre-condicoes**: Usuario existente.
 - **Gatilho**: Definicao de permissao operacional.
 - **Fluxo principal**:
   1. Admin seleciona usuario.
-  2. Escolhe papel.
-  3. Confirma atribuicao.
+  2. Visualiza papeis atualmente atribuidos.
+  3. Escolhe papel para adicionar ou remover.
+  4. Confirma operacao.
 - **Fluxos alternativos/excecoes**:
   - Papel incompativel com politica interna: operacao cancelada.
+  - Tentativa de remover papel nao atribuido: sistema recusa e orienta revisao.
 - **Pos-condicoes**: Usuario passa a operar no escopo permitido.
 - **Regras relacionadas**: RBAC; auditoria append-only.
 

@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Set;
 import javafx.animation.PauseTransition;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -33,7 +34,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
@@ -472,13 +472,13 @@ public class UserAdministrationView extends BorderPane {
     tabela.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
 
     TableColumn<UsuarioAdminResumo, Long> idCol = new TableColumn<>("ID");
-    idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+    idCol.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().id()));
 
     TableColumn<UsuarioAdminResumo, String> loginCol = new TableColumn<>("Login");
-    loginCol.setCellValueFactory(new PropertyValueFactory<>("login"));
+    loginCol.setCellValueFactory(cell -> new ReadOnlyStringWrapper(cell.getValue().login()));
 
     TableColumn<UsuarioAdminResumo, String> nomeCol = new TableColumn<>("Nome");
-    nomeCol.setCellValueFactory(new PropertyValueFactory<>("nome"));
+    nomeCol.setCellValueFactory(cell -> new ReadOnlyStringWrapper(cell.getValue().nome()));
 
     TableColumn<UsuarioAdminResumo, String> statusCol = new TableColumn<>("Status");
     statusCol.setCellValueFactory(
@@ -489,7 +489,7 @@ public class UserAdministrationView extends BorderPane {
         cell -> new ReadOnlyStringWrapper(cell.getValue().trocaObrigatoria() ? "SIM" : "NAO"));
 
     TableColumn<UsuarioAdminResumo, String> papeisCol = new TableColumn<>("Papeis");
-    papeisCol.setCellValueFactory(new PropertyValueFactory<>("papeis"));
+    papeisCol.setCellValueFactory(cell -> new ReadOnlyStringWrapper(cell.getValue().papeis()));
 
     tabela.getColumns().setAll(idCol, loginCol, nomeCol, statusCol, trocaCol, papeisCol);
 

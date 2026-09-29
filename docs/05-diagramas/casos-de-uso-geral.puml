@@ -16,7 +16,7 @@ rectangle "Sistema de Controle de EPI" {
 
   package "Admin" {
     usecase "UC-ADM-01\nCadastrar usuario" as UC_ADM_01
-    usecase "UC-ADM-02\nAtribuir papel" as UC_ADM_02
+    usecase "UC-ADM-02\nGerenciar papeis" as UC_ADM_02
     usecase "UC-ADM-03\nConfigurar parametros" as UC_ADM_03
     usecase "UC-ADM-04\nResetar credencial" as UC_ADM_04
   }
