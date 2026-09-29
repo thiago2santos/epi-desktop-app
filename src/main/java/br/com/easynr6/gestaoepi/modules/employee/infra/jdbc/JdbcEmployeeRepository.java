@@ -121,6 +121,11 @@ public class JdbcEmployeeRepository implements EmployeeRepository {
   }
 
   @Override
+  public boolean hasHistoricalDependencies(Long employeeId) {
+    return false;
+  }
+
+  @Override
   public List<EmployeeSummary> listByTerm(String term) {
     String cleanTerm = term == null ? "" : term.trim();
     return jdbcTemplate.query(

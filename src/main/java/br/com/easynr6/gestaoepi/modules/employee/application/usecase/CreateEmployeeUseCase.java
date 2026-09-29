@@ -43,7 +43,7 @@ public class CreateEmployeeUseCase {
     String normalizedCode = employeePolicy.normalizeCode(employeeCode);
     String normalizedName = employeePolicy.normalizeName(fullName);
     if (employeeRepository.existsByEmployeeCode(normalizedCode)) {
-      throw new IllegalArgumentException("EMP-001 Employee code already exists.");
+      throw new IllegalArgumentException("CAD-001 Matricula ja existente.");
     }
 
     DepartmentOption department =

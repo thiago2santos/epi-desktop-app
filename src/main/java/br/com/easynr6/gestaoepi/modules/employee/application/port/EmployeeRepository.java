@@ -15,6 +15,8 @@ public interface EmployeeRepository {
 
   void setActive(Long employeeId, boolean active);
 
+  boolean hasHistoricalDependencies(Long employeeId);
+
   List<EmployeeSummary> listByTerm(String term);
 
   record EmployeeSummary(

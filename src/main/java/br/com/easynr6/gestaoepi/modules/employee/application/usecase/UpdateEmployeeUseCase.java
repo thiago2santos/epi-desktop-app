@@ -39,7 +39,7 @@ public class UpdateEmployeeUseCase {
       boolean active) {
     accessAuthorizer.assertCanManageEmployees(actorId);
     if (employeeId == null || !employeeRepository.existsById(employeeId)) {
-      throw new IllegalArgumentException("EMP-006 Employee target not found.");
+      throw new IllegalArgumentException("CAD-006 Trabalhador alvo nao encontrado.");
     }
     employeePolicy.validateUpdateFields(fullName, departmentId, jobRoleId);
 

@@ -12,7 +12,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -218,7 +220,7 @@ public class EmployeeManagementView extends VBox {
     try {
       EmployeeSummary selected = employeeTable.getSelectionModel().getSelectedItem();
       if (selected == null) {
-        throw new IllegalArgumentException("EMP-006 Selecione um empregado para editar.");
+        throw new IllegalArgumentException("CAD-006 Selecione um trabalhador para editar.");
       }
       DepartmentOption department = departmentCombo.getValue();
       JobRoleOption jobRole = jobRoleCombo.getValue();
@@ -240,7 +242,10 @@ public class EmployeeManagementView extends VBox {
     try {
       EmployeeSummary selected = employeeTable.getSelectionModel().getSelectedItem();
       if (selected == null) {
-        throw new IllegalArgumentException("EMP-006 Selecione um empregado para alterar status.");
+        throw new IllegalArgumentException("CAD-006 Selecione um trabalhador para alterar status.");
+      }
+      if (!active && !confirmDeactivate(selected)) {
+        return;
       }
       employeeService.setEmployeeStatus(actor.id(), selected.id(), active);
       showSuccess(active ? "EMP-103 Empregado reativado." : "EMP-102 Empregado inativado.");
@@ -306,7 +311,20 @@ public class EmployeeManagementView extends VBox {
   }
 
   private void showError(String message) {
-    feedbackLabel.setText(message == null ? "EMP-099 Falha ao processar operacao." : message);
+    feedbackLabel.setText(message == null ? "CAD-099 Falha ao processar operacao." : message);
     feedbackLabel.setStyle("-fx-text-fill: #b91c1c; -fx-font-weight: bold;");
+  }
+
+  private boolean confirmDeactivate(EmployeeSummary employee) {
+    Alert dialog = new Alert(Alert.AlertType.CONFIRMATION);
+    dialog.setTitle("Confirmar inativacao");
+    dialog.setHeaderText("Inativar trabalhador");
+    dialog.setContentText(
+        "Deseja inativar o trabalhador "
+            + employee.employeeCode()
+            + " - "
+            + employee.fullName()
+            + "?");
+    return dialog.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK;
   }
 }

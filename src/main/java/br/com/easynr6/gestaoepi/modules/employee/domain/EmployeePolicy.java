@@ -8,26 +8,25 @@ public class EmployeePolicy {
   public void validateRequiredFields(
       String employeeCode, String fullName, Long departmentId, Long jobRoleId) {
     if (isBlank(employeeCode) || isBlank(fullName) || departmentId == null || jobRoleId == null) {
-      throw new IllegalArgumentException("EMP-004 Required fields are missing.");
+      throw new IllegalArgumentException("CAD-004 Campos obrigatorios ausentes.");
     }
   }
 
   public void validateUpdateFields(String fullName, Long departmentId, Long jobRoleId) {
     if (isBlank(fullName) || departmentId == null || jobRoleId == null) {
-      throw new IllegalArgumentException("EMP-004 Required fields are missing.");
+      throw new IllegalArgumentException("CAD-004 Campos obrigatorios ausentes.");
     }
   }
 
   public void validateDepartmentAndRole(DepartmentOption department, JobRoleOption jobRole) {
     if (department == null || !department.active()) {
-      throw new IllegalArgumentException("EMP-002 Invalid or inactive job role/department.");
+      throw new IllegalArgumentException("CAD-002 Funcao invalida ou inativa.");
     }
     if (jobRole == null || !jobRole.active()) {
-      throw new IllegalArgumentException("EMP-002 Invalid or inactive job role/department.");
+      throw new IllegalArgumentException("CAD-002 Funcao invalida ou inativa.");
     }
     if (!department.id().equals(jobRole.departmentId())) {
-      throw new IllegalArgumentException(
-          "EMP-003 Job role does not belong to selected department.");
+      throw new IllegalArgumentException("CAD-003 Inconsistencia entre funcao e setor.");
     }
   }
 
