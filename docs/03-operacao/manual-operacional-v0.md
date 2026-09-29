@@ -59,6 +59,15 @@ Antes de instalar, definir:
 2. Entrar com usuario inicial de administracao.
 3. Validar se a base de dados foi criada corretamente.
 4. Confirmar acesso ao menu de configuracao.
+5. Alterar imediatamente a credencial inicial de administracao quando aplicavel.
+
+## 2.3 Politica de senha (baseline operacional)
+
+- Comprimento minimo: 12 caracteres.
+- Exigir ao menos 3 de 4 grupos (maiuscula, minuscula, numero, especial).
+- Nao conter login do usuario.
+- Nao aceitar senhas triviais/proibidas.
+- Senhas devem ser pessoais e intransferiveis.
 
 ## 3) Configuracao inicial obrigatoria
 
@@ -79,6 +88,12 @@ Cadastrar usuarios e papeis minimos:
 - Almoxarife.
 - Consulta (somente relatorios).
 
+Diretrizes obrigatorias de credencial:
+
+- aplicar politica de senha forte no cadastro inicial;
+- evitar compartilhamento de credencial entre operadores;
+- manter usuario individual para rastreabilidade de auditoria.
+
 ## 3.3 Parametros de operacao
 
 Configurar:
@@ -86,6 +101,9 @@ Configurar:
 - Formato de identificacao do trabalhador (matricula principal; CPF opcional).
 - Politica de estorno (motivo obrigatorio).
 - Dominio de motivos de entrega/devolucao.
+- Parametros de credencial (quando disponiveis em tela):
+  - limite de tentativas invalidas;
+  - janela de bloqueio temporario.
 
 ## 4) Cadastros base (antes de entregar qualquer EPI)
 
@@ -136,6 +154,14 @@ Validar:
 - rastreabilidade do lote para entrega futura.
 
 ## 5) Operacao diaria
+
+## 5.0 Acesso e credenciais (rotina diaria)
+
+1. Novo usuario criado deve trocar a credencial no primeiro acesso.
+2. Usuario nao deve operar em credencial compartilhada.
+3. Tentativas invalidas repetidas podem bloquear temporariamente a conta.
+4. Reset de credencial deve ser feito apenas por `Admin`.
+5. Eventos de criacao/reset/bloqueio devem permanecer auditaveis.
 
 ## 5.1 Fluxo de entrega (durante a entrega)
 
@@ -246,6 +272,8 @@ Status atual:
 - **Saldo insuficiente**: registrar novo recebimento de lote antes de concluir entrega.
 - **Item fora da matriz**: registrar justificativa e autorizacao conforme perfil.
 - **Erro de lancamento**: nao editar entrega; aplicar estorno formal.
+- **Conta bloqueada por tentativas invalidas**: aguardar janela de desbloqueio ou acionar Admin para recuperacao.
+- **Credencial esquecida**: solicitar reset ao Admin e realizar troca obrigatoria no proximo login.
 
 ## 10) Proximas evolucoes do manual
 
@@ -253,4 +281,3 @@ Status atual:
 2. Publicar versao com layout final de todos os relatorios.
 3. Incluir procedimento oficial de atualizacao de versao.
 4. Incluir guia de operacao cliente-servidor para expansao multiusuario e multiunidade.
-

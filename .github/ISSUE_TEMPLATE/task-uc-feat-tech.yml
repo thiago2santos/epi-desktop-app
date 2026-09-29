@@ -72,3 +72,16 @@ body:
         - README.md
     validations:
       required: true
+
+  - type: textarea
+    id: seguranca
+    attributes:
+      label: Seguranca e auditoria (obrigatorio para auth/credencial)
+      description: Preencha quando houver impacto em login, senha, usuario, papel ou auditoria.
+      placeholder: |
+        Impacta auth/credencial? (sim/nao):
+        Regra de seguranca aplicada:
+        Evento auditavel esperado:
+        Cenario de acesso nao autorizado a validar:
+    validations:
+      required: true

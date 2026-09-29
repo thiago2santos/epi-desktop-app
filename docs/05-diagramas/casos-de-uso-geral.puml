@@ -18,6 +18,7 @@ rectangle "Sistema de Controle de EPI" {
     usecase "UC-ADM-01\nCadastrar usuario" as UC_ADM_01
     usecase "UC-ADM-02\nAtribuir papel" as UC_ADM_02
     usecase "UC-ADM-03\nConfigurar parametros" as UC_ADM_03
+    usecase "UC-ADM-04\nResetar credencial" as UC_ADM_04
   }
 
   package "Cadastros" {
@@ -68,6 +69,7 @@ rectangle "Sistema de Controle de EPI" {
 Admin --> UC_ADM_01
 Admin --> UC_ADM_02
 Admin --> UC_ADM_03
+Admin --> UC_ADM_04
 Admin --> UC_CAD_01
 Admin --> UC_CAD_02
 Admin --> UC_CAD_03
@@ -123,6 +125,7 @@ UC_POS_02 ..> UC_TRV_02 : <<include>>
 UC_ADM_01 ..> UC_TRV_02 : <<include>>
 UC_ADM_02 ..> UC_TRV_02 : <<include>>
 UC_ADM_03 ..> UC_TRV_02 : <<include>>
+UC_ADM_04 ..> UC_TRV_02 : <<include>>
 
 UC_REL_01 ..> UC_TRV_03 : <<include>>
 UC_REL_02 ..> UC_TRV_03 : <<include>>
@@ -130,4 +133,3 @@ UC_REL_03 ..> UC_TRV_03 : <<include>>
 UC_REL_04 ..> UC_TRV_03 : <<include>>
 
 @enduml
-

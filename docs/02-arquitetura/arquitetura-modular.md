@@ -220,21 +220,25 @@ modules/<modulo>/
 
 **Responsabilidade**
 - Usuarios, papeis, parametros gerais, rotinas de suporte/backup.
+- Ciclo de vida de credenciais (criacao, reset, troca obrigatoria inicial e politicas de bloqueio).
 
 **Entidades**
 - `Usuario`, `Papel`, `UsuarioPapel`, `ParametroSistema`.
+- `EstadoCredencial` (modelagem de estado para troca obrigatoria e bloqueio temporario).
 
 **Casos de uso**
 - `CadastrarUsuario`
 - `AtribuirPapel`
 - `AtualizarParametroSistema`
+- `ResetarCredencialUsuario`
 
 **Tabelas**
 - `usuario`, `papel`, `usuario_papel`, `parametro_sistema`.
+- Campos/estrutura de credencial no `usuario` (estado de troca obrigatoria, tentativas invalidas, janela de bloqueio), conforme evolucao de schema.
 
 ## Componentes compartilhados (`shared`)
 
-- `auth`: autenticacao e autorizacao por papel (RBAC).
+- `auth`: autenticacao e autorizacao por papel (RBAC), politica de senha e verificacao de estado de credencial.
 - `audit`: log append-only (`auditoria`).
 - `exceptions`: erros de negocio padronizados.
 - `time`: relogio de sistema para padronizar timestamps e testes.
@@ -266,6 +270,28 @@ cadastros ----> matriz -------\
   - grava estorno
   - grava auditoria
   - nunca apaga evento original
+
+## Fronteiras transacionais para credenciais (importante)
+
+- `CadastrarUsuario`:
+  - valida politica de senha
+  - valida unicidade de login
+  - grava usuario e estado de troca obrigatoria inicial
+  - grava auditoria do evento
+  - commit unico
+
+- `ResetarCredencialUsuario`:
+  - valida autorizacao de Admin
+  - grava novo hash de credencial
+  - reativa troca obrigatoria no proximo login
+  - grava auditoria do reset
+  - commit unico
+
+- `AutenticarUsuario`:
+  - valida hash da senha
+  - atualiza contadores de tentativas invalidas/quebra de bloqueio
+  - avalia bloqueio temporario e estado de troca obrigatoria
+  - registra eventos criticos auditaveis (quando aplicavel)
 
 ## Modelo de dados: diretrizes
 
@@ -317,4 +343,3 @@ Atualizar este arquivo quando houver:
 - Estrategia geral aprovada para seguir.
 - Modelagem funcional "antes/durante/depois" ja documentada.
 - Proximo passo tecnico: iniciar esqueleto de projeto seguindo esta estrutura.
-

@@ -107,6 +107,15 @@ Para cada feature/task, documentar no minimo:
    - quando:
    - entao:
 
+## Gate adicional para autenticacao e credenciais
+
+Quando a task impactar login, senha, usuario, papel ou auditoria de eventos sensiveis, incluir obrigatoriamente:
+
+1. regra de seguranca aplicada (ex.: politica de senha, bloqueio por tentativas);
+2. cenario de abuso/falha (ex.: tentativa repetida invalida, acesso sem papel Admin);
+3. evidencia de auditoria do evento sensivel;
+4. validacao de nao exposicao de segredo em log/console.
+
 ## Gate de qualidade (Definition of Done)
 
 Uma task so pode ser encerrada quando:
@@ -116,6 +125,7 @@ Uma task so pode ser encerrada quando:
 3. criterio de aceite aprovado;
 4. documentacao impactada atualizada;
 5. vinculacao Jira <-> commit/PR registrada.
+6. para tema de credencial/auth: checklist de seguranca e auditoria aprovado.
 
 ## Politica anti-obsolescencia de documentacao
 
@@ -142,5 +152,67 @@ Manter, por feature:
 - Artefatos de codigo:
 - Evidencia de validacao:
 - Docs atualizados:
+- Checklist de seguranca (quando aplicavel):
 
 Sem esses campos, a feature nao e considerada encerrada.
+
+## Diretriz de implementacao para auth/RBAC
+
+Quando a entrega envolver acesso, credencial, papel ou auditoria de seguranca, aplicar o padrao abaixo para manter testabilidade e governanca.
+
+### Divisao de responsabilidades de codigo
+
+1. **Use case/service de aplicacao**
+   - orquestra fluxo, transacao e autorizacao;
+   - chama validacoes de dominio;
+   - chama auditoria;
+   - nao deve concentrar SQL inline.
+2. **Dominio (regras)**
+   - politica de senha;
+   - politica de bloqueio por tentativas;
+   - regras de autorizacao por papel;
+   - transicoes de estado de credencial.
+3. **Infra/repositorio**
+   - persistencia JDBC/SQL encapsulada;
+   - sem regra de negocio juridica/funcional.
+4. **Helper**
+   - apenas funcoes puras e utilitarias (normalizacao/sanitizacao);
+   - nao carregar regra principal de negocio.
+
+### Excecoes de negocio recomendadas
+
+- `AuthorizationDeniedException`
+- `DuplicateLoginException`
+- `WeakPasswordException`
+- `CredentialBlockedException`
+- `MandatoryPasswordChangeException`
+- `InvalidCredentialException`
+
+### Catalogo minimo de mensagens de erro
+
+- `AUTH-001` Credenciais invalidas.
+- `AUTH-002` Conta temporariamente bloqueada.
+- `AUTH-003` E necessario alterar a credencial para continuar.
+- `AUTH-004` Voce nao tem permissao para executar esta acao.
+- `AUTH-005` Login ja utilizado.
+- `AUTH-006` Credencial fora da politica minima de seguranca.
+
+Regra: mensagens para usuario devem ser objetivas e sem exposicao de segredo tecnico.
+
+### Matriz minima de testes para auth/RBAC
+
+1. **Unitario de dominio**
+   - politica de senha;
+   - politica de bloqueio;
+   - autorizacao por papel.
+2. **Unitario de use case**
+   - cenario feliz/bloqueio/borda;
+   - falha de auditoria e falha de autorizacao.
+3. **Integracao com banco**
+   - unicidade de login;
+   - persistencia de papeis/estado credencial;
+   - rollback transacional.
+4. **Teste de abuso**
+   - acao administrativa sem papel `Admin`;
+   - repeticao de tentativas invalidas;
+   - tentativa de bypass por chamada direta.

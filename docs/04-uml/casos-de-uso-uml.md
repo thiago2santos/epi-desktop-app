@@ -34,17 +34,28 @@ Cada caso de uso segue o formato:
 ### UC-ADM-01 — Cadastrar usuario
 - **Atores**: Admin
 - **Descricao**: Cria usuario interno para operacao do sistema.
-- **Pre-condicoes**: Admin autenticado.
+- **Pre-condicoes**:
+  - Admin autenticado e autorizado.
+  - Mecanismo de auditoria operacional e append-only.
+  - Tabela de usuarios ativa com unicidade de login.
 - **Gatilho**: Necessidade de novo operador.
 - **Fluxo principal**:
   1. Admin acessa tela de usuarios.
   2. Informa nome, login e status inicial.
-  3. Define credencial inicial.
-  4. Confirma cadastro.
+  3. Define credencial inicial aderente a politica de senha.
+  4. Sistema valida politica da credencial e unicidade do login.
+  5. Admin confirma cadastro.
+  6. Sistema cria usuario com troca obrigatoria no primeiro acesso.
+  7. Sistema registra auditoria do evento.
 - **Fluxos alternativos/excecoes**:
   - Login ja existente: sistema recusa e solicita novo login.
-- **Pos-condicoes**: Usuario criado e apto a receber papel.
-- **Regras relacionadas**: unicidade de login; auditoria obrigatoria.
+  - Credencial fora da politica: sistema recusa e orienta ajuste.
+  - Falha de auditoria: sistema trata conforme politica transacional definida.
+- **Pos-condicoes**:
+  - Usuario criado com status inicial informado.
+  - Usuario apto a receber papel.
+  - Credencial marcada para troca obrigatoria no primeiro acesso.
+- **Regras relacionadas**: unicidade de login; politica de senha forte; auditoria obrigatoria.
 
 ### UC-ADM-02 — Atribuir papel ao usuario
 - **Atores**: Admin
@@ -73,6 +84,28 @@ Cada caso de uso segue o formato:
   - Parametro invalido: sistema bloqueia salvamento.
 - **Pos-condicoes**: Parametros vigentes para os modulos operacionais.
 - **Regras relacionadas**: validacao de dominio; versionamento de parametro.
+
+### UC-ADM-04 — Resetar credencial de usuario
+- **Atores**: Admin
+- **Descricao**: Reseta credencial de usuario interno para recuperar acesso com seguranca.
+- **Pre-condicoes**:
+  - Admin autenticado e autorizado.
+  - Usuario alvo existente.
+  - Mecanismo de auditoria ativo.
+- **Gatilho**: Solicitacao de recuperacao de acesso ou comprometimento de credencial.
+- **Fluxo principal**:
+  1. Admin localiza usuario.
+  2. Aciona reset de credencial.
+  3. Define nova credencial inicial aderente a politica.
+  4. Sistema marca troca obrigatoria no proximo login.
+  5. Sistema registra auditoria do reset.
+- **Fluxos alternativos/excecoes**:
+  - Credencial fora da politica: sistema recusa e solicita ajuste.
+  - Usuario inexistente/inativo para operacao: sistema recusa.
+- **Pos-condicoes**:
+  - Credencial anterior invalidada.
+  - Nova credencial ativa com troca obrigatoria no proximo acesso.
+- **Regras relacionadas**: controle por papel Admin; politica de senha forte; auditoria append-only.
 
 ---
 
@@ -409,12 +442,18 @@ Cada caso de uso segue o formato:
 - **Fluxo principal**:
   1. Usuario informa login e senha.
   2. Sistema valida credenciais.
-  3. Sistema carrega papeis/permissoes.
+  3. Sistema verifica estado da credencial e bloqueio de conta.
+  4. Se houver troca obrigatoria pendente, sistema redireciona para troca de senha.
+  5. Sistema carrega papeis/permissoes.
 - **Fluxos alternativos/excecoes**:
   - Credencial invalida: acesso negado.
   - Usuario inativo: acesso negado.
-- **Pos-condicoes**: Sessao autenticada.
-- **Regras relacionadas**: senha com hash seguro; controle por papel.
+  - Limite de tentativas invalidas atingido: conta bloqueada temporariamente.
+  - Conta bloqueada no momento do login: acesso negado ate fim da janela de bloqueio.
+- **Pos-condicoes**:
+  - Sessao autenticada quando credenciais e estado da conta estao validos.
+  - Evento auditavel registrado para falhas criticas de autenticacao (quando aplicavel).
+- **Regras relacionadas**: senha com hash seguro; controle por papel; bloqueio por tentativas invalidas; troca obrigatoria quando sinalizada.
 
 ### UC-TRV-02 — Registrar auditoria de evento sensivel
 - **Atores**: Sistema (automatico)
@@ -451,4 +490,3 @@ Cada caso de uso segue o formato:
 - Este documento representa o baseline funcional atual e deve evoluir junto com o backlog.
 - Mudancas em regras legais (NR-6) ou em arquitetura devem refletir aqui.
 - Quando houver prototipo de tela, cada caso de uso deve referenciar a tela correspondente.
-

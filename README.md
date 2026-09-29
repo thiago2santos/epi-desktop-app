@@ -72,12 +72,24 @@ Observacao: os scripts de hook sao versionados em `.githooks` para manter o setu
 - A UI depende da porta `AuthenticationProvider`.
 - A trilha de auditoria depende da porta `AuditTrail`.
 - Implementacao atual (infra): JDBC local (`AuthService` + `AuditService`).
+- Senhas sao protegidas com `Argon2` (`PasswordEncoder`).
+
+### Politica de credencial (baseline)
+
+- Senha minima de 12 caracteres.
+- Exigir ao menos 3 de 4 grupos: maiuscula, minuscula, numero e especial.
+- Nao aceitar senha contendo o login do usuario.
+- Nao aceitar senha trivial/proibida.
+- Credencial inicial deve ser trocada no primeiro acesso (quando aplicavel).
+- Eventos sensiveis de credencial devem gerar trilha de auditoria.
 
 Para trocar provedor (ex.: Keycloak), adicione nova implementacao das portas e mude:
 
 ```bash
 EASYNR6_AUTH_PROVIDER=keycloak
 ```
+
+Observacao: evite credenciais bootstrap fixas em ambiente real; use credencial inicial temporaria e rotacao imediata no primeiro acesso.
 
 ## Release
 

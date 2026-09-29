@@ -22,6 +22,13 @@ Use este checklist como evidencia de validacao antes de fechar a task.
 - [ ] `./mvnw -B pmd:check` sem falhas
 - [ ] `./mvnw -B -DskipTests compile spotbugs:check` sem falhas
 
+## Seguranca e auditoria (quando aplicavel)
+
+- [ ] politica de seguranca validada (ex.: senha, bloqueio, RBAC)
+- [ ] sem segredo exposto em log/console
+- [ ] evento sensivel auditado corretamente
+- [ ] cenario de acesso nao autorizado validado
+
 ## Evidencias
 
 - resultado esperado:
@@ -40,3 +47,4 @@ Justificativa (se "sem impacto documental"):
 - [ ] implementacao concluida
 - [ ] criterios de aceite atendidos
 - [ ] rastreabilidade issue <-> commit/PR registrada
+- [ ] para auth/credencial: gate de seguranca e auditoria aprovado

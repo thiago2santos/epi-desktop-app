@@ -38,7 +38,14 @@ Use este template antes da implementacao de qualquer item `UC` ou `FEAT`.
 - dados:
 - decisao:
 
-## 6) Documentacao impactada
+## 6) Seguranca e auditoria (obrigatorio para auth/credencial)
+
+- impacto em login/senha/usuario/papel?: sim/nao
+- regra de seguranca aplicada:
+- evento(s) que devem ser auditados:
+- risco principal se implementar errado:
+
+## 7) Documentacao impactada
 
 - `docs/...`
 - `README.md` (se aplicavel)

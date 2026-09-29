@@ -48,6 +48,8 @@
 - Entrega fora da matriz so com excecao justificada/autorizada.
 - Devolucao nao pode ser anterior a entrega.
 - EPI conjugado deve registrar todos os CAs dos componentes.
+- Credenciais de usuarios devem seguir politica de senha forte e ciclo de troca seguro.
+- Eventos de credencial sensiveis devem ser auditaveis.
 
 ## 5) Stack definida e justificativa macro
 
@@ -86,6 +88,7 @@
 - Duas pessoas devem operar no dia a dia (key user + colega).
 - Perfis de acesso previstos: Admin, SESMT, Almoxarife, Consulta.
 - Fluxo precisa ser simples para uso continuo no balcao.
+- A operacao deve preservar credenciais individuais (sem compartilhamento de login).
 
 ## 10) O que ja foi produzido no repositorio
 
@@ -105,6 +108,7 @@
 - Definir pacote final de instalacao sem admin (fluxo oficial).
 - Detalhar politica formal de backup/restauracao.
 - Definir estrategia final de consolidacao entre unidades.
+- Fechar parametros operacionais finais da politica de credenciais (tentativas invalidas e janela de bloqueio).
 
 ## 12) Identidade comercial e identificadores tecnicos (fechado)
 
@@ -128,4 +132,3 @@ Observacao tecnica:
   3. durante a entrega;
   4. depois da entrega;
   5. relatorios e empacotamento.
-

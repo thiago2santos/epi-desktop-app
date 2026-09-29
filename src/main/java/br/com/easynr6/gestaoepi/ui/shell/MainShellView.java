@@ -3,9 +3,11 @@ package br.com.easynr6.gestaoepi.ui.shell;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import br.com.easynr6.gestaoepi.shared.auth.Papel;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
+import br.com.easynr6.gestaoepi.ui.operacao.EntregaWizardView;
 import java.util.EnumSet;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -25,7 +27,7 @@ public class MainShellView extends BorderPane {
     setTop(buildHeader(onLogout));
     this.conteudoLabel = new Label("Selecione um modulo para comecar.");
     conteudoLabel.setStyle("-fx-font-size: 18px;");
-    setCenter(conteudoLabel);
+    renderContent(conteudoLabel);
   }
 
   private VBox buildSidebar() {
@@ -46,7 +48,7 @@ public class MainShellView extends BorderPane {
       button.setDisable(!habilitado);
       button.setOnAction(
           event -> {
-            conteudoLabel.setText("Modulo selecionado: " + modulo.label);
+            renderContent(contentFor(modulo));
             auditTrail.registrarEventoCritico(
                 usuario.id(),
                 "ACESSO_MODULO",
@@ -86,6 +88,19 @@ public class MainShellView extends BorderPane {
     setMargin(right, new Insets(0, 0, 0, 16));
     header.getChildren().add(topLine);
     return header;
+  }
+
+  private Node contentFor(Modulo modulo) {
+    if (modulo == Modulo.OPERACAO) {
+      return new EntregaWizardView(usuario, auditTrail);
+    }
+    conteudoLabel.setText("Modulo selecionado: " + modulo.label);
+    return conteudoLabel;
+  }
+
+  private void renderContent(Node node) {
+    setCenter(node);
+    setMargin(node, new Insets(16));
   }
 
   private enum Modulo {
