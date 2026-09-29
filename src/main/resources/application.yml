@@ -15,6 +15,26 @@ logging:
   level:
     root: INFO
 
+management:
+  tracing:
+    enabled: ${EASYNR6_OBS_ENABLED:false}
+    sampling:
+      probability: ${EASYNR6_OBS_TRACING_SAMPLING:1.0}
+  otlp:
+    tracing:
+      endpoint: ${EASYNR6_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
+    metrics:
+      export:
+        enabled: ${EASYNR6_OBS_ENABLED:false}
+        url: ${EASYNR6_OTLP_METRICS_URL:http://localhost:4318/v1/metrics}
+  metrics:
+    export:
+      otlp:
+        enabled: ${EASYNR6_OBS_ENABLED:false}
+  observations:
+    annotations:
+      enabled: true
+
 easy-nr6:
   auth:
     provider: ${EASYNR6_AUTH_PROVIDER:jdbc}

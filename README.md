@@ -34,6 +34,22 @@ Para executar aplicacao:
 ./mvnw javafx:run
 ```
 
+## Observabilidade local (OpenTelemetry + Grafana LGTM)
+
+Subir stack local:
+
+```bash
+docker compose -f docker-compose.observability.yml up -d
+```
+
+Rodar aplicacao com exportacao OTLP ligada:
+
+```bash
+EASYNR6_OBS_ENABLED=true ./mvnw javafx:run
+```
+
+Paineis e traces: `http://localhost:3000` (`admin` / `admin`).
+
 ## Qualidade
 
 ```bash
