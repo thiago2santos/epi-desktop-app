@@ -91,6 +91,17 @@ EASYNR6_AUTH_PROVIDER=keycloak
 
 Observacao: evite credenciais bootstrap fixas em ambiente real; use credencial inicial temporaria e rotacao imediata no primeiro acesso.
 
+Para inicializacao com bootstrap admin habilitado em base vazia, defina:
+
+```bash
+EASYNR6_BOOTSTRAP_ADMIN_PASSWORD="<senha-forte>"
+```
+
+Modo de bootstrap:
+
+- `EASYNR6_BOOTSTRAP_ADMIN_MODE=dev` (padrao): se a senha nao for informada, gera credencial temporaria e exige troca no primeiro acesso.
+- `EASYNR6_BOOTSTRAP_ADMIN_MODE=strict`: exige `EASYNR6_BOOTSTRAP_ADMIN_PASSWORD` e falha startup sem ela.
+
 ## Release
 
 - CI valida PRs na `main`.
