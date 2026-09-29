@@ -42,6 +42,14 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 3. Fechar base de cadastros e regras para uso autonomo do key user.
 4. Publicar landing com posicionamento hibrido (compliance + operacao/budget).
 
+## Status consolidado da retomada (checkpoint tecnico)
+
+- `R0`: concluido (workflow release, hooks de qualidade, templates de governanca).
+- `M0`: concluido (shell desktop, autenticacao com resultado tipado, RBAC, auditoria append-only, politica de credenciais em runtime).
+- `M0` hardening arquitetural: concluido (identidade desacoplada por `ports + use cases + adapters`, com fachadas compativeis para UI).
+- `M1`: pendente e priorizado como proxima frente (cadastros essenciais e validacoes cruzadas).
+- `M2`: permanece bloqueado por DoR ate fechamento real de M1.
+
 ## Priorizacao por modulo (ordem de implementacao)
 
 ## R0 - Setup de repositorio e governanca de entrega (Must)
@@ -216,10 +224,10 @@ M2 (core operacional governado) so pode iniciar quando todos os itens abaixo est
 
 ### 3) Fundacao tecnica e seguranca validada
 
-- [ ] RBAC operacional para `Admin`, `SESMT`, `Almoxarife`, `Consulta`.
-- [ ] Auditoria append-only ativa e validada.
-- [ ] Politica de credenciais baseline ativa (senha forte + rastreabilidade).
-- [ ] Migracoes de banco aplicadas com sucesso no ambiente de desenvolvimento.
+- [x] RBAC operacional para `Admin`, `SESMT`, `Almoxarife`, `Consulta`.
+- [x] Auditoria append-only ativa e validada.
+- [x] Politica de credenciais baseline ativa (senha forte + rastreabilidade).
+- [x] Migracoes de banco aplicadas com sucesso no ambiente de desenvolvimento.
 
 ### 4) Prontidao de implementacao do caso de uso
 

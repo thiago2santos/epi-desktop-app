@@ -236,6 +236,13 @@ modules/<modulo>/
 - `usuario`, `papel`, `usuario_papel`, `parametro_sistema`.
 - Campos/estrutura de credencial no `usuario` (estado de troca obrigatoria, tentativas invalidas, janela de bloqueio), conforme evolucao de schema.
 
+**Status arquitetural implementado (identidade)**
+- Portas explicitas de identidade: `IdentityRepository`, `CredentialHasher`, `Clock`.
+- Casos de uso aplicacionais para autenticacao e gestao administrativa de credencial/papel.
+- Adaptadores de infraestrutura para JDBC local, Argon2 e relogio de sistema.
+- Fachadas de compatibilidade mantidas (`AuthenticationProvider`, `CredentialManager`) para nao quebrar UI.
+- Regra de negocio de credencial e autorizacao movida para camada de use case (fora da fachada JDBC).
+
 ## Componentes compartilhados (`shared`)
 
 - `auth`: autenticacao e autorizacao por papel (RBAC), politica de senha e verificacao de estado de credencial.
@@ -340,6 +347,7 @@ Atualizar este arquivo quando houver:
 
 ## Estado atual
 
-- Estrategia geral aprovada para seguir.
-- Modelagem funcional "antes/durante/depois" ja documentada.
-- Proximo passo tecnico: iniciar esqueleto de projeto seguindo esta estrutura.
+- Estrategia geral aprovada e em execucao incremental.
+- Fundacao tecnica (R0/M0) operacional com login, RBAC, auditoria append-only e ciclo de credenciais.
+- Arquitetura de identidade desacoplada concluida no eixo `ports + use cases + adapters` sem quebra da UI.
+- Proximo foco de entrega: M1 (cadastros essenciais e base de dados operacional para liberar M2).
