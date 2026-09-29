@@ -1,0 +1,99 @@
+{
+  "realm": "easynr6",
+  "enabled": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "ADMIN",
+        "description": "Administrador"
+      },
+      {
+        "name": "SESMT",
+        "description": "Seguranca do trabalho"
+      },
+      {
+        "name": "ALMOXARIFE",
+        "description": "Operador de almoxarifado"
+      },
+      {
+        "name": "CONSULTA",
+        "description": "Consulta de dados e relatorios"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "easy-nr6-desktop",
+      "name": "Easy NR6 Desktop",
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "protocol": "openid-connect",
+      "enabled": true
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "totp": false,
+      "email": "admin@easynr6.local",
+      "emailVerified": true,
+      "requiredActions": [],
+      "firstName": "Administrador",
+      "lastName": "Easy NR6",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Admin#Dev2026!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "ADMIN",
+        "SESMT"
+      ]
+    },
+    {
+      "username": "almox",
+      "enabled": true,
+      "totp": false,
+      "email": "almox@easynr6.local",
+      "emailVerified": true,
+      "requiredActions": [],
+      "firstName": "Almoxarife",
+      "lastName": "Easy NR6",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Almox#Dev2026!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "ALMOXARIFE"
+      ]
+    },
+    {
+      "username": "consulta",
+      "enabled": true,
+      "totp": false,
+      "email": "consulta@easynr6.local",
+      "emailVerified": true,
+      "requiredActions": [],
+      "firstName": "Consulta",
+      "lastName": "Easy NR6",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Consulta#Dev2026!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "CONSULTA"
+      ]
+    }
+  ]
+}

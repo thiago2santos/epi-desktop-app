@@ -38,6 +38,11 @@ management:
 easy-nr6:
   auth:
     provider: ${EASYNR6_AUTH_PROVIDER:jdbc}
+    keycloak:
+      base-url: ${EASYNR6_KEYCLOAK_BASE_URL:http://localhost:8080}
+      realm: ${EASYNR6_KEYCLOAK_REALM:easynr6}
+      client-id: ${EASYNR6_KEYCLOAK_CLIENT_ID:easy-nr6-desktop}
+      client-secret: ${EASYNR6_KEYCLOAK_CLIENT_SECRET:}
   bootstrap-admin:
     enabled: ${EASYNR6_BOOTSTRAP_ADMIN_ENABLED:true}
     mode: ${EASYNR6_BOOTSTRAP_ADMIN_MODE:dev}

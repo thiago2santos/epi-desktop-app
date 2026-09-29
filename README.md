@@ -50,6 +50,26 @@ EASYNR6_OBS_ENABLED=true ./mvnw javafx:run
 
 Paineis e traces: `http://localhost:3000` (`admin` / `admin`).
 
+## Teste IAM com Keycloak (provider plugavel)
+
+Subir Keycloak local com realm pre-configurado:
+
+```bash
+docker compose -f docker-compose.keycloak.yml up -d
+```
+
+Trocar o provider de autenticacao com uma linha:
+
+```bash
+EASYNR6_AUTH_PROVIDER=keycloak ./mvnw javafx:run
+```
+
+Usuarios de teste no realm `easynr6`:
+
+- `admin` / `Admin#Dev2026!`
+- `almox` / `Almox#Dev2026!`
+- `consulta` / `Consulta#Dev2026!`
+
 ## Qualidade
 
 ```bash
