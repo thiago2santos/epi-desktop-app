@@ -64,3 +64,23 @@ Classifique cada item como:
 - `TECH`: trabalho técnico/infrastrutura.
 
 Referência: `docs/99-governanca/modelo-jira-spec-driven-e-rastreabilidade.md`.
+
+## Convenção de idioma (obrigatória)
+
+Para evitar mistura de idiomas no código e facilitar manutenção:
+
+- **Código-fonte em inglês**:
+  - nomes de classes, métodos, variáveis, pacotes e arquivos;
+  - nomes de testes e fixtures;
+  - mensagens de erro internas/exceções técnicas.
+- **Experiência do usuário em pt-BR**:
+  - labels, textos de tela, mensagens exibidas na UI;
+  - fluxos operacionais voltados ao usuário final.
+- **Documentação de negócio/operação em pt-BR**:
+  - artefatos funcionais, backlog e guias operacionais.
+
+### Regra de transição
+
+- Não renomear tudo retroativamente de uma vez.
+- Aplicar a convenção em toda nova implementação.
+- Quando tocar código legado misto, normalizar idioma no trecho alterado sempre que viável.
