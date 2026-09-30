@@ -171,3 +171,19 @@ Modo de bootstrap:
 ## Documentacao
 
 A pasta `docs/` concentra os artefatos de negocio, arquitetura, operacao e governanca.
+
+## Status atual (checkpoint rapido)
+
+- `R0` e `M0` concluidos (fundacao, RBAC, credencial, auditoria append-only).
+- `M1` em andamento com baseline entregue para:
+  - `UC-CAD-02` Setores/Funcoes;
+  - `UC-CAD-03` Trabalhadores;
+  - `UC-CAD-04/05` EPI + CA (regras `CAD-03x`, migration, testes iniciais, UI em `Cadastros`).
+- Auditoria:
+  - trilha append-only operacional;
+  - consulta inicial em UI disponivel no modulo lateral `Auditoria` (`UC-AUD-01` baseline).
+
+Referencias de planejamento e status:
+
+- Backlog refinado: `docs/03-operacao/backlog-implementacao-mvp.md`
+- Checkpoint de continuidade: `docs/03-operacao/checkpoint-retomada-2026-09-29.md`

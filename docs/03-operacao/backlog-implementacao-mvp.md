@@ -53,7 +53,7 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 - `M2`: permanece bloqueado por DoR ate fechamento real de M1.
 
 > **Footnote de governanca (obrigatorio antes de release):**
-> testes de usabilidade de campo ainda pendentes para o novo modulo `Cadastros` (abas `Empregados`, `Setores`, `Funcoes`), incluindo validacao de fluxo ponta a ponta por key user.
+> testes de usabilidade de campo ainda pendentes para os modulos `Cadastros` (abas `Empregados`, `Setores`, `Funcoes`, `EPI`, `CA por EPI`) e `Auditoria` (consulta), incluindo validacao de fluxo ponta a ponta por key user.
 
 ## Priorizacao por modulo (ordem de implementacao)
 
@@ -217,7 +217,7 @@ M2 (core operacional governado) so pode iniciar quando todos os itens abaixo est
 
 - [x] Cadastro de trabalhador ativo disponivel (matricula, nome, funcao/setor).
 - [x] Cadastro de setor e funcao disponivel (com status e validacoes de dependencia).
-- [ ] Cadastro de EPI com CA valido disponivel para entrega.
+- [x] Cadastro de EPI com CA valido disponivel para entrega (baseline UC-CAD-04/05).
 - [ ] Lotes cadastrados com validade da peca e saldo disponivel.
 - [ ] Matriz funcao/GHE x EPI ativa para os perfis piloto.
 - [ ] Parametros minimos de periodicidade configurados.
@@ -249,6 +249,14 @@ M2 (core operacional governado) so pode iniciar quando todos os itens abaixo est
 - [x] Matriz normativa -> regra -> teste definida.
 - [x] Catalogo de erros `CAD-03x` definido.
 - [x] Implementacao do cadastro EPI/CA concluida com auditoria e RBAC.
+- [ ] Rodada de usabilidade com key user executada e registrada.
+
+### Gate especifico para UC-AUD-01 (Consulta de auditoria) - baseline
+
+- [x] Spec curta de auditoria de consulta definida.
+- [x] Tela de auditoria conectada no modulo lateral.
+- [x] Listagem e filtro livre funcionando sobre tabela `auditoria`.
+- [ ] Refinar filtros por periodo/acao e exportacao de evidencias.
 - [ ] Rodada de usabilidade com key user executada e registrada.
 
 ### 5) Gate transacional e juridico (obrigatorio)
@@ -389,3 +397,11 @@ Toda task deve conter:
   **Mitigacao**: reforcar qualificacao no formulario e FAQ.
 - **Risco**: documentacao descolar da implementacao real.
   **Mitigacao**: tratar atualizacao de docs como criterio obrigatorio de pronto.
+
+## Proximo ataque recomendado (sequencia objetiva)
+
+1. Fechar usabilidade dos cadastros ja entregues (`Trabalhador`, `Setor/Funcao`, `EPI/CA`, `Auditoria`).
+2. Implementar `UC-LOT-01/02` (lotes com validade e saldo).
+3. Implementar `UC-MAT-01/02` (matriz funcao/GHE x EPI).
+4. Implementar parametros de periodicidade.
+5. Reavaliar DoR de M2 e abrir desenvolvimento do core de entrega transacional.
