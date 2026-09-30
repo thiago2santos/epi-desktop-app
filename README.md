@@ -34,7 +34,7 @@ Para executar aplicacao:
 ./mvnw javafx:run
 ```
 
-## Observabilidade local (OpenTelemetry + Grafana LGTM)
+## Observabilidade local (OTel Collector + Prometheus + Tempo + Loki + Grafana)
 
 Subir stack local:
 
@@ -48,7 +48,20 @@ Rodar aplicacao com exportacao OTLP ligada:
 EASYNR6_OBS_ENABLED=true ./mvnw javafx:run
 ```
 
-Paineis e traces: `http://localhost:3000` (`admin` / `admin`).
+Endpoints locais da stack:
+
+- Grafana: `http://localhost:3000` (acesso anonimo habilitado)
+- Prometheus: `http://localhost:9090`
+- Tempo: `http://localhost:3200`
+- Loki: `http://localhost:3100`
+- OTLP gRPC: `localhost:4317`
+- OTLP HTTP: `localhost:4318`
+
+Parar stack:
+
+```bash
+docker compose -f docker-compose.observability.yml down
+```
 
 ## Teste IAM com Keycloak (provider plugavel)
 
