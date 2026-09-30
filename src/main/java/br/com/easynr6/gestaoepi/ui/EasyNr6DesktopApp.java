@@ -1,6 +1,8 @@
 package br.com.easynr6.gestaoepi.ui;
 
 import br.com.easynr6.gestaoepi.modules.employee.application.EmployeeManagementService;
+import br.com.easynr6.gestaoepi.modules.epi.application.EpiCatalogManagementService;
+import br.com.easynr6.gestaoepi.shared.audit.AuditQueryService;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import br.com.easynr6.gestaoepi.shared.auth.AuthenticationProvider;
 import br.com.easynr6.gestaoepi.shared.auth.CredentialManager;
@@ -22,6 +24,8 @@ public class EasyNr6DesktopApp extends Application {
   private CredentialManager credentialManager;
   private UserAdministrationService userAdministrationService;
   private EmployeeManagementService employeeManagementService;
+  private EpiCatalogManagementService epiCatalogManagementService;
+  private AuditQueryService auditQueryService;
   private AuditTrail auditTrail;
   private Stage stage;
 
@@ -36,6 +40,9 @@ public class EasyNr6DesktopApp extends Application {
     this.credentialManager = applicationContext.getBean(CredentialManager.class);
     this.userAdministrationService = applicationContext.getBean(UserAdministrationService.class);
     this.employeeManagementService = applicationContext.getBean(EmployeeManagementService.class);
+    this.epiCatalogManagementService =
+        applicationContext.getBean(EpiCatalogManagementService.class);
+    this.auditQueryService = applicationContext.getBean(AuditQueryService.class);
     this.auditTrail = applicationContext.getBean(AuditTrail.class);
     this.stage.setTitle("Easy NR6 Gestao de EPI");
     abrirTelaLogin();
@@ -79,8 +86,10 @@ public class EasyNr6DesktopApp extends Application {
         new MainShellView(
             usuario,
             auditTrail,
+            auditQueryService,
             userAdministrationService,
             employeeManagementService,
+            epiCatalogManagementService,
             () -> {
               auditTrail.registrarEventoCritico(
                   usuario.id(),

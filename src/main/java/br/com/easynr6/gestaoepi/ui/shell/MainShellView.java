@@ -1,11 +1,14 @@
 package br.com.easynr6.gestaoepi.ui.shell;
 
 import br.com.easynr6.gestaoepi.modules.employee.application.EmployeeManagementService;
+import br.com.easynr6.gestaoepi.modules.epi.application.EpiCatalogManagementService;
+import br.com.easynr6.gestaoepi.shared.audit.AuditQueryService;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import br.com.easynr6.gestaoepi.shared.auth.Papel;
 import br.com.easynr6.gestaoepi.shared.auth.UserAdministrationService;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
 import br.com.easynr6.gestaoepi.ui.admin.UserAdministrationView;
+import br.com.easynr6.gestaoepi.ui.auditoria.AuditTrailView;
 import br.com.easynr6.gestaoepi.ui.cadastros.CadastrosManagementView;
 import br.com.easynr6.gestaoepi.ui.operacao.EntregaWizardView;
 import java.util.EnumSet;
@@ -26,20 +29,26 @@ public class MainShellView extends BorderPane {
 
   private final UsuarioAutenticado usuario;
   private final AuditTrail auditTrail;
+  private final AuditQueryService auditQueryService;
   private final UserAdministrationService userAdministrationService;
   private final EmployeeManagementService employeeManagementService;
+  private final EpiCatalogManagementService epiCatalogManagementService;
   private final Label conteudoLabel;
 
   public MainShellView(
       UsuarioAutenticado usuario,
       AuditTrail auditTrail,
+      AuditQueryService auditQueryService,
       UserAdministrationService userAdministrationService,
       EmployeeManagementService employeeManagementService,
+      EpiCatalogManagementService epiCatalogManagementService,
       Runnable onLogout) {
     this.usuario = usuario;
     this.auditTrail = auditTrail;
+    this.auditQueryService = auditQueryService;
     this.userAdministrationService = userAdministrationService;
     this.employeeManagementService = employeeManagementService;
+    this.epiCatalogManagementService = epiCatalogManagementService;
     setLeft(buildSidebar());
     setTop(buildHeader(onLogout));
     this.conteudoLabel = new Label("Selecione um modulo para comecar.");
@@ -133,7 +142,11 @@ public class MainShellView extends BorderPane {
       return new UserAdministrationView(usuario, userAdministrationService);
     }
     if (modulo == Modulo.CADASTROS) {
-      return new CadastrosManagementView(usuario, employeeManagementService);
+      return new CadastrosManagementView(
+          usuario, employeeManagementService, epiCatalogManagementService);
+    }
+    if (modulo == Modulo.AUDITORIA) {
+      return new AuditTrailView(usuario, auditQueryService);
     }
     conteudoLabel.setText("Modulo selecionado: " + modulo.label);
     return conteudoLabel;
