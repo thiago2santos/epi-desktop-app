@@ -169,31 +169,37 @@ Cada caso de uso segue o formato:
 
 ### UC-CAD-04 — Cadastrar EPI
 - **Atores**: SESMT
-- **Descricao**: Cadastra item de EPI no catalogo.
+- **Descricao**: Cadastra e mantem item de EPI no catalogo com classificacao normativa.
 - **Pre-condicoes**: Usuario SESMT autenticado.
 - **Gatilho**: Novo item no programa de protecao.
 - **Fluxo principal**:
-  1. SESMT informa descricao e classificacao do EPI.
-  2. Marca status ativo.
-  3. Confirma cadastro.
+  1. SESMT informa descricao, fabricante e classificacao do EPI conforme Anexo I da NR-6.
+  2. Sistema valida obrigatorios e consistencia da classificacao.
+  3. SESMT define status inicial (ativo/inativo) e confirma cadastro.
 - **Fluxos alternativos/excecoes**:
-  - Dados incompletos: bloqueio de salvamento.
-- **Pos-condicoes**: EPI apto a receber CA.
-- **Regras relacionadas**: integridade de cadastro mestre.
+  - `CAD-031` Campos obrigatorios de EPI ausentes.
+  - `CAD-032` Classificacao fora do Anexo I.
+  - `CAD-033` EPI duplicado no escopo.
+- **Pos-condicoes**: EPI disponivel para vinculacao de CA.
+- **Regras relacionadas**: classificacao normativa obrigatoria; sem delete fisico; auditoria.
 
 ### UC-CAD-05 — Vincular CA ao EPI
 - **Atores**: SESMT
-- **Descricao**: Registra um ou mais CAs validos associados ao EPI.
+- **Descricao**: Registra e mantem um ou mais CAs associados ao EPI com rastreabilidade de consulta oficial.
 - **Pre-condicoes**: EPI existente.
 - **Gatilho**: Inclusao/atualizacao de aprovacao do item.
 - **Fluxo principal**:
   1. SESMT seleciona EPI.
-  2. Informa numero do CA e fabricante.
-  3. Confirma vinculacao.
+  2. Informa numero do CA, situacao, vigencia e evidencia da consulta CAEPI.
+  3. Sistema valida conflito de vigencia e consistencia para ativacao.
+  4. SESMT confirma vinculacao.
 - **Fluxos alternativos/excecoes**:
-  - CA duplicado para o mesmo EPI: sistema recusa.
-- **Pos-condicoes**: EPI passa a ter CA(s) disponivel(is) para entrega.
-- **Regras relacionadas**: CA obrigatorio para entrega; suporte a EPI conjugado.
+  - `CAD-034` Numero de CA invalido/ausente.
+  - `CAD-035` Conflito de vigencia para o mesmo EPI.
+  - `CAD-036` Situacao do CA impede ativacao.
+  - `CAD-037` Evidencia de consulta oficial ausente.
+- **Pos-condicoes**: EPI passa a ter CA(s) rastreavel(is) para uso operacional.
+- **Regras relacionadas**: aderencia aos itens 6.4.1 e 6.9 da NR-6; CA obrigatorio para entrega; auditoria.
 
 ### UC-CAD-06 — Inativar cadastro mestre
 - **Atores**: Admin, SESMT

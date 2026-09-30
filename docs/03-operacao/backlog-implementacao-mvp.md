@@ -47,8 +47,9 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 - `R0`: concluido (workflow release, hooks de qualidade, templates de governanca).
 - `M0`: concluido (shell desktop, autenticacao com resultado tipado, RBAC, auditoria append-only, politica de credenciais em runtime).
 - `M0` hardening arquitetural: concluido (identidade desacoplada por `ports + use cases + adapters`, com fachadas compativeis para UI).
-- `M1`: em andamento (UC-CAD-03 concluida: cadastro de empregado com consistencia funcao/setor, status ativo/inativo, auditoria e testes de integracao).
+- `M1`: em andamento (UC-CAD-03 concluida e UC-CAD-04/05 implementada no baseline: cadastro EPI/CA com regras `CAD-03x`, RBAC, auditoria, migration e cobertura inicial de testes).
 - `M1` cadastros organizacionais: concluido para baseline (UC-CAD-02 com setores e funcoes, inativacao/reativacao controlada, validacoes de dependencia e auditoria).
+- `M3` auditoria: baseline de consulta habilitado na UI (`UC-AUD-01`), pendente evolucao de filtros por periodo/exportacao.
 - `M2`: permanece bloqueado por DoR ate fechamento real de M1.
 
 > **Footnote de governanca (obrigatorio antes de release):**
@@ -141,6 +142,7 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
   - historico por EPI/CA/lote;
   - cobertura (matriz x vigente);
   - pendencias de devolucao.
+- **[UC]** `UC-AUD-01 Consultar auditoria` (listagem e filtro livre para validacao operacional de trilha critica).
 - **[FEAT]** Exportacao PDF padronizada.
 
 **Diretriz de usabilidade**
@@ -240,6 +242,14 @@ M2 (core operacional governado) so pode iniciar quando todos os itens abaixo est
 - [ ] Spec curta de `UC-ENT-02` aprovada.
 - [ ] Cenarios de teste definidos antes do codigo (feliz, bloqueio, borda).
 - [ ] Criterios de aceite mensuraveis aprovados pelo responsavel funcional.
+
+### Gate especifico para UC-CAD-04/05 (EPI + CA) - critico
+
+- [x] Base normativa oficial NR-6/CAEPI consolidada no refinamento.
+- [x] Matriz normativa -> regra -> teste definida.
+- [x] Catalogo de erros `CAD-03x` definido.
+- [x] Implementacao do cadastro EPI/CA concluida com auditoria e RBAC.
+- [ ] Rodada de usabilidade com key user executada e registrada.
 
 ### 5) Gate transacional e juridico (obrigatorio)
 

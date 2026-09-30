@@ -55,6 +55,19 @@ Modelar a parte de entrega/devolucao de EPI com validade juridica, atendendo ao 
 7. **Devolucao unica por item**: item entregue pode ter no maximo uma devolucao associada.
 8. **Rastreabilidade**: cada registro deve guardar usuario operador, data/hora e origem da operacao.
 
+## Refinamento critico de cadastro mestre (UC-CAD-04/05)
+
+Para suportar os fluxos de entrega com aderencia normativa, o cadastro mestre de EPI e CA deve observar:
+
+- classificacao obrigatoria do EPI conforme Anexo I da NR-6;
+- vinculacao de CA com rastreabilidade de consulta oficial (CAEPI);
+- bloqueio de conflito de vigencia de CA no mesmo EPI;
+- bloqueio de ativacao operacional de EPI sem CA ativo/coerente;
+- trilha de auditoria para criar/editar/inativar EPI e vinculos de CA.
+
+Referencia da especificacao curta normativa:
+- `docs/03-operacao/spec-uc-cad-04-05-nr6.md`
+
 ## Dicionario de tabelas
 
 - `empresa`: dados institucionais.
@@ -100,4 +113,3 @@ Modelar a parte de entrega/devolucao de EPI com validade juridica, atendendo ao 
 ## Texto sugerido para termo de responsabilidade
 
 "Eu, [Nome do Funcionario], declaro que recebi gratuitamente os EPIs constantes nesta ficha, adequados ao risco da minha atividade e em perfeito estado de conservacao. Comprometo-me a utiliza-los estritamente para a finalidade a que se destinam, responsabilizando-me por sua guarda e conservacao, e a comunicar imediatamente a empresa qualquer dano, extravio ou alteracao que os torne improprios para uso, conforme determina a NR-6."
-
