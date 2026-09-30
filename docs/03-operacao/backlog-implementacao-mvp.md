@@ -387,6 +387,12 @@ Toda task deve conter:
 4. Sempre manter um unico documento fonte por assunto, atualizando referencias cruzadas.
 5. Registrar no Jira uma subtask de documentacao para toda feature de negocio.
 
+## Referencias operacionais de continuidade
+
+- Metodologia de refinamento adotada: `docs/99-governanca/metodologia-refinamento-spec-driven.md`
+- Checklist de usabilidade pendente (M1 + auditoria): `docs/03-operacao/checklist-usabilidade-m1-cadastros-auditoria.md`
+- Consolidado de refinamento do backlog: `docs/03-operacao/refinamento-backlog-consolidado-2026-09-29.md`
+
 ## Registro de risco da retomada
 
 - **Risco**: iniciar entrega real sem base de cadastro/lote/matriz pronta.
