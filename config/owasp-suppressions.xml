@@ -1,4 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
-  <!-- Adicione supressoes justificadas aqui quando necessario. -->
+  <suppress>
+    <notes><![CDATA[
+      CVE-2026-53914 affects Kotlin build-cache metadata deserialization. This
+      project includes kotlin-stdlib only as a runtime dependency; it does not
+      include the Kotlin compiler or build-cache implementation.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.jetbrains\.kotlin/kotlin-stdlib@.*$</packageUrl>
+    <cve>CVE-2026-53914</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+      CVE-2026-0994 is in Python's google.protobuf.json_format.ParseDict().
+      protobuf-java is the separate Java implementation and does not contain
+      that Python parser.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf-java@.*$</packageUrl>
+    <cve>CVE-2026-0994</cve>
+  </suppress>
+  <suppress>
+    <notes><![CDATA[
+      CVE-2025-10492 affects JasperReports Library Community Edition through
+      7.0.3. The project's JasperReports 7.0.8 is outside the affected range;
+      this narrowly scoped suppression avoids the CPE match being reported as
+      vulnerable despite the fixed version.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:maven/net\.sf\.jasperreports/jasperreports@7\.0\.8$</packageUrl>
+    <cve>CVE-2025-10492</cve>
+  </suppress>
 </suppressions>

@@ -97,6 +97,14 @@ Opcional (exige `NVD_API_KEY`):
 ./mvnw org.owasp:dependency-check-maven:check
 ```
 
+O analisador de assemblies .NET fica desabilitado porque este projeto usa
+dependencias Java e nao contem assemblies .NET. Os alertas de CVE especificos
+dos modulos Kotlin build-cache e Protobuf Python sao suprimidos para os
+artefatos Java correspondentes, com justificativas em
+`config/owasp-suppressions.xml`. O alerta do JasperReports e limitado as
+versoes ate 7.0.3; a dependencia 7.0.8 esta fora do intervalo afetado e tem
+uma supressao restrita a essa versao e ao CVE correspondente.
+
 Executar mutacao com PIT:
 
 ```bash
