@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Periodicidade — Easy NR6 mock</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+<header class="mock-chrome">
+  <span class="title">Regras · Periodicidade</span>
+  <nav><a href="../index.html">Catálogo</a><a href="11-matriz-funcao-epi.html">Matriz</a><a href="14-cobertura.html">Cobertura</a></nav>
+</header>
+<main class="page">
+  <header class="page-header">
+    <div class="uc-tag">UC-MAT-01 ext.</div>
+    <h1>Periodicidade de troca</h1>
+    <p class="sub">Parâmetro por EPI (aplica-se às funções onde o EPI está na matriz) · sessão mock</p>
+  </header>
+  <section class="panel">
+    <p style="font-size:12px;color:var(--enr6-text-muted);margin-bottom:12px">
+      Cada linha repete o par função×EPI da matriz; dias e aviso são gravados por <strong>EPI</strong> (mesmo valor em todas as funções que usam o item).
+    </p>
+    <table class="tbl">
+      <thead><tr><th>Função</th><th>EPI</th><th>Periodicidade</th><th>Unidade</th><th>Aviso antecipado (dias)</th></tr></thead>
+      <tbody id="perTb"></tbody>
+    </table>
+    <p id="emptyPer" class="hidden" style="margin-top:12px;color:var(--enr6-text-muted)">Cadastre itens na <a href="11-matriz-funcao-epi.html">matriz</a> primeiro.</p>
+    <p id="perFb" class="feedback"></p>
+    <div class="actions" style="margin-top:12px">
+      <button class="btn btn-primary" type="button" onclick="salvar()">Salvar alterações</button>
+    </div>
+  </section>
+</main>
+<script src="../mock-idb.js"></script>
+<script src="../mock-store.js"></script>
+<script>
+function esc(s) {
+    return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  }
+
+  function render() {
+    const rows = Enr6MockStore.listPeriodicityRows();
+    document.getElementById('emptyPer').classList.toggle('hidden', rows.length > 0);
+    document.getElementById('perTb').innerHTML = rows.map(r => `
+      <tr data-epi-id="${r.epiId}">
+        <td>${esc(r.jobRoleName)}</td>
+        <td>${esc(r.epiName)}</td>
+        <td><input type="number" min="1" class="days-in" value="${r.days}" style="width:80px" aria-label="Dias"></td>
+        <td>dias</td>
+        <td><input type="number" min="0" class="warn-in" value="${r.warnDays}" style="width:80px" aria-label="Aviso"></td>
+      </tr>`).join('');
+  }
+
+  function salvar() {
+    const fb = document.getElementById('perFb');
+    const seen = {};
+    try {
+      document.querySelectorAll('#perTb tr[data-epi-id]').forEach(tr => {
+        const epiId = parseInt(tr.getAttribute('data-epi-id'), 10);
+        if (seen[epiId]) return;
+        seen[epiId] = true;
+        const days = tr.querySelector('.days-in').value;
+        const warn = tr.querySelector('.warn-in').value;
+        Enr6MockStore.setPeriodicity(epiId, days, warn);
+      });
+      fb.textContent = 'Periodicidade salva — cobertura e wizard usam estes valores.';
+      fb.className = 'feedback ok';
+      render();
+    } catch (e) {
+      fb.textContent = e.message;
+      fb.className = 'feedback err';
+    }
+  }
+
+  Enr6MockStore.initClient().then(function () {
+    render();
+  });
+
+</script>
+<script src="../common.js"></script>
+</body>
+</html>

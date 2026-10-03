@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Devolução — Easy NR6 mock</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+<header class="mock-chrome">
+  <span class="title">Devolução / descarte</span>
+  <nav><a href="../index.html">Catálogo</a><a href="02-entrega-wizard.html">Entrega</a></nav>
+</header>
+<main class="page">
+  <header class="page-header">
+    <div class="uc-tag">Pós-entrega</div>
+    <h1>Registrar devolução ou descarte</h1>
+    <p class="sub">Vinculado a item entregue — registro imutável</p>
+  </header>
+  <div class="grid-2">
+    <section class="panel">
+      <label class="lbl">Buscar entrega / trabalhador</label>
+      <input id="q" placeholder="000123 ou ENT-2026-8840">
+      <button class="btn" type="button" onclick="buscar()">Buscar itens entregues</button>
+      <table class="tbl" id="tbl" style="margin-top:12px">
+        <thead><tr><th></th><th>Data</th><th>EPI</th><th>Qtd</th><th>Status</th></tr></thead>
+        <tbody id="body"></tbody>
+      </table>
+    </section>
+    <section class="panel">
+      <div class="panel-title">Devolução do item selecionado</div>
+      <div id="form" class="hidden">
+        <p id="selLabel" style="margin-bottom:12px;font-size:13px;"></p>
+        <label class="lbl">Data devolução</label>
+        <input type="date" id="dt">
+        <div id="dateErr" class="alert alert-danger hidden">Data anterior à entrega — bloqueado.</div>
+        <label class="lbl">Motivo</label>
+        <select id="motivo">
+          <option>Desligamento</option>
+          <option>Troca por desgaste (devolução)</option>
+          <option>Descarte</option>
+        </select>
+        <button class="btn btn-primary" type="button" onclick="confirmar()">Registrar devolução</button>
+      </div>
+      <p id="hint" style="color:var(--enr6-text-muted);font-size:12px;">Selecione um item entregue à esquerda.</p>
+      <p id="devFb" class="feedback"></p>
+    </section>
+  </div>
+  <footer class="legal-bar">Devolução gera novo evento; não apaga a entrega original.</footer>
+</main>
+<script src="../mock-idb.js"></script>
+<script src="../mock-store.js"></script>
+<script>
+let selected = null;
+  document.getElementById('dt').value = new Date().toISOString().slice(0, 10);
+
+  function buscar() {
+    const list = Enr6MockStore.getIssuances({ q: document.getElementById('q').value, status: 'ACTIVE' });
+    document.getElementById('body').innerHTML = list.map(it => {
+      const dt = (it.issuedAt || '').slice(0, 10);
+      return `<tr class="click" onclick="pick(${it.id})"><td class="control"><input type="radio" name="i"></td><td>${dt}</td><td>${it.epiName}</td><td>${it.qty}</td><td><span class="badge badge-ok">Vigente</span></td></tr>`;
+    }).join('') || '<tr><td colspan="5">Nenhuma entrega ativa.</td></tr>';
+  }
+  function pick(id) {
+    selected = Enr6MockStore.getIssuances({}).find(x => x.id === id);
+    document.getElementById('form').classList.remove('hidden');
+    document.getElementById('hint').classList.add('hidden');
+    document.getElementById('selLabel').textContent = (selected ? selected.epiName : '') + ' · ' + (selected ? selected.code : '');
+    validateDate();
+  }
+  document.getElementById('dt').addEventListener('change', validateDate);
+  function validateDate() {
+    if (!selected) return;
+    const d = document.getElementById('dt').value;
+    const bad = d < selected.issuedAt.slice(0, 10);
+    document.getElementById('dateErr').classList.toggle('hidden', !bad);
+  }
+  function confirmar() {
+    if (!selected || !document.getElementById('dateErr').classList.contains('hidden')) return;
+    const fb = document.getElementById('devFb');
+    try {
+      const code = Enr6MockStore.createReturn(selected.id, {
+        returnedAt: document.getElementById('dt').value + 'T12:00:00',
+        reason: document.getElementById('motivo').value,
+      });
+      fb.textContent = 'Devolução ' + code + ' registrada.';
+      fb.className = 'feedback ok';
+      selected = null;
+      buscar();
+    } catch (e) {
+      fb.textContent = e.message;
+      fb.className = 'feedback err';
+    }
+  }
+  const p = new URLSearchParams(location.search);
+  if (p.get('q')) document.getElementById('q').value = p.get('q');
+
+  Enr6MockStore.initClient().then(function () {
+    buscar();
+  });
+
+</script>
+<script src="../common.js"></script>
+</body>
+</html>

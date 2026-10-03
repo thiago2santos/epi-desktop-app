@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registrar fornecimento — Easy NR6 mock</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+<header class="mock-chrome">
+  <span class="title">UC-ENT-01 · Registrar fornecimento</span>
+  <nav><a href="../index.html">Catálogo</a><a href="01-dashboard.html">Dashboard</a></nav>
+</header>
+<main class="page">
+  <div class="global-status"><span id="caepiLine"><strong>CAEPI:</strong> OK</span><span id="opLine">Operador: —</span></div>
+  <header class="page-header">
+    <div class="uc-tag">UC-ENT-01</div>
+    <h1>Registrar fornecimento de EPI</h1>
+    <p class="sub" id="stepSub">Passo 1 de 5 — Trabalhador</p>
+  </header>
+  <nav class="steps" id="stepNav"></nav>
+  <div class="grid-2">
+    <section class="panel" id="stepBody"></section>
+    <aside class="panel" id="contextPanel">
+      <div class="panel-title">Cobertura (matriz × vigente)</div>
+      <table class="tbl"><thead><tr><th>EPI</th><th>Status</th></tr></thead>
+        <tbody id="covBody"><tr><td colspan="2">Busque um trabalhador</td></tr></tbody>
+      </table>
+    </aside>
+  </div>
+  <footer class="legal-bar" id="legalBar">
+    <strong>Registro legal:</strong> ao confirmar, grava fornecimento imutável. Correções apenas por <strong>estorno</strong>.
+  </footer>
+  <div class="actions">
+    <button class="btn" id="btnPrev" onclick="prev()">Anterior</button>
+    <button class="btn btn-primary" id="btnNext" onclick="next()">Próximo</button>
+  </div>
+</main>
+<script src="../mock-idb.js"></script>
+<script src="../mock-store.js"></script>
+<script>
+const u = Enr6MockStore.getSessionUser();
+  document.getElementById('opLine').textContent = 'Operador: ' + (u.nome || u.login) + ' (' + u.papel + ')';
+  document.getElementById('caepiLine').innerHTML = Enr6MockStore.isCaepiValid()
+    ? '<strong>CAEPI:</strong> OK' : '<strong>CAEPI:</strong> <span class="badge badge-danger">bloqueio EPI/CA</span>';
+
+  let step = 0;
+  const state = { employeeId: null, epiId: null, lotId: null, qty: 1, matrixException: false, requestId: null };
+  const titles = ['Trabalhador', 'Itens da matriz', 'Lote e quantidade', 'Ciência e termo', 'Revisão'];
+
+  function renderCoverage() {
+    const tb = document.getElementById('covBody');
+    if (!state.employeeId) { tb.innerHTML = '<tr><td colspan="2">Busque um trabalhador</td></tr>'; return; }
+    tb.innerHTML = Enr6MockStore.coverageForEmployee(state.employeeId).map(c =>
+      `<tr><td>${c.epiName}</td><td><span class="badge ${c.badge}">${c.status}</span></td></tr>`).join('');
+  }
+
+  function renderNav() {
+    document.getElementById('stepNav').innerHTML = titles.map((t,i) =>
+      `<span class="step ${i===step?'on':''} ${i<step?'done':''}">${i+1} · ${t}</span>`).join('');
+    document.getElementById('stepSub').textContent = `Passo ${step+1} de 5 — ${titles[step]}`;
+    document.getElementById('btnPrev').disabled = step === 0;
+    document.getElementById('btnNext').disabled = false;
+    document.getElementById('btnNext').textContent = step === 4 ? 'Confirmar fornecimento' : 'Próximo';
+  }
+
+  function matrixRows() {
+    if (!state.employeeId) return [];
+    const emp = Enr6MockStore.getEmployees('').find(e => e.id === state.employeeId);
+    if (!emp) return [];
+    return Enr6MockStore.getMatrixForJobRole(emp.jobRoleId);
+  }
+
+  function renderBody() {
+    const el = document.getElementById('stepBody');
+    if (step === 0) {
+      el.innerHTML = `<div class="panel-title">Buscar trabalhador ativo</div>
+        <label class="lbl">Matrícula ou nome</label>
+        <input id="wsearch" placeholder="000123">
+        <button class="btn" type="button" onclick="findWorker()">Buscar</button>
+        <p id="werr" class="feedback err hidden"></p>
+        <div id="wcard" class="hidden" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;background:var(--enr6-surface-sunken);padding:12px;border-radius:6px;font-size:13px;"></div>`;
+    } else if (step === 1) {
+      const rows = matrixRows();
+      el.innerHTML = `<div class="panel-title">Itens exigidos pela matriz</div>
+        <table class="tbl"><thead><tr><th></th><th>EPI</th><th>Periodicidade</th></tr></thead>
+        <tbody id="matBody">${rows.map(r =>
+          `<tr><td class="control"><input type="radio" name="epiPick" value="${r.epiId}" onchange="pickEpi(${r.epiId})"></td>
+          <td>${r.epiName}</td><td>${Enr6MockStore.periodicityLabel(r.epiId)}</td></tr>`).join('')}</tbody></table>
+        <label class="check-row" style="margin-top:12px"><input type="checkbox" id="exMat" onchange="state.matrixException=this.checked"> Exceção SESMT (fora da matriz — use só com autorização)</label>
+        <div id="matAlert" class="alert alert-warn hidden">Selecione um EPI da matriz ou marque exceção.</div>`;
+    } else if (step === 2) {
+      const lots = Enr6MockStore.getLots('').filter(l => l.epiId === state.epiId && l.qtyOnHand > 0);
+      const opts = lots.concat(Enr6MockStore.getLots('').filter(l => l.epiId === state.epiId && l.qtyOnHand === 0));
+      el.innerHTML = `<div class="panel-title">Lote válido</div>
+        <div id="loteAlert" class="alert alert-danger hidden">Lote vencido — fornecimento bloqueado (NR-6 6.9.2.1.1).</div>
+        <label class="lbl">Lote</label>
+        <select id="loteSel" onchange="checkLote()">
+          ${opts.map(l => `<option value="${l.id}">${l.lotCode} · ${l.qtyOnHand} un · validade ${l.pieceValidUntil}${l.expired ? ' (vencido)' : ''}</option>`).join('')}
+        </select>
+        <div class="two-clocks" id="clocks"></div>
+        <label class="lbl">Quantidade</label><input type="number" id="qtyIn" value="1" min="1">`;
+    } else if (step === 3) {
+      el.innerHTML = `<div class="panel-title">Ciência do trabalhador & termo 6.6.1</div>
+        <p style="font-size:12px;color:var(--enr6-text-muted);margin-bottom:12px;">Informações NR-6 6.7.2 registradas no sistema (mock: checkbox).</p>
+        <label class="check-row"><input type="checkbox" id="c1"> Trabalhador recebeu orientação de uso e ajuste</label>
+        <label class="check-row"><input type="checkbox" id="c2"> Aceite do termo de responsabilidade (assinatura manual simulada)</label>`;
+    } else {
+      el.innerHTML = `<div class="panel-title">Revisão antes do commit</div><table class="tbl" id="revTbl"></table>
+        <p style="margin-top:12px;font-size:12px;" id="revNote"></p>`;
+      renderReview();
+    }
+    renderNav();
+  }
+
+  function findWorker() {
+    const q = document.getElementById('wsearch').value;
+    const emp = Enr6MockStore.findActiveEmployee(q);
+    const err = document.getElementById('werr');
+    const card = document.getElementById('wcard');
+    if (!emp) {
+      state.employeeId = null;
+      err.textContent = 'Trabalhador não encontrado ou inativo.';
+      err.classList.remove('hidden');
+      card.classList.add('hidden');
+      renderCoverage();
+      return;
+    }
+    err.classList.add('hidden');
+    const row = Enr6MockStore.resolveEmployeeRow(emp);
+    state.employeeId = emp.id;
+    card.classList.remove('hidden');
+    card.innerHTML = `<div><strong>${row.fullName}</strong></div><div>Mat. ${row.employeeCode}</div>
+      <div>${row.departmentName}</div><div>${row.jobRoleName}</div>`;
+    renderCoverage();
+  }
+
+  function pickEpi(epiId) { state.epiId = epiId; }
+
+  function checkLote() {
+    const id = parseInt(document.getElementById('loteSel').value, 10);
+    const lot = Enr6MockStore.getLots('').find(l => l.id === id);
+    state.lotId = id;
+    const bad = lot && lot.expired;
+    document.getElementById('loteAlert').classList.toggle('hidden', !bad);
+    document.getElementById('btnNext').disabled = !!bad;
+    if (lot) {
+      document.getElementById('clocks').innerHTML =
+        `<div class="clock"><b>CA na compra</b>CA ${lot.caNumber} · ${lot.caCheckedAt}</div>
+         <div class="clock"><b>Validade da peça</b>${lot.pieceValidUntil}</div>`;
+    }
+  }
+
+  function renderReview() {
+    const emp = Enr6MockStore.resolveEmployeeRow(Enr6MockStore.getEmployees('').find(e => e.id === state.employeeId));
+    const ep = Enr6MockStore.getEpis('').find(e => e.id === state.epiId);
+    const lot = Enr6MockStore.getLots('').find(l => l.id === state.lotId);
+    const qty = state.qty || 1;
+    document.getElementById('revTbl').innerHTML = `
+      <tr><td>Trabalhador</td><td>${emp.fullName} (${emp.employeeCode})</td></tr>
+      <tr><td>EPI</td><td>${ep ? ep.description : '—'}</td></tr>
+      <tr><td>CA / Lote</td><td>${lot ? lot.caNumber + ' · ' + lot.lotCode : '—'}</td></tr>
+      <tr><td>Quantidade</td><td>${qty}</td></tr>
+      <tr><td>Exceção matriz</td><td>${state.matrixException ? 'Sim' : 'Não'}</td></tr>
+      <tr><td>Ciência & termo</td><td><span class="badge badge-ok">Registrados</span></td></tr>`;
+    document.getElementById('revNote').textContent = 'Após confirmar: registro legal gravado na sessão + auditoria.';
+  }
+
+  function next() {
+    if (step === 0 && !state.employeeId) { alert('Busque e selecione um trabalhador.'); return; }
+    if (step === 1) {
+      const ex = document.getElementById('exMat');
+      state.matrixException = ex && ex.checked;
+      const picked = document.querySelector('input[name="epiPick"]:checked');
+      if (!picked && !state.matrixException) {
+        document.getElementById('matAlert').classList.remove('hidden');
+        return;
+      }
+      if (picked) state.epiId = parseInt(picked.value, 10);
+      if (state.matrixException && !state.epiId) {
+        const active = Enr6MockStore.getEpis('').filter(e => e.active)[0];
+        state.epiId = active ? active.id : null;
+      }
+      if (!state.epiId) { alert('Nenhum EPI ativo disponível.'); return; }
+    }
+    if (step === 2) {
+      checkLote();
+      const lot = Enr6MockStore.getLots('').find(l => l.id === state.lotId);
+      if (lot && lot.expired) return;
+      state.qty = parseInt(document.getElementById('qtyIn').value, 10) || 1;
+    }
+    if (step === 3) {
+      if (!document.getElementById('c1').checked || !document.getElementById('c2').checked) {
+        alert('Ciência e termo são obrigatórios.'); return;
+      }
+    }
+    if (step === 4) {
+      try {
+        const row = Enr6MockStore.createIssuance({
+          employeeId: state.employeeId,
+          epiId: state.epiId,
+          lotId: state.lotId,
+          qty: state.qty,
+          awareness: true,
+          termAccepted: true,
+          matrixException: state.matrixException,
+          requestId: state.requestId,
+        });
+        alert('Fornecimento ' + row.code + ' registrado.\n\nRegistro imutável gravado com auditoria.');
+        location.href = '05-historico-trabalhador.html?mat=' + encodeURIComponent(row.employeeCode) + '&embed=1';
+      } catch (e) {
+        alert(e.message || String(e));
+      }
+      return;
+    }
+    step++;
+    renderBody();
+    if (step === 2) setTimeout(checkLote, 0);
+    if (step === 4) setTimeout(renderReview, 0);
+  }
+
+  function prev() { if (step > 0) { step--; renderBody(); } }
+
+  (function init() {
+    const p = new URLSearchParams(location.search);
+    const req = p.get('request');
+    if (req) state.requestId = parseInt(req, 10);
+    renderBody();
+  })();
+
+  Enr6MockStore.initClient().then(function () {
+    render();
+  });
+
+</script>
+  <script src="../common.js"></script>
+</body>
+</html>

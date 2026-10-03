@@ -1,0 +1,201 @@
+/* Easy NR6 mock — shared chrome (optional link; pages work with this + page styles) */
+:root {
+  --enr6-brand-primary: #0d6e6e;
+  --enr6-brand-primary-hover: #0a5858;
+  --enr6-brand-primary-muted: #e6f4f4;
+  --enr6-surface-default: #f4f5f7;
+  --enr6-surface-raised: #ffffff;
+  --enr6-surface-sunken: #eceef2;
+  --enr6-border-subtle: #d8dee4;
+  --enr6-border-strong: #afb8c1;
+  --enr6-text-primary: #1f2328;
+  --enr6-text-muted: #57606a;
+  --enr6-text-inverse: #ffffff;
+  --enr6-status-ok: #1a7f37;
+  --enr6-status-ok-bg: #dafbe1;
+  --enr6-status-warn: #7d4e00;
+  --enr6-status-warn-bg: #fff8c5;
+  --enr6-status-danger: #cf222e;
+  --enr6-status-danger-bg: #ffebe9;
+  --enr6-status-info: #0969da;
+  --enr6-status-info-bg: #ddf4ff;
+  --enr6-record-frozen-bg: #f6f8fa;
+  --enr6-radius-sm: 4px;
+  --enr6-radius-md: 6px;
+  --enr6-space-2: 8px;
+  --enr6-space-3: 12px;
+  --enr6-space-4: 16px;
+  --enr6-space-5: 24px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  color: var(--enr6-text-primary);
+  background: var(--enr6-surface-default);
+  line-height: 1.45;
+}
+a { color: var(--enr6-brand-primary); }
+.hidden { display: none !important; }
+
+.mock-chrome {
+  background: #1f2937;
+  color: #e5e7eb;
+  padding: 10px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+.mock-chrome .title { font-weight: 700; font-size: 14px; }
+.mock-chrome nav a { color: #93c5fd; margin-right: 12px; text-decoration: none; }
+.mock-chrome nav a:hover { text-decoration: underline; }
+
+.page { max-width: 1200px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.page-header h1 { font-size: 20px; font-weight: 700; }
+.page-header .sub { color: var(--enr6-text-muted); margin-top: 4px; }
+.uc-tag { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--enr6-text-muted); background: var(--enr6-surface-sunken); padding: 2px 8px; border-radius: 4px; margin-bottom: 6px; }
+
+.global-status {
+  display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center;
+  background: var(--enr6-status-info-bg); border: 1px solid var(--enr6-border-subtle);
+  border-radius: var(--enr6-radius-md); padding: 8px 16px; font-size: 12px;
+}
+.global-status.warn { background: var(--enr6-status-warn-bg); }
+
+.panel {
+  background: var(--enr6-surface-raised);
+  border: 1px solid var(--enr6-border-subtle);
+  border-radius: var(--enr6-radius-md);
+  padding: var(--enr6-space-4);
+}
+.panel-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--enr6-border-subtle); }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+
+label.lbl { display: block; font-size: 11px; font-weight: 600; color: var(--enr6-text-muted); margin-bottom: 4px; text-transform: uppercase; }
+
+/* Campos de texto — não aplicar em checkbox/radio (evita “faixa” full-width) */
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+select,
+textarea {
+  width: 100%; padding: 8px 10px; margin-bottom: 12px;
+  border: 1px solid var(--enr6-border-subtle); border-radius: var(--enr6-radius-sm); font-size: 13px;
+}
+input:not([type="checkbox"]):not([type="radio"]):focus,
+select:focus,
+textarea:focus {
+  outline: none; border-color: var(--enr6-brand-primary);
+  box-shadow: 0 0 0 3px rgba(13,110,110,0.15);
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  width: 1rem;
+  height: 1rem;
+  min-width: 1rem;
+  margin: 0;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  accent-color: var(--enr6-brand-primary);
+  cursor: pointer;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+label.check-row,
+label:has(> input[type="checkbox"]),
+label:has(> input[type="radio"]) {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 400;
+  text-transform: none;
+  color: var(--enr6-text-primary);
+  margin-bottom: 10px;
+  cursor: pointer;
+  line-height: 1.45;
+  max-width: 42rem;
+}
+label.check-row > input[type="checkbox"],
+label.check-row > input[type="radio"],
+label:has(> input[type="checkbox"]) > input,
+label:has(> input[type="radio"]) > input {
+  margin-top: 2px;
+}
+
+table.tbl td.control,
+table.tbl th.control {
+  width: 2.5rem;
+  text-align: center;
+  vertical-align: middle;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+table.tbl td.control input[type="checkbox"],
+table.tbl td.control input[type="radio"] {
+  display: inline-block;
+  vertical-align: middle;
+}
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.btn {
+  padding: 8px 14px; border-radius: var(--enr6-radius-md); font-size: 13px; font-weight: 600;
+  cursor: pointer; border: 1px solid var(--enr6-border-subtle); background: var(--enr6-surface-sunken);
+}
+.btn-primary { background: var(--enr6-brand-primary); color: var(--enr6-text-inverse); border-color: transparent; }
+.btn-primary:hover { background: var(--enr6-brand-primary-hover); }
+.btn-danger { background: var(--enr6-status-danger); color: white; border: none; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+
+.badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+.badge-ok { background: var(--enr6-status-ok-bg); color: var(--enr6-status-ok); }
+.badge-warn { background: var(--enr6-status-warn-bg); color: var(--enr6-status-warn); }
+.badge-danger { background: var(--enr6-status-danger-bg); color: var(--enr6-status-danger); }
+.badge-info { background: var(--enr6-status-info-bg); color: var(--enr6-status-info); }
+
+.alert { padding: 10px 12px; border-radius: var(--enr6-radius-md); font-size: 12px; margin-bottom: 12px; }
+.alert-warn { background: var(--enr6-status-warn-bg); color: var(--enr6-status-warn); border: 1px solid #d4a72c; }
+.alert-danger { background: var(--enr6-status-danger-bg); color: var(--enr6-status-danger); border: 1px solid #ff8182; }
+.alert-info { background: var(--enr6-status-info-bg); border: 1px solid #54aeff; }
+
+table.tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
+table.tbl th, table.tbl td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--enr6-border-subtle); }
+table.tbl th { background: var(--enr6-surface-sunken); color: var(--enr6-text-muted); font-weight: 600; }
+table.tbl tr.click { cursor: pointer; }
+table.tbl tr.click:hover { background: var(--enr6-brand-primary-muted); }
+
+.steps { display: flex; flex-wrap: wrap; gap: 8px; }
+.step { padding: 6px 12px; border: 1px solid var(--enr6-border-subtle); border-radius: var(--enr6-radius-md); font-size: 11px; font-weight: 600; color: var(--enr6-text-muted); }
+.step.on { border-color: var(--enr6-brand-primary); color: var(--enr6-brand-primary); background: var(--enr6-brand-primary-muted); }
+.step.done { color: var(--enr6-status-ok); }
+
+.legal-bar {
+  background: var(--enr6-record-frozen-bg); border: 1px solid var(--enr6-border-strong);
+  border-radius: var(--enr6-radius-md); padding: 12px 16px; font-size: 12px;
+}
+.two-clocks { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.clock { background: var(--enr6-surface-sunken); padding: 12px; border-radius: var(--enr6-radius-md); font-size: 12px; }
+.clock b { display: block; font-size: 10px; color: var(--enr6-text-muted); margin-bottom: 4px; }
+
+.card-metric { padding: 16px; border: 1px solid var(--enr6-border-subtle); border-radius: var(--enr6-radius-md); background: var(--enr6-surface-raised); }
+.card-metric .v { font-size: 26px; font-weight: 700; }
+.card-metric .l { font-size: 12px; color: var(--enr6-text-muted); margin-top: 4px; }
+
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; align-items: center; }
+.toolbar input { margin-bottom: 0; flex: 1; min-width: 140px; }
+
+.feedback { font-size: 12px; font-weight: 600; min-height: 18px; }
+.feedback.ok { color: var(--enr6-status-ok); }
+.feedback.err { color: var(--enr6-status-danger); }
+tr.sel { background: var(--enr6-brand-primary-muted) !important; }
+
+html.embed .mock-chrome { display: none !important; }
+html.embed body { background: var(--enr6-surface-default); }
+html.embed .page { max-width: none; padding-top: 12px; }

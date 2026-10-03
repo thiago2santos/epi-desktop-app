@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Solicitar EPI — Easy NR6 mock</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    .worker-card { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: var(--enr6-surface-sunken); padding: 12px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; }
+    .worker-card .full { grid-column: span 2; }
+    .timeline { display: flex; justify-content: space-between; position: relative; margin-top: 10px; font-size: 10px; color: var(--enr6-text-muted); }
+    .timeline::before { content: ''; position: absolute; top: 12px; left: 8%; right: 8%; height: 2px; background: var(--enr6-border-subtle); }
+    .timeline-step { position: relative; z-index: 1; text-align: center; flex: 1; background: var(--enr6-surface-raised); }
+    .step-icon { width: 24px; height: 24px; border-radius: 50%; background: var(--enr6-border-subtle); color: #fff; margin: 0 auto 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+    .timeline-step.done .step-icon { background: var(--enr6-brand-primary); }
+    .timeline-step.on .step-icon { background: var(--enr6-status-ok); }
+    .tl-box { background: #fafafa; border: 1px dashed var(--enr6-border-subtle); border-radius: 6px; padding: 12px; margin-top: 12px; }
+  </style>
+</head>
+<body>
+<header class="mock-chrome">
+  <span class="title">UC-SOL-01 · Gestor</span>
+  <nav><a href="../index.html">Catálogo</a><a href="17-fila-solicitacoes.html">Fila</a></nav>
+</header>
+<main class="page">
+  <div class="global-status"><span><strong>CAEPI:</strong> 28/09/2026 · normal</span><span>Unidade: Itupeva · Gestor: Carlos</span></div>
+  <header class="page-header">
+    <div class="uc-tag">UC-SOL-01</div>
+    <h1>Solicitar EPI para trabalhador</h1>
+    <p class="sub">Demanda ≠ entrega — não reserva estoque</p>
+  </header>
+  <div class="grid-2">
+    <section class="panel">
+      <div class="panel-title">Nova solicitação</div>
+      <label class="lbl">Buscar trabalhador (seu escopo)</label>
+      <div style="display:flex;gap:8px"><input placeholder="000123" id="w"><button class="btn" type="button" onclick="buscarW()">Buscar</button></div>
+      <div class="worker-card" id="wcard">
+        <div class="full" style="grid-column:span 2;color:var(--enr6-text-muted)">Busque o trabalhador</div>
+      </div>
+      <form id="frm" onsubmit="send(event)">
+        <label class="lbl">EPI</label>
+        <select id="epi" onchange="check()" required></select>
+        <div id="aSesmt" class="alert alert-warn hidden">Fora da matriz — análise SESMT obrigatória.</div>
+        <div id="aDup" class="alert alert-danger hidden">Já existe pedido #1042 em aberto para este EPI.</div>
+        <div class="form-row">
+          <div><label class="lbl">Quantidade</label><input type="number" id="qty" value="1" min="1" max="10"></div>
+          <div><label class="lbl">Motivo</label><select><option>Reposição desgaste</option><option>Dano</option><option>Perda</option></select></div>
+        </div>
+        <label class="lbl">Observações</label><textarea rows="2"></textarea>
+        <div class="actions"><button type="submit" class="btn btn-primary" id="btnSend">Enviar solicitação</button></div>
+      </form>
+    </section>
+    <section class="panel">
+      <div class="panel-title">Entregas efetivas (fato legal)</div>
+      <table class="tbl"><thead><tr><th>Data</th><th>EPI</th><th>CA</th></tr></thead>
+        <tbody id="histTb"></tbody></table>
+      <div class="panel-title" style="margin-top:16px">Pedidos em aberto (demanda)</div>
+      <table class="tbl"><thead><tr><th>#</th><th>EPI</th><th>Status</th></tr></thead>
+        <tbody id="open"></tbody></table>
+      <div id="tl" class="tl-box hidden">
+        <strong id="tlId">#1042</strong>
+        <div class="timeline">
+          <div class="timeline-step done"><div class="step-icon">✓</div>Solicitado</div>
+          <div class="timeline-step done"><div class="step-icon">✓</div>Aprovado</div>
+          <div class="timeline-step on"><div class="step-icon">…</div>Atendimento</div>
+          <div class="timeline-step"><div class="step-icon">○</div>Concluído</div>
+        </div>
+      </div>
+      <p style="font-size:11px;color:var(--enr6-text-muted);margin-top:12px">Solicitar não substitui fornecimento registrado no balcão.</p>
+    </section>
+  </div>
+</main>
+<script src="../mock-idb.js"></script>
+<script src="../mock-store.js"></script>
+<script>
+let employeeId = null;
+  function fillEpis() {
+    document.getElementById('epi').innerHTML = '<option value="">— Selecione —</option>' +
+      Enr6MockStore.getEpis('').filter(e => e.active).map(e => {
+        const ca = Enr6MockStore.getCaBindings(e.id).find(b => b.active && b.caStatus === 'ACTIVE');
+        return `<option value="${e.id}">${e.description}${ca ? ' (CA ' + ca.caNumber + ')' : ''}</option>`;
+      }).join('');
+  }
+  function buscarW() {
+    const emp = Enr6MockStore.findActiveEmployee(document.getElementById('w').value);
+    const card = document.getElementById('wcard');
+    if (!emp) { employeeId = null; card.innerHTML = '<div class="full">Não encontrado.</div>'; return; }
+    employeeId = emp.id;
+    const r = Enr6MockStore.resolveEmployeeRow(emp);
+    card.innerHTML = `<div><strong>${r.fullName}</strong></div><div>Mat. ${r.employeeCode}</div>
+      <div>${r.departmentName}</div><div>${r.jobRoleName}</div>
+      <div class="full"><strong>Vínculo gestor:</strong> <span class="badge badge-ok">Escopo válido (mock)</span></div>`;
+    renderSide();
+  }
+  function renderSide() {
+    if (!employeeId) return;
+    const iss = Enr6MockStore.getIssuances({ employeeId });
+    document.getElementById('histTb').innerHTML = iss.slice(0, 5).map(i =>
+      `<tr><td>${i.issuedAt.slice(0, 10)}</td><td>${i.epiName}</td><td>${i.caNumber}</td></tr>`).join('') || '<tr><td colspan="3">—</td></tr>';
+    document.getElementById('open').innerHTML = Enr6MockStore.getRequests({ employeeId }).map(r =>
+      `<tr class="click" onclick="tl(${r.id},'${r.epiName.replace(/'/g, '')}')"><td>#${r.id}</td><td>${r.epiName}</td><td><span class="badge badge-warn">${r.status}</span></td></tr>`).join('');
+  }
+  function check() {
+    const v = parseInt(document.getElementById('epi').value, 10);
+    if (!employeeId || !v) return;
+    const emp = Enr6MockStore.getEmployees('').find(e => e.id === employeeId);
+    const inMat = Enr6MockStore.getMatrixForJobRole(emp.jobRoleId).some(m => m.epiId === v);
+    document.getElementById('aSesmt').classList.toggle('hidden', inMat);
+    const dup = Enr6MockStore.getRequests({ employeeId }).some(r => r.epiId === v && r.status !== 'FULFILLED' && r.status !== 'REJECTED');
+    document.getElementById('aDup').classList.toggle('hidden', !dup);
+  }
+  function send(e) {
+    e.preventDefault();
+    try {
+      const row = Enr6MockStore.createRequest({
+        employeeId,
+        epiId: parseInt(document.getElementById('epi').value, 10),
+        qty: document.getElementById('qty').value,
+        reason: document.querySelector('#frm select').value,
+      });
+      alert('Solicitação #' + row.id + ' registrada.\n\nIsto não é entrega nem reserva de estoque.');
+      renderSide();
+      e.target.reset();
+      fillEpis();
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+  function tl(id, name) {
+    document.getElementById('tl').classList.remove('hidden');
+    document.getElementById('tlId').textContent = '#' + id + ' · ' + name;
+  }
+
+  Enr6MockStore.initClient().then(function () {
+    fillEpis();
+  });
+
+</script>
+  <script src="../common.js"></script>
+</body>
+</html>

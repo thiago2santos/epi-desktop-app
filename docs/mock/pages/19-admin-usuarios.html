@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Usuários — Easy NR6 mock</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+<header class="mock-chrome">
+  <span class="title">UC-ADM-01/02</span>
+  <nav><a href="../index.html">Catálogo</a></nav>
+</header>
+<main class="page">
+  <header class="page-header">
+    <h1>Usuários e papéis</h1>
+    <p class="sub">RBAC · credencial · troca obrigatória · sessão mock</p>
+  </header>
+  <div class="grid-2">
+    <section class="panel">
+      <button class="btn btn-primary" type="button" style="margin-bottom:12px" onclick="showCreate()">Novo usuário</button>
+      <div id="createBox" class="hidden" style="margin-bottom:12px;padding:12px;background:var(--enr6-surface-sunken);border-radius:6px">
+        <label class="lbl">Login</label><input id="newLogin">
+        <label class="lbl">Nome exibido</label><input id="newName">
+        <label class="lbl">Papel</label>
+        <select id="newPapel"></select>
+        <button class="btn btn-primary" type="button" onclick="createUser()">Criar</button>
+        <button class="btn" type="button" onclick="hideCreate()">Cancelar</button>
+      </div>
+      <table class="tbl"><thead><tr><th>Login</th><th>Nome</th><th>Papel</th><th>Status</th></tr></thead>
+        <tbody id="userTb"></tbody></table>
+    </section>
+    <section class="panel">
+      <div class="panel-title" id="editTitle">Selecione um usuário</div>
+      <div id="editForm" class="hidden">
+        <label class="lbl">Nome exibido</label><input id="editName">
+        <label class="lbl">Papel</label><select id="editPapel"></select>
+        <p id="userFb" class="feedback"></p>
+        <div class="actions">
+          <button class="btn btn-primary" type="button" onclick="saveUser()">Salvar</button>
+          <button class="btn" type="button" onclick="resetPwd()">Reset senha (troca obrigatória)</button>
+          <button class="btn btn-danger" type="button" onclick="toggleActive()">Inativar / reativar</button>
+        </div>
+      </div>
+      <p id="editHint" style="font-size:12px;color:var(--enr6-text-muted)">Login rápido do shell usa estes logins (senha simulada).</p>
+    </section>
+  </div>
+</main>
+<script src="../mock-idb.js"></script>
+<script src="../mock-store.js"></script>
+<script>
+const PAPEIS = ['Admin', 'SESMT', 'Almoxarife', 'Consulta', 'Gestor'];
+  let selectedId = null;
+
+  function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+
+  function fillPapelSelect(sel) {
+    sel.innerHTML = PAPEIS.map(p => `<option value="${p}">${p}</option>`).join('');
+  }
+
+  function statusBadge(u) {
+    if (!u.active) return '<span class="badge badge-muted">Inativo</span>';
+    if (u.blocked) return '<span class="badge badge-danger">Bloqueado</span>';
+    if (u.mustChangePassword) return '<span class="badge badge-warn">Troca senha</span>';
+    return '<span class="badge badge-ok">Ativo</span>';
+  }
+
+  function renderUsers() {
+    document.getElementById('userTb').innerHTML = Enr6MockStore.getUsers().map(u =>
+      `<tr class="click" onclick="selectUser(${u.id})"><td>${esc(u.login)}</td><td>${esc(u.displayName)}</td><td>${esc(u.papel)}</td><td>${statusBadge(u)}</td></tr>`
+    ).join('');
+  }
+
+  function selectUser(id) {
+    selectedId = id;
+    const u = Enr6MockStore.getUserById(id);
+    if (!u) return;
+    document.getElementById('editForm').classList.remove('hidden');
+    document.getElementById('editTitle').textContent = 'Editar · ' + u.login;
+    document.getElementById('editName').value = u.displayName;
+    document.getElementById('editPapel').value = u.papel;
+    document.getElementById('userFb').textContent = '';
+  }
+
+  function showCreate() {
+    document.getElementById('createBox').classList.remove('hidden');
+  }
+  function hideCreate() {
+    document.getElementById('createBox').classList.add('hidden');
+  }
+
+  function createUser() {
+    try {
+      Enr6MockStore.createUser({
+        login: document.getElementById('newLogin').value,
+        displayName: document.getElementById('newName').value,
+        papel: document.getElementById('newPapel').value,
+      });
+      hideCreate();
+      renderUsers();
+    } catch (e) { alert(e.message); }
+  }
+
+  function saveUser() {
+    const fb = document.getElementById('userFb');
+    try {
+      Enr6MockStore.updateUser(selectedId, {
+        displayName: document.getElementById('editName').value,
+        papel: document.getElementById('editPapel').value,
+      });
+      fb.textContent = 'Salvo.';
+      fb.className = 'feedback ok';
+      renderUsers();
+    } catch (e) {
+      fb.textContent = e.message;
+      fb.className = 'feedback err';
+    }
+  }
+
+  function resetPwd() {
+    try {
+      Enr6MockStore.resetUserCredential(selectedId);
+      document.getElementById('userFb').textContent = 'Reset registrado — troca obrigatória no próximo acesso.';
+      document.getElementById('userFb').className = 'feedback ok';
+      renderUsers();
+    } catch (e) { alert(e.message); }
+  }
+
+  function toggleActive() {
+    const u = Enr6MockStore.getUserById(selectedId);
+    if (!u) return;
+    if (!confirm((u.active ? 'Inativar' : 'Reativar') + ' ' + u.login + '?')) return;
+    try {
+      Enr6MockStore.updateUser(selectedId, { active: !u.active });
+      renderUsers();
+      selectUser(selectedId);
+    } catch (e) { alert(e.message); }
+  }
+
+  Enr6MockStore.initClient().then(function () {
+    fillPapelSelect(document.getElementById('newPapel'));
+    fillPapelSelect(document.getElementById('editPapel'));
+    renderUsers();
+  });
+
+</script>
+<script src="../common.js"></script>
+</body>
+</html>

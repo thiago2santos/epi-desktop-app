@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>CA por EPI — Easy NR6 mock</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    .flow-hint {
+      font-size: 12px; padding: 10px 12px; margin-bottom: 16px;
+      background: var(--enr6-brand-primary-muted); border: 1px solid var(--enr6-brand-primary);
+      border-radius: var(--enr6-radius-md);
+    }
+    .flow-hint ol { margin: 6px 0 0 18px; }
+    tr.sel { background: var(--enr6-brand-primary-muted) !important; }
+    .feedback { font-size: 12px; font-weight: 600; min-height: 18px; margin-top: 8px; }
+    .feedback.ok { color: var(--enr6-status-ok); }
+    .feedback.err { color: var(--enr6-status-danger); }
+    .epi-bar { margin-bottom: 16px; }
+    .epi-bar select { margin-bottom: 0; max-width: 100%; }
+    .evidence-tools { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; align-items: center; }
+    .evidence-preview {
+      margin-top: 8px; padding: 10px; border: 1px dashed var(--enr6-border-subtle);
+      border-radius: var(--enr6-radius-md); background: var(--enr6-surface-sunken); font-size: 12px;
+    }
+    .evidence-preview img { max-width: 100%; max-height: 160px; border-radius: 4px; margin-top: 8px; display: block; }
+    .attach-tag { font-size: 11px; color: var(--enr6-status-info); }
+  </style>
+</head>
+<body>
+<header class="mock-chrome">
+  <span class="title">UC-CAD-05 · Vincular CA</span>
+  <nav><a href="../index.html">Catálogo</a><a href="08-cad-epi.html">Catálogo EPI</a><a href="21-caepi-import.html">CAEPI</a></nav>
+</header>
+<main class="page">
+  <div class="global-status" id="caepiGate">
+    <span><strong>CAEPI:</strong> carga válida 28/09/2026 — mutações EPI/CA liberadas</span>
+    <a href="21-caepi-import.html" style="font-size:12px">Ver importação</a>
+  </div>
+  <header class="page-header">
+    <div class="uc-tag">UC-CAD-05</div>
+    <h1>Vínculo de CA por EPI</h1>
+    <p class="sub">Situação, vigência e evidência da consulta oficial (CAEPI)</p>
+  </header>
+
+  <div class="flow-hint">
+    <strong>Como vincular</strong>
+    <ol>
+      <li>Selecione o <strong>EPI</strong> (cadastro em Catálogo EPI).</li>
+      <li>Informe <strong>número do CA</strong>, situação, vigência (se aplicável) e <strong>evidência da consulta oficial</strong> (data/hora + nota).</li>
+      <li>Clique <strong>Vincular</strong> ou selecione um vínculo na lista para <strong>Salvar edição</strong> / <strong>Inativar</strong>.</li>
+    </ol>
+  </div>
+
+  <section class="panel epi-bar">
+    <div class="toolbar" style="margin:0">
+      <label class="lbl" style="margin:0;align-self:center">EPI</label>
+      <select id="epiSelect" onchange="onEpiChange()" style="flex:1"></select>
+      <button type="button" class="btn" onclick="refreshEpis()">Atualizar</button>
+    </div>
+    <p id="epiHint" style="font-size:11px;color:var(--enr6-text-muted);margin-top:8px;margin-bottom:0"></p>
+  </section>
+
+  <div class="grid-2">
+    <section class="panel">
+      <div class="panel-title">CAs vinculados ao EPI</div>
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>CA</th>
+            <th>Situação CAEPI</th>
+            <th>Vigência</th>
+            <th>Consulta oficial</th>
+            <th>Anexo</th>
+            <th>Vínculo</th>
+          </tr>
+        </thead>
+        <tbody id="caTable"></tbody>
+      </table>
+      <p id="emptyCa" class="hidden" style="font-size:12px;color:var(--enr6-text-muted);margin-top:8px">Nenhum CA vinculado — use o formulário ao lado.</p>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title" id="formTitle">Novo vínculo de CA</div>
+      <label class="lbl">Número do CA</label>
+      <input type="text" id="caNumber" placeholder="Ex.: 67890" inputmode="numeric">
+
+      <label class="lbl">Situação (consulta CAEPI)</label>
+      <select id="caStatus" onchange="onStatusChange()">
+        <option value="ACTIVE">Ativo</option>
+        <option value="SUSPENDED">Suspenso</option>
+        <option value="CANCELED">Cancelado</option>
+        <option value="EXPIRED">Expirado</option>
+      </select>
+
+      <div class="form-row">
+        <div>
+          <label class="lbl">Válido de</label>
+          <input type="date" id="validFrom">
+        </div>
+        <div>
+          <label class="lbl">Válido até</label>
+          <input type="date" id="validUntil">
+        </div>
+      </div>
+
+      <label class="lbl">Consulta oficial (data/hora)</label>
+      <input type="datetime-local" id="officialCheckAt" value="2026-09-28T03:00">
+
+      <label class="lbl">Evidência da consulta (CAD-037)</label>
+      <div class="evidence-tools">
+        <button type="button" class="btn btn-primary btn-sm" onclick="fillFromCaepiBatch()">Preencher da última carga CAEPI</button>
+        <label class="btn btn-sm" style="cursor:pointer;margin:0">
+          Anexar print (PNG/JPG)
+          <input type="file" id="evidenceFile" accept="image/png,image/jpeg,image/webp" class="hidden" onchange="onEvidenceFile(event)">
+        </label>
+        <button type="button" class="btn btn-sm" onclick="clearAttachment()">Remover anexo</button>
+      </div>
+      <textarea id="officialNote" rows="3" placeholder="Texto auditável: fonte CAEPI, CA, situação retornada, referência da carga ou consulta manual."></textarea>
+      <div id="attachmentPreview" class="evidence-preview hidden"></div>
+      <p style="font-size:11px;color:var(--enr6-text-muted);margin-top:6px">
+        Nota vaga (“eu consultei”, “ok”) é recusada. Anexo de tela substitui texto curto se mostrar CAEPI + CA + situação.
+      </p>
+
+      <label class="check-row">
+        <input type="checkbox" id="activeBinding" checked> Vínculo ativo (operacional)
+      </label>
+
+      <div class="actions">
+        <button type="button" class="btn btn-primary" onclick="createBinding()">Vincular</button>
+        <button type="button" class="btn" onclick="updateBinding()">Salvar edição</button>
+        <button type="button" class="btn" onclick="setBindingActive(false)">Inativar vínculo</button>
+        <button type="button" class="btn" onclick="setBindingActive(true)">Reativar vínculo</button>
+        <button type="button" class="btn" onclick="clearForm()">Limpar</button>
+      </div>
+      <div class="feedback" id="feedback"></div>
+
+      <div class="alert alert-warn" style="margin-top:12px;font-size:11px">
+        <strong>CAD-035:</strong> não permitir dois vínculos <em>ativos</em> com situação operacional conflitante no mesmo EPI.
+        <strong>CAD-036:</strong> situação impeditiva (ex.: expirado) bloqueia ativação.
+      </div>
+    </section>
+  </div>
+</main>
+
+<script src="../mock-idb.js"></script>
+<script src="../mock-store.js"></script>
+<script>
+let attachment = { name: null, previewUrl: null };
+  let selectedBindingId = null;
+  function caepiOk() { return Enr6MockStore.isCaepiValid(); }
+
+  function epis() {
+    return Enr6MockStore.getEpis('').map(e => ({ id: e.id, code: e.code, desc: e.description }));
+  }
+  function bindingsForEpi(epiId) { return Enr6MockStore.getCaBindings(epiId); }
+
+  const STATUS_LABEL = {
+    ACTIVE: 'Ativo', SUSPENDED: 'Suspenso', CANCELED: 'Cancelado', EXPIRED: 'Expirado'
+  };
+  const BLOCKING = ['EXPIRED', 'CANCELED'];
+  const WEAK_EVIDENCE = /^(ok|conferido|consultei|eu consultei|ca ok|\.+|sim)$/i;
+
+  async function fillFromCaepiBatch() {
+    const ca = document.getElementById('caNumber').value.trim();
+    if (!ca) { fb('Informe o número do CA antes de preencher da base.', false); return; }
+    if (!Enr6MockStore.isCaepiIndexReady()) {
+      fb('Carregando base CAEPI (IndexedDB)…', true);
+      try { await Enr6MockStore.hydrateCaepiFromIdb(); } catch (e) {
+        fb(e.message || 'Falha ao carregar base.', false); return;
+      }
+    }
+    const batch = Enr6MockStore.getCaepi();
+    const hit = Enr6MockStore.lookupCa(ca);
+    const stSel = document.getElementById('caStatus');
+    if (hit && hit.status && STATUS_LABEL[hit.status]) {
+      stSel.value = hit.status;
+      onStatusChange();
+    }
+    document.getElementById('officialCheckAt').value = (batch.loadedAt || new Date().toISOString()).slice(0, 16);
+    const stLabel = hit ? (hit.statusLabel || STATUS_LABEL[hit.status] || hit.status) : (STATUS_LABEL[stSel.value] || stSel.value);
+    document.getElementById('officialNote').value =
+      'Consulta cruzada com base CAEPI oficial (UC-CAE-01). ' +
+      'Carga ' + (batch.batchId || '—') + ' (' + (batch.lastMode || 'AUTO/MANUAL') + ') em ' + formatDt(batch.loadedAt) +
+      ' — ' + (batch.recordCount || 0).toLocaleString('pt-BR') + ' CAs indexados. ' +
+      'CA ' + ca + ' — situação ' + stLabel +
+      (hit && hit.equipment ? ' — ' + hit.equipment : '') + '.';
+    fb(hit ? 'Evidência preenchida com lookup na base carregada.' : 'CA não encontrado no índice — revise o número ou importe a base.', !!hit);
+  }
+
+  function formatDt(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (isNaN(d)) return iso.replace('T', ' ').slice(0, 16);
+    return d.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+  }
+
+  function onEvidenceFile(ev) {
+    const file = ev.target.files && ev.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      fb('Arquivo maior que 5 MB (limite do mock).', false);
+      ev.target.value = '';
+      return;
+    }
+    if (attachment.previewUrl) URL.revokeObjectURL(attachment.previewUrl);
+    attachment.name = file.name;
+    attachment.previewUrl = URL.createObjectURL(file);
+    renderAttachmentPreview();
+    const ca = document.getElementById('caNumber').value.trim();
+    if (!document.getElementById('officialNote').value.trim() && ca) {
+      document.getElementById('officialNote').value =
+        'Print anexo: ' + file.name + ' — consulta CAEPI em ' + formatDt(new Date().toISOString()) +
+        ', CA ' + ca + '.';
+    }
+    fb('Anexo carregado (mock: não persiste após recarregar a página).', true);
+  }
+
+  function renderAttachmentPreview() {
+    const box = document.getElementById('attachmentPreview');
+    if (!attachment.name) {
+      box.classList.add('hidden');
+      box.innerHTML = '';
+      return;
+    }
+    box.classList.remove('hidden');
+    let html = '<span class="attach-tag">Anexo:</span> ' + esc(attachment.name);
+    if (attachment.previewUrl) {
+      html += '<img src="' + attachment.previewUrl + '" alt="Preview evidência">';
+    }
+    box.innerHTML = html;
+  }
+
+  function clearAttachment() {
+    if (attachment.previewUrl) URL.revokeObjectURL(attachment.previewUrl);
+    attachment = { name: null, previewUrl: null };
+    document.getElementById('evidenceFile').value = '';
+    renderAttachmentPreview();
+  }
+
+  function loadAttachmentFromBinding(b) {
+    clearAttachment();
+    if (b && b.attachmentName) {
+      attachment.name = b.attachmentName;
+      renderAttachmentPreview();
+      document.getElementById('attachmentPreview').innerHTML =
+        '<span class="attach-tag">Anexo:</span> ' + esc(b.attachmentName) +
+        ' <em>(mock: preview disponível só na sessão em que foi enviado)</em>';
+    }
+  }
+
+  function evidenceIsAcceptable(note, hasAttachment) {
+    const n = (note || '').trim();
+    if (WEAK_EVIDENCE.test(n)) return false;
+    if (hasAttachment && (n.length >= 10 || /print|anexo|screenshot/i.test(n))) return true;
+    if (!n || n.length < 40) return false;
+    if (!/caepi|carga|consulta|ca\s*\d/i.test(n)) return false;
+    return true;
+  }
+
+  function fb(msg, ok) {
+    const el = document.getElementById('feedback');
+    el.textContent = msg || '';
+    el.className = 'feedback' + (msg ? (ok ? ' ok' : ' err') : '');
+  }
+
+  function esc(s) {
+    return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+  }
+
+  function refreshEpis() {
+    const sel = document.getElementById('epiSelect');
+    const cur = sel.value;
+    sel.innerHTML = epis().map(e =>
+      `<option value="${e.id}">${esc(e.code)} — ${esc(e.desc)}</option>`).join('');
+    if (cur) sel.value = cur;
+    onEpiChange();
+  }
+
+  function onEpiChange() {
+    selectedBindingId = null;
+    document.getElementById('formTitle').textContent = 'Novo vínculo de CA';
+    clearFormFields(false);
+    fb('', true);
+    const epi = currentEpi();
+    document.getElementById('epiHint').textContent =
+      epi ? 'EPI selecionado: ' + epi.desc + '. CAs são sempre por EPI — obrigatórios para entrega (NR-6).' : '';
+    renderBindings();
+  }
+
+  function currentEpi() {
+    const id = parseInt(document.getElementById('epiSelect').value, 10);
+    return epis().find(e => e.id === id);
+  }
+
+  function currentEpiBindings() {
+    const epiId = parseInt(document.getElementById('epiSelect').value, 10);
+    return bindingsForEpi(epiId);
+  }
+
+  function statusBadge(st) {
+    if (st === 'ACTIVE') return 'badge-ok';
+    if (st === 'SUSPENDED') return 'badge-warn';
+    return 'badge-danger';
+  }
+
+  function fmtValidity(b) {
+    const a = b.validFrom || '—';
+    const z = b.validUntil || '—';
+    return a + ' → ' + z;
+  }
+
+  function renderBindings() {
+    const rows = currentEpiBindings();
+    const tb = document.getElementById('caTable');
+    document.getElementById('emptyCa').classList.toggle('hidden', rows.length > 0);
+    tb.innerHTML = rows.map(b => {
+      const sel = selectedBindingId === b.id ? ' class="click sel"' : ' class="click"';
+      const bindBadge = b.active ? '<span class="badge badge-ok">Ativo</span>' : '<span class="badge badge-muted">Inativo</span>';
+      const check = b.officialCheckAt ? b.officialCheckAt.replace('T', ' ').slice(0, 16) : '—';
+      const att = b.attachmentName ? '📎 ' + esc(b.attachmentName) : '—';
+      return `<tr${sel} onclick="selectBinding(${b.id})">
+        <td>${esc(b.caNumber)}</td>
+        <td><span class="badge ${statusBadge(b.caStatus)}">${STATUS_LABEL[b.caStatus]}</span></td>
+        <td>${esc(fmtValidity(b))}</td>
+        <td>${esc(check)}</td>
+        <td>${att}</td>
+        <td>${bindBadge}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function selectBinding(id) {
+    selectedBindingId = id;
+    const epiId = parseInt(document.getElementById('epiSelect').value, 10);
+    const b = bindingsForEpi(epiId).find(x => x.id === id);
+    if (!b) return;
+    document.getElementById('formTitle').textContent = 'Editar vínculo · CA ' + b.caNumber;
+    document.getElementById('caNumber').value = b.caNumber;
+    document.getElementById('caStatus').value = b.caStatus;
+    document.getElementById('validFrom').value = b.validFrom || '';
+    document.getElementById('validUntil').value = b.validUntil || '';
+    document.getElementById('officialCheckAt').value = b.officialCheckAt || '';
+    document.getElementById('officialNote').value = b.officialCheckNote || b.officialNote || '';
+    document.getElementById('activeBinding').checked = b.active;
+    loadAttachmentFromBinding(b);
+    onStatusChange();
+    fb('', true);
+    renderBindings();
+  }
+
+  function clearFormFields(full) {
+    if (full) selectedBindingId = null;
+    document.getElementById('caNumber').value = '';
+    document.getElementById('caStatus').value = 'ACTIVE';
+    document.getElementById('validFrom').value = '';
+    document.getElementById('validUntil').value = '';
+    document.getElementById('officialCheckAt').value = '2026-09-28T03:00';
+    document.getElementById('officialNote').value = '';
+    document.getElementById('activeBinding').checked = true;
+    if (full) {
+      document.getElementById('formTitle').textContent = 'Novo vínculo de CA';
+      clearAttachment();
+    }
+  }
+
+  function clearForm() {
+    clearFormFields(true);
+    clearAttachment();
+    fb('', true);
+    renderBindings();
+  }
+
+  function onStatusChange() {
+    const st = document.getElementById('caStatus').value;
+    const act = document.getElementById('activeBinding');
+    if (BLOCKING.includes(st) && act.checked) {
+      act.checked = false;
+    }
+  }
+
+  function readForm() {
+    return {
+      caNumber: document.getElementById('caNumber').value.trim(),
+      caStatus: document.getElementById('caStatus').value,
+      validFrom: document.getElementById('validFrom').value,
+      validUntil: document.getElementById('validUntil').value,
+      officialCheckAt: document.getElementById('officialCheckAt').value,
+      officialNote: document.getElementById('officialNote').value.trim(),
+      attachmentName: attachment.name,
+      active: document.getElementById('activeBinding').checked
+    };
+  }
+
+  function validateForm(data, epiId, excludeId) {
+    if (!caepiOk()) {
+      return 'Importação CAEPI inválida — mutações EPI/CA bloqueadas (UC-CAE-01).';
+    }
+    if (!data.caNumber) return 'CAD-034 Informe o número do CA.';
+    if (!/^\d{4,6}$/.test(data.caNumber)) return 'CAD-034 Número de CA inválido (use 4–6 dígitos no mock).';
+    if (!data.officialCheckAt) return 'CAD-037 Informe data/hora da consulta oficial.';
+    if (!evidenceIsAcceptable(data.officialNote, !!data.attachmentName)) {
+      return 'CAD-037 Evidência insuficiente: use o botão da carga CAEPI, texto auditável (CAEPI + CA + situação) ou anexe print.';
+    }
+    if (data.validFrom && data.validUntil && data.validUntil < data.validFrom) {
+      return 'Vigência inválida: “válido até” anterior a “válido de”.';
+    }
+    if (data.active && BLOCKING.includes(data.caStatus)) {
+      return 'CAD-036 Situação "' + STATUS_LABEL[data.caStatus] + '" impede vínculo ativo.';
+    }
+    const all = bindingsForEpi(epiId);
+    const dup = all.find(b => b.caNumber === data.caNumber && b.id !== excludeId);
+    if (dup) return 'CA já vinculado a este EPI.';
+    if (data.active) {
+      const conflict = all.find(b =>
+        b.id !== excludeId && b.active && b.caStatus === 'ACTIVE' && data.caStatus === 'ACTIVE' && b.caNumber !== data.caNumber);
+      if (conflict) {
+        return 'CAD-035 Conflito: já existe outro vínculo ativo com CA ' + conflict.caNumber + ' neste EPI.';
+      }
+    }
+    return null;
+  }
+
+  function createBinding() {
+    const epiId = parseInt(document.getElementById('epiSelect').value, 10);
+    const data = readForm();
+    const err = validateForm(data, epiId, null);
+    if (err) { fb(err, false); return; }
+    Enr6MockStore.createCaBinding({
+      epiId,
+      caNumber: data.caNumber,
+      caStatus: data.caStatus,
+      validFrom: data.validFrom,
+      validUntil: data.validUntil,
+      officialCheckAt: data.officialCheckAt,
+      officialNote: data.officialNote,
+      attachmentName: data.attachmentName,
+      active: data.active,
+    });
+    fb('Vínculo cadastrado (mock compartilhado + auditoria).', true);
+    clearFormFields(true);
+    renderBindings();
+  }
+
+  function updateBinding() {
+    if (!selectedBindingId) { fb('Selecione um vínculo na lista para editar.', false); return; }
+    const epiId = parseInt(document.getElementById('epiSelect').value, 10);
+    const data = readForm();
+    const err = validateForm(data, epiId, selectedBindingId);
+    if (err) { fb(err, false); return; }
+    Enr6MockStore.updateCaBinding(selectedBindingId, data);
+    fb('Vínculo atualizado com sucesso.', true);
+    renderBindings();
+  }
+
+  function setBindingActive(active) {
+    if (!selectedBindingId) { fb('Selecione um vínculo.', false); return; }
+    const epiId = parseInt(document.getElementById('epiSelect').value, 10);
+    const b = bindingsForEpi(epiId).find(x => x.id === selectedBindingId);
+    if (active) {
+      if (BLOCKING.includes(b.caStatus)) {
+        fb('CAD-036 Não é possível reativar com situação impeditiva.', false);
+        return;
+      }
+      const test = { ...b, active: true };
+      const err = validateForm(test, b.epiId, b.id);
+      if (err) { fb(err, false); return; }
+      Enr6MockStore.updateCaBinding(b.id, { active: true });
+      fb('Vínculo reativado.', true);
+    } else {
+      if (!confirm('Inativar vínculo do CA ' + b.caNumber + '?')) return;
+      Enr6MockStore.updateCaBinding(b.id, { active: false });
+      fb('Vínculo inativado.', true);
+    }
+    const updated = bindingsForEpi(epiId).find(x => x.id === selectedBindingId);
+    if (updated) document.getElementById('activeBinding').checked = updated.active;
+    renderBindings();
+  }
+
+  (function init() {
+    const params = new URLSearchParams(location.search);
+    refreshEpis();
+    const epiParam = params.get('epi');
+    if (epiParam) {
+      const match = epis().find(e => e.code === epiParam || String(e.id) === epiParam);
+      if (match) document.getElementById('epiSelect').value = String(match.id);
+      onEpiChange();
+    }
+  })();
+
+  Enr6MockStore.initClient().then(function () {
+    render();
+  });
+
+</script>
+<script src="../common.js"></script>
+</body>
+</html>

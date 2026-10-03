@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>CAEPI import — Easy NR6 mock</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+<header class="mock-chrome">
+  <span class="title">UC-CAE-01</span>
+  <nav><a href="../index.html">Catálogo</a><a href="08-cad-epi.html">EPI</a><a href="09-cad-ca-epi.html">CA por EPI</a></nav>
+</header>
+<main class="page">
+  <div class="global-status" id="topStatus"></div>
+  <header class="page-header">
+    <div class="uc-tag">Demo cliente · base completa no navegador</div>
+    <h1>Base oficial CAEPI</h1>
+    <p class="sub">
+      <strong>1)</strong> Tentativa automática em background (produto Java).
+      <strong>2)</strong> Carga manual — bulk FTP (<code>tgg_export_caepi.zip</code>) ou
+      <code>RelatorioCA_*.csv</code> do portal. Bases grandes ficam em <strong>IndexedDB</strong>
+      (cadastros operacionais também persistem no IndexedDB entre visitas).
+    </p>
+  </header>
+
+  <div class="grid-2">
+    <section class="panel">
+      <div class="panel-title">① Automática (background)</div>
+      <p style="font-size:12px;color:var(--enr6-text-muted);margin-bottom:12px">
+        Horário configurado em Parâmetros. No protótipo: simula sucesso ou falha de rede; no Java: download FTP + swap atômico.
+      </p>
+      <table class="tbl" id="autoTbl"></table>
+      <div class="actions">
+        <button type="button" class="btn btn-primary" onclick="simAutoOk()">Simular tentativa agendada OK</button>
+        <button type="button" class="btn" onclick="simAutoFail()">Simular falha automática (CAE-001)</button>
+      </div>
+      <div id="autoProg" class="hidden" style="margin-top:12px">
+        <p id="autoProgTxt">Aguardando…</p>
+        <div style="height:8px;background:var(--enr6-surface-sunken);border-radius:4px;overflow:hidden">
+          <div id="autoBar" style="height:100%;width:0;background:var(--enr6-brand-primary);transition:width 0.3s"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title">② Manual (degradação elegante)</div>
+      <p style="font-size:12px;color:var(--enr6-text-muted);margin-bottom:12px">
+        Admin/SESMT envia o arquivo obtido fora do app (.zip, .txt pipe ou .csv RelatorioCA).
+      </p>
+      <label class="lbl">Arquivo CAEPI</label>
+      <input type="file" id="fileIn" accept=".zip,.txt,.csv,.ZIP,.TXT,.CSV">
+      <p style="font-size:11px;color:var(--enr6-text-muted);margin:8px 0">
+        Demo rápida: <a href="../data/caepi-sample.txt" download>caepi-sample.txt</a>
+        · apresentação: use seu <code>RelatorioCA_….csv</code> (~40k CAs únicos).
+      </p>
+      <p id="manFb" class="feedback"></p>
+      <div id="manProg" class="hidden" style="margin-top:8px;font-size:12px"></div>
+      <div class="actions">
+        <button type="button" class="btn btn-primary" id="btnImport" onclick="importManual()">Importar arquivo selecionado</button>
+      </div>
+      <div id="degraded" class="alert alert-warn hidden" style="margin-top:12px">
+        <strong>Mutações EPI/CA bloqueadas</strong> — use a carga manual acima ou corrija a fonte automática.
+      </div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <div class="panel-title">Consulta rápida na base carregada (demo)</div>
+    <p style="font-size:12px;color:var(--enr6-text-muted);margin-bottom:8px">
+      Teste ao vivo após importar — mesmo dado usado em <strong>CA por EPI → Preencher da última carga</strong>.
+    </p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+      <div><label class="lbl">Nº CA</label><input type="text" id="demoCa" placeholder="365" style="width:120px"></div>
+      <button type="button" class="btn" onclick="demoLookup()">Consultar</button>
+    </div>
+    <pre id="demoOut" style="margin-top:12px;font-size:12px;background:var(--enr6-surface-sunken);padding:12px;border-radius:6px;white-space:pre-wrap"></pre>
+  </section>
+
+  <section class="panel">
+    <div class="panel-title">Histórico de tentativas (sessão)</div>
+    <table class="tbl"><thead><tr><th>Data</th><th>Modo</th><th>Resultado</th><th>Detalhe</th></tr></thead>
+      <tbody id="histTb"></tbody></table>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="../caepi-parser.js"></script>
+<script src="../mock-idb.js"></script>
+<script src="../mock-store.js"></script>
+<script>
+function storageLabel(c) {
+    if (!c.indexInIdb) return 'IndexedDB (amostra embutida)';
+    return c.idbSavedAt ? 'IndexedDB · persistido' : 'IndexedDB';
+  }
+
+  function renderAll() {
+    const c = Enr6MockStore.getCaepi();
+    const ok = c.valid && c.indexReady;
+    document.getElementById('topStatus').innerHTML =
+      `<span><strong>Última carga ${c.valid ? 'válida' : 'PENDENTE/FALHA'}:</strong> ${(c.loadedAt || '—').slice(0, 16).replace('T', ' ')}
+       · ${(c.recordCount || 0).toLocaleString('pt-BR')} CAs únicos
+       ${c.variantRows ? '(' + c.variantRows.toLocaleString('pt-BR') + ' linhas)' : ''}
+       · ${c.sourceFormat || '—'} · ${storageLabel(c)} · modo: <strong>${c.lastMode || '—'}</strong></span>
+       <span><span class="badge ${ok ? 'badge-ok' : 'badge-danger'}">${ok ? 'Operação normal' : (c.valid ? 'Carregando índice…' : 'Degradado')}</span></span>`;
+    document.getElementById('degraded').classList.toggle('hidden', c.valid);
+    const p = Enr6MockStore.getParams();
+    const idxLine = c.indexInIdb
+      ? `${(c.recordCount || 0).toLocaleString('pt-BR')} CAs em IndexedDB` + (c.indexReady ? ' (memória pronta)' : ' (hidratação…)')
+      : `${Object.keys(c.index || {}).length} CAs no snapshot app`;
+    document.getElementById('autoTbl').innerHTML = `
+      <tr><td>Agendamento</td><td>Diário ${p.caepiImportTime || '03:00'} (mock)</td></tr>
+      <tr><td>Última auto</td><td>${(c.lastAutoAttemptAt || '—').slice(0, 19).replace('T', ' ')}</td></tr>
+      <tr><td>Erro auto</td><td>${c.lastAutoError ? '<span class="badge badge-danger">' + c.lastAutoError + '</span>' : '—'}</td></tr>
+      <tr><td>Índice consulta CA</td><td>${idxLine}</td></tr>
+      <tr><td>Gravado IDB em</td><td>${(c.idbSavedAt || '—').slice(0, 19).replace('T', ' ') || '—'}</td></tr>`;
+    document.getElementById('histTb').innerHTML = (c.history || []).slice(0, 15).map(h =>
+      `<tr><td>${(h.at || '').slice(0, 16).replace('T', ' ')}</td><td>${h.mode || '—'}</td>
+       <td>${h.ok ? '<span class="badge badge-ok">OK</span>' : '<span class="badge badge-danger">Falha</span>'}</td>
+       <td>${h.error || (h.durationMin ? h.durationMin + ' min' : '—')}</td></tr>`).join('');
+  }
+
+  function progMsg(ev) {
+    const el = document.getElementById('manProg');
+    if (!ev) return;
+    if (ev.phase === 'parse') el.textContent = 'Parseando registros… ' + (ev.lines || 0).toLocaleString('pt-BR');
+    if (ev.phase === 'idb') {
+      el.textContent = 'Gravando IndexedDB… ' + (ev.written || 0).toLocaleString('pt-BR') +
+        (ev.total ? ' / ' + ev.total.toLocaleString('pt-BR') : '');
+    }
+    if (ev.phase === 'hydrate') {
+      el.textContent = 'Recarregando base do IndexedDB… ' + (ev.loaded || 0).toLocaleString('pt-BR');
+    }
+  }
+
+  function boot() {
+    Enr6MockStore.hydrateCaepiFromIdb(progMsg).then(function () {
+      renderAll();
+      document.getElementById('manProg').classList.add('hidden');
+    }).catch(function (err) {
+      document.getElementById('manFb').textContent = err.message || String(err);
+      document.getElementById('manFb').className = 'feedback err';
+      renderAll();
+    });
+  }
+
+  function simAutoOk() {
+    const box = document.getElementById('autoProg');
+    box.classList.remove('hidden');
+    let w = 0;
+    const t = setInterval(() => {
+      w += 15;
+      document.getElementById('autoBar').style.width = w + '%';
+      document.getElementById('autoProgTxt').textContent =
+        w < 35 ? 'Baixando (background)…' : w < 70 ? 'Validando ZIP…' : 'Publicando base…';
+      if (w >= 100) {
+        clearInterval(t);
+        Enr6MockStore.runCaepiImportAutoSimulated();
+        document.getElementById('autoProgTxt').textContent = 'Concluída (simulação AUTO).';
+        renderAll();
+      }
+    }, 350);
+  }
+
+  function simAutoFail() {
+    Enr6MockStore.runCaepiImportAutoSimulatedFail('CAE-001 Fonte indisponível — use carga manual.');
+    renderAll();
+  }
+
+  async function readFileAsText(file) {
+    const name = (file.name || '').toLowerCase();
+    if (name.endsWith('.zip')) {
+      if (typeof JSZip === 'undefined') throw new Error('JSZip não carregou (rede?). Use .txt ou tente online.');
+      const buf = await file.arrayBuffer();
+      const zip = await JSZip.loadAsync(buf);
+      let entry = zip.file('tgg_export_caepi.txt');
+      if (!entry) {
+        const match = Object.keys(zip.files).find(n => /tgg_export_caepi\.txt$/i.test(n));
+        if (match) entry = zip.file(match);
+      }
+      if (!entry) throw new Error('CAE-002 Arquivo tgg_export_caepi.txt não encontrado no ZIP.');
+      return entry.async('string');
+    }
+    return file.text();
+  }
+
+  async function importManual() {
+    const fb = document.getElementById('manFb');
+    const btn = document.getElementById('btnImport');
+    const f = document.getElementById('fileIn').files[0];
+    if (!f) { fb.textContent = 'Selecione um arquivo.'; fb.className = 'feedback err'; return; }
+    fb.textContent = 'Lendo arquivo…'; fb.className = 'feedback';
+    const prog = document.getElementById('manProg');
+    prog.classList.remove('hidden');
+    btn.disabled = true;
+    try {
+      const text = await readFileAsText(f);
+      prog.textContent = 'Parseando ' + Math.round(text.length / 1024).toLocaleString('pt-BR') + ' KB…';
+      const fmt = Enr6CaepiParser.detectFormat(text);
+      const r = await Enr6MockStore.importCaepiFromTextAsync(text, 'MANUAL', progMsg);
+      fb.textContent = 'Carga publicada (' + (r.sourceFormat || fmt) + ', ' +
+        (r.recordCount || 0).toLocaleString('pt-BR') + ' CAs' +
+        (r.indexInIdb ? ', IndexedDB' : '') + '). Teste CA 365 abaixo ou em CA por EPI.';
+      fb.className = 'feedback ok';
+      document.getElementById('demoCa').value = '365';
+      renderAll();
+      try {
+        if (window.parent && window.parent.refreshCaepiBar) window.parent.refreshCaepiBar();
+      } catch (e) { /* embed */ }
+    } catch (e) {
+      fb.textContent = e.message || String(e);
+      fb.className = 'feedback err';
+    } finally {
+      btn.disabled = false;
+      setTimeout(function () { prog.classList.add('hidden'); }, 1500);
+    }
+  }
+
+  function demoLookup() {
+    const ca = document.getElementById('demoCa').value.trim();
+    const out = document.getElementById('demoOut');
+    if (!ca) { out.textContent = 'Informe um número de CA.'; return; }
+    if (!Enr6MockStore.isCaepiIndexReady()) {
+      out.textContent = 'Índice ainda carregando — aguarde alguns segundos.';
+      return;
+    }
+    const hit = Enr6MockStore.lookupCa(ca);
+    out.textContent = hit
+      ? JSON.stringify(hit, null, 2)
+      : 'CA não encontrado no índice da carga vigente.';
+  }
+
+  Enr6MockStore.initClient().then(function () {
+    boot();
+  });
+
+</script>
+<script src="../common.js"></script>
+</body>
+</html>

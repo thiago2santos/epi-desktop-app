@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Relatórios — Easy NR6 mock</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+<header class="mock-chrome">
+  <span class="title">M3 · Hub relatórios</span>
+  <nav><a href="../index.html">Catálogo</a></nav>
+</header>
+<main class="page">
+  <header class="page-header">
+    <div class="uc-tag">NR-6 6.5.1.1</div>
+    <h1>Relatórios</h1>
+    <p class="sub">Pré-visualização a partir dos dados da sessão (export PDF continua simulado)</p>
+  </header>
+  <section class="panel">
+    <div class="form-row">
+      <div><label class="lbl">Unidade</label><select id="unit"></select></div>
+      <div><label class="lbl">Período de</label><input type="date" id="dateFrom" value="2026-01-01"></div>
+      <div><label class="lbl">até</label><input type="date" id="dateTo"></div>
+    </div>
+    <label class="lbl">Tipo de relatório</label>
+    <select id="tipo">
+      <option value="ficha">Ficha por trabalhador (entregas/devoluções + CA)</option>
+      <option value="hist">Histórico por EPI/CA/lote</option>
+      <option value="cob">Cobertura matriz × vigente</option>
+      <option value="pend">Pendências operacionais</option>
+    </select>
+    <label class="lbl">Trabalhador (opcional — matrícula ou nome)</label><input id="empQ" placeholder="000123">
+    <div class="actions">
+      <button class="btn btn-primary" type="button" onclick="gerar()">Visualizar</button>
+      <button class="btn" type="button" onclick="alert('Export PDF mock (JasperReports no produto Java).')">Exportar PDF</button>
+    </div>
+  </section>
+  <section class="panel hidden" id="preview">
+    <div class="panel-title" id="prevTitle">Pré-visualização</div>
+    <p id="prevMeta" style="font-size:12px;color:var(--enr6-text-muted)"></p>
+    <pre id="prevText" style="font-size:12px;white-space:pre-wrap;margin-top:8px;max-height:320px;overflow:auto"></pre>
+    <a id="prevLink" href="#">Abrir tela detalhada →</a>
+  </section>
+</main>
+<script src="../mock-idb.js"></script>
+<script src="../mock-store.js"></script>
+<script>
+document.getElementById('dateTo').value = new Date().toISOString().slice(0, 10);
+  const p = Enr6MockStore.getParams();
+  document.getElementById('unit').innerHTML = (p.units || [p.unitName]).map(u =>
+    `<option value="${u}">${u}</option>`).join('');
+
+  function gerar() {
+    const rep = Enr6MockStore.runReport(document.getElementById('tipo').value, {
+      dateFrom: document.getElementById('dateFrom').value,
+      dateTo: document.getElementById('dateTo').value,
+      employeeQ: document.getElementById('empQ').value,
+      unit: document.getElementById('unit').value,
+    });
+    document.getElementById('preview').classList.remove('hidden');
+    document.getElementById('prevTitle').textContent = rep.title;
+    document.getElementById('prevMeta').textContent =
+      rep.count + ' registro(s) · unidade ' + document.getElementById('unit').value +
+      ' · período ' + document.getElementById('dateFrom').value + ' — ' + document.getElementById('dateTo').value;
+    document.getElementById('prevText').textContent = rep.lines.length
+      ? rep.lines.join('\n')
+      : '(Nenhum registro no filtro — tente ampliar o período ou cadastrar entregas.)';
+    const link = document.getElementById('prevLink');
+    link.href = rep.link;
+    if (document.getElementById('empQ').value.trim()) {
+      link.href = '05-historico-trabalhador.html';
+    }
+  }
+
+  Enr6MockStore.initClient().then(function () {
+    render();
+  });
+
+</script>
+<script src="../common.js"></script>
+</body>
+</html>

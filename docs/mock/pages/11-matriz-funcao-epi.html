@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Matriz função × EPI — Easy NR6 mock</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+<header class="mock-chrome">
+  <span class="title">UC-MAT-01 · Matriz</span>
+  <nav><a href="../index.html">Catálogo</a><a href="12-periodicidade.html">Periodicidade</a></nav>
+</header>
+<main class="page">
+  <header class="page-header">
+    <div class="uc-tag">UC-MAT-01</div>
+    <h1>Matriz função / GHE × EPI</h1>
+    <p class="sub">Obrigatoriedade, tipo Anexo I, exceções na entrega · sessão mock</p>
+  </header>
+  <div class="toolbar panel">
+    <label class="lbl">Função</label>
+    <select id="jobSel" style="max-width:320px;margin:0" onchange="renderMatrix()"></select>
+    <label class="lbl" style="margin-left:12px">Adicionar EPI</label>
+    <select id="epiAdd" style="max-width:280px;margin:0"></select>
+    <button class="btn btn-primary" type="button" onclick="addEpi()">Adicionar à matriz</button>
+  </div>
+  <p id="matFb" class="feedback"></p>
+  <section class="panel">
+    <table class="tbl">
+      <thead><tr><th>EPI</th><th>Anexo</th><th>CA esperado</th><th>Individual / posto</th><th>Treinamento</th><th></th></tr></thead>
+      <tbody id="matTb"></tbody>
+    </table>
+    <p id="emptyMat" class="hidden" style="font-size:13px;color:var(--enr6-text-muted);margin-top:8px">Nenhum EPI na matriz desta função.</p>
+  </section>
+  <div class="actions">
+    <button class="btn" type="button" onclick="refreshCas()">Atualizar CA esperado (CAEPI vigente)</button>
+  </div>
+  <p style="font-size:12px;color:var(--enr6-text-muted)">Entrega fora desta matriz exige exceção registrada (SESMT). Alterações refletem no wizard de entrega e na cobertura.</p>
+</main>
+<script src="../mock-idb.js"></script>
+<script src="../mock-store.js"></script>
+<script>
+function esc(s) {
+    return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+  }
+
+  function currentJobId() {
+    return parseInt(document.getElementById('jobSel').value, 10);
+  }
+
+  function fillJobSelect() {
+    const sel = document.getElementById('jobSel');
+    const roles = Enr6MockStore.listJobRolesForMatrix();
+    sel.innerHTML = roles.map(j => `<option value="${j.id}">${esc(j.label)}</option>`).join('');
+  }
+
+  function fillEpiAdd() {
+    const jobId = currentJobId();
+    const sel = document.getElementById('epiAdd');
+    const avail = Enr6MockStore.episAvailableForMatrix(jobId);
+    sel.innerHTML = avail.length
+      ? avail.map(e => `<option value="${e.id}">${esc(e.code)} — ${esc(e.description)}</option>`).join('')
+      : '<option value="">— Todos EPI ativos já na matriz —</option>';
+  }
+
+  function assignmentLabel(a) {
+    return a === 'POSTO' ? 'Posto' : 'Individual';
+  }
+
+  function renderMatrix() {
+    fillEpiAdd();
+    const jobId = currentJobId();
+    const rows = Enr6MockStore.getMatrixForJobRole(jobId);
+    document.getElementById('emptyMat').classList.toggle('hidden', rows.length > 0);
+    document.getElementById('matTb').innerHTML = rows.map(r => `
+      <tr>
+        <td>${esc(r.epiName)}</td>
+        <td>${esc(r.annexGroup)}</td>
+        <td>${esc(r.expectedCa)}</td>
+        <td>
+          <select onchange="setAssign(${r.id}, this.value)" aria-label="Tipo">
+            <option value="INDIVIDUAL" ${r.assignment === 'INDIVIDUAL' ? 'selected' : ''}>Individual</option>
+            <option value="POSTO" ${r.assignment === 'POSTO' ? 'selected' : ''}>Posto</option>
+          </select>
+        </td>
+        <td><label class="check-row" style="margin:0;align-items:center"><input type="checkbox" ${r.trainingRequired ? 'checked' : ''} onchange="setTrain(${r.id}, this.checked)"> Obrigatório</label></td>
+        <td><button class="btn btn-sm" type="button" onclick="removeRow(${r.id})">Remover</button></td>
+      </tr>`).join('');
+  }
+
+  function fb(msg, ok) {
+    const el = document.getElementById('matFb');
+    el.textContent = msg || '';
+    el.className = 'feedback' + (msg ? (ok ? ' ok' : ' err') : '');
+  }
+
+  function addEpi() {
+    const epiId = parseInt(document.getElementById('epiAdd').value, 10);
+    if (!epiId) { fb('Nenhum EPI disponível para adicionar.', false); return; }
+    try {
+      Enr6MockStore.addMatrixRow(currentJobId(), epiId);
+      fb('EPI incluído na matriz.', true);
+      renderMatrix();
+    } catch (e) {
+      fb(e.message, false);
+    }
+  }
+
+  function removeRow(id) {
+    if (!confirm('Remover este EPI da matriz desta função?')) return;
+    Enr6MockStore.removeMatrixRow(id);
+    fb('Removido.', true);
+    renderMatrix();
+  }
+
+  function setAssign(id, val) {
+    Enr6MockStore.updateMatrixRow(id, { assignment: val });
+  }
+
+  function setTrain(id, checked) {
+    Enr6MockStore.updateMatrixRow(id, { trainingRequired: checked });
+  }
+
+  function refreshCas() {
+    const jobId = currentJobId();
+    Enr6MockStore.getMatrixForJobRole(jobId).forEach(r => {
+      Enr6MockStore.updateMatrixRow(r.id, { refreshCa: true });
+    });
+    fb('CA esperado atualizado a partir dos vínculos CA ativos.', true);
+    renderMatrix();
+  }
+
+  Enr6MockStore.initClient().then(function () {
+    fillJobSelect();
+    renderMatrix();
+  });
+
+</script>
+<script src="../common.js"></script>
+</body>
+</html>

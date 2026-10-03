@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Setores & funções — Easy NR6 mock</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--enr6-border-subtle); margin-bottom: 16px; }
+    .tab {
+      padding: 8px 14px; border: none; background: transparent; cursor: pointer;
+      font-weight: 600; color: var(--enr6-text-muted); border-bottom: 2px solid transparent; margin-bottom: -1px;
+    }
+    .tab.on { color: var(--enr6-brand-primary); border-bottom-color: var(--enr6-brand-primary); }
+    .flow-hint {
+      font-size: 12px; padding: 10px 12px; margin-bottom: 16px;
+      background: var(--enr6-brand-primary-muted); border: 1px solid var(--enr6-brand-primary);
+      border-radius: var(--enr6-radius-md);
+    }
+    .flow-hint ol { margin: 6px 0 0 18px; }
+    tr.sel { background: var(--enr6-brand-primary-muted) !important; }
+    .feedback { font-size: 12px; font-weight: 600; min-height: 18px; margin-top: 8px; }
+    .feedback.ok { color: var(--enr6-status-ok); }
+    .feedback.err { color: var(--enr6-status-danger); }
+    .status-readonly { font-weight: 700; font-size: 13px; padding: 8px 0; }
+  </style>
+</head>
+<body>
+<header class="mock-chrome">
+  <span class="title">UC-CAD-02 · Setores & funções</span>
+  <nav><a href="../index.html">Catálogo</a><a href="11-matriz-funcao-epi.html">Matriz função × EPI</a></nav>
+</header>
+<main class="page">
+  <header class="page-header">
+    <div class="uc-tag">UC-CAD-02</div>
+    <h1>Setores e funções</h1>
+    <p class="sub">Estrutura organizacional para empregados e matriz de EPI · GHE é tratado na matriz (tela separada)</p>
+  </header>
+
+  <div class="flow-hint">
+    <strong>Como cadastrar</strong>
+    <ol>
+      <li>Aba <strong>Setores</strong>: informe o nome e clique <strong>Cadastrar</strong> (ou selecione na lista para editar).</li>
+      <li>Aba <strong>Funções</strong>: escolha um <strong>setor ativo</strong>, informe o nome da função e clique <strong>Cadastrar</strong>.</li>
+      <li>Use <strong>Inativar / Reativar</strong> em vez de apagar — o histórico permanece auditável.</li>
+    </ol>
+  </div>
+
+  <div class="tabs">
+    <button type="button" class="tab on" id="tabDep" onclick="showTab('dep')">Setores</button>
+    <button type="button" class="tab" id="tabJob" onclick="showTab('job')">Funções</button>
+  </div>
+
+  <!-- SETORES -->
+  <div class="grid-2" id="paneDep">
+    <section class="panel">
+      <div class="panel-title">Setores cadastrados</div>
+      <div class="toolbar">
+        <input type="search" id="depSearch" placeholder="Buscar setor por nome" oninput="renderDepartments()">
+        <button type="button" class="btn" onclick="renderDepartments()">Buscar</button>
+      </div>
+      <table class="tbl">
+        <thead><tr><th>Setor</th><th>Status</th><th>Funções ativas</th></tr></thead>
+        <tbody id="depTable"></tbody>
+      </table>
+    </section>
+    <section class="panel">
+      <div class="panel-title" id="depFormTitle">Novo setor</div>
+      <label class="lbl">Nome do setor</label>
+      <input type="text" id="depName" placeholder="Ex.: Produção">
+      <label class="lbl">Status (novo cadastro)</label>
+      <div class="status-readonly" id="depStatusPreview">ATIVO</div>
+      <p style="font-size:11px;color:var(--enr6-text-muted);margin-bottom:12px;">
+        Ao editar um setor selecionado, use Inativar/Reativar para alterar status.
+      </p>
+      <div class="actions">
+        <button type="button" class="btn btn-primary" onclick="createDepartment()">Cadastrar</button>
+        <button type="button" class="btn" onclick="updateDepartment()">Salvar edição</button>
+        <button type="button" class="btn" onclick="setDepartmentStatus(false)">Inativar</button>
+        <button type="button" class="btn" onclick="setDepartmentStatus(true)">Reativar</button>
+        <button type="button" class="btn" onclick="clearDepartmentForm()">Limpar</button>
+      </div>
+      <div class="feedback" id="depFeedback"></div>
+    </section>
+  </div>
+
+  <!-- FUNÇÕES -->
+  <div class="grid-2 hidden" id="paneJob">
+    <section class="panel">
+      <div class="panel-title">Funções cadastradas</div>
+      <div class="toolbar">
+        <input type="search" id="jobSearch" placeholder="Buscar função por nome" oninput="renderJobRoles()">
+        <select id="jobFilterDep" style="max-width:180px;margin:0" onchange="renderJobRoles()">
+          <option value="">Todos os setores</option>
+        </select>
+      </div>
+      <table class="tbl">
+        <thead><tr><th>Função</th><th>Setor</th><th>Status</th></tr></thead>
+        <tbody id="jobTable"></tbody>
+      </table>
+    </section>
+    <section class="panel">
+      <div class="panel-title" id="jobFormTitle">Nova função</div>
+      <label class="lbl">Setor (obrigatório)</label>
+      <select id="jobDep"></select>
+      <label class="lbl">Nome da função</label>
+      <input type="text" id="jobName" placeholder="Ex.: Operador de máquina">
+      <label class="lbl">Status (novo cadastro)</label>
+      <div class="status-readonly" id="jobStatusPreview">ATIVO</div>
+      <div class="actions">
+        <button type="button" class="btn btn-primary" onclick="createJobRole()">Cadastrar</button>
+        <button type="button" class="btn" onclick="updateJobRole()">Salvar edição</button>
+        <button type="button" class="btn" onclick="setJobRoleStatus(false)">Inativar</button>
+        <button type="button" class="btn" onclick="setJobRoleStatus(true)">Reativar</button>
+        <button type="button" class="btn" onclick="clearJobRoleForm()">Limpar</button>
+      </div>
+      <div class="feedback" id="jobFeedback"></div>
+    </section>
+  </div>
+</main>
+
+<script src="../mock-idb.js"></script>
+<script src="../mock-store.js"></script>
+<script>
+let selectedDepId = null;
+  let selectedJobId = null;
+
+  function norm(s) { return (s || '').trim().toLowerCase(); }
+  function depById(id) { return Enr6MockStore.getDepartments('').find(d => d.id === id); }
+  function activeRolesForDep(depId) { return Enr6MockStore.countActiveRolesInDepartment(depId); }
+
+  function showTab(which) {
+    document.getElementById('tabDep').classList.toggle('on', which === 'dep');
+    document.getElementById('tabJob').classList.toggle('on', which === 'job');
+    document.getElementById('paneDep').classList.toggle('hidden', which !== 'dep');
+    document.getElementById('paneJob').classList.toggle('hidden', which !== 'job');
+    if (which === 'job') syncDepartmentCombos();
+  }
+
+  function fb(el, msg, ok) {
+    const n = document.getElementById(el);
+    n.textContent = msg || '';
+    n.className = 'feedback' + (msg ? (ok ? ' ok' : ' err') : '');
+  }
+
+  function renderDepartments() {
+    const q = norm(document.getElementById('depSearch').value);
+    const tb = document.getElementById('depTable');
+    tb.innerHTML = Enr6MockStore.getDepartments(q).map(d => {
+        const sel = selectedDepId === d.id ? ' class="click sel"' : ' class="click"';
+        const badge = d.active ? 'badge-ok' : 'badge-muted';
+        const st = d.active ? 'Ativo' : 'Inativo';
+        const cnt = activeRolesForDep(d.id);
+        return `<tr${sel} onclick="selectDepartment(${d.id})"><td>${esc(d.name)}</td><td><span class="badge ${badge}">${st}</span></td><td>${cnt}</td></tr>`;
+      }).join('');
+  }
+
+  function selectDepartment(id) {
+    selectedDepId = id;
+    const d = depById(id);
+    if (!d) return;
+    document.getElementById('depFormTitle').textContent = 'Editar setor';
+    document.getElementById('depName').value = d.name;
+    document.getElementById('depStatusPreview').textContent = d.active ? 'ATIVO' : 'INATIVO';
+    fb('depFeedback', '', true);
+    renderDepartments();
+  }
+
+  function clearDepartmentForm() {
+    selectedDepId = null;
+    document.getElementById('depFormTitle').textContent = 'Novo setor';
+    document.getElementById('depName').value = '';
+    document.getElementById('depStatusPreview').textContent = 'ATIVO';
+    fb('depFeedback', '', true);
+    renderDepartments();
+  }
+
+  function createDepartment() {
+    try {
+      Enr6MockStore.createDepartment(document.getElementById('depName').value);
+      fb('depFeedback', 'CAD-120 Setor cadastrado (persistido no mock compartilhado).', true);
+      clearDepartmentForm();
+      renderDepartments();
+      syncDepartmentCombos();
+    } catch (e) { fb('depFeedback', e.message, false); }
+  }
+
+  function updateDepartment() {
+    if (!selectedDepId) { fb('depFeedback', 'CAD-023 Selecione um setor para editar.', false); return; }
+    try {
+      Enr6MockStore.updateDepartment(selectedDepId, document.getElementById('depName').value);
+      fb('depFeedback', 'CAD-121 Setor atualizado.', true);
+      renderDepartments();
+      renderJobRoles();
+      syncDepartmentCombos();
+    } catch (e) { fb('depFeedback', e.message, false); }
+  }
+
+  function setDepartmentStatus(active) {
+    if (!selectedDepId) { fb('depFeedback', 'CAD-023 Selecione um setor.', false); return; }
+    const d = depById(selectedDepId);
+    if (!active && !confirm('Inativar setor "' + d.name + '"?')) return;
+    try {
+      Enr6MockStore.setDepartmentStatus(selectedDepId, active);
+      fb('depFeedback', active ? 'CAD-123 Setor reativado.' : 'CAD-122 Setor inativado.', true);
+      document.getElementById('depStatusPreview').textContent = active ? 'ATIVO' : 'INATIVO';
+      renderDepartments();
+      syncDepartmentCombos();
+    } catch (e) { fb('depFeedback', e.message, false); }
+  }
+
+  function syncDepartmentCombos() {
+    const activeDeps = Enr6MockStore.getDepartments('').filter(d => d.active);
+    const opts = activeDeps.map(d => `<option value="${d.id}">${esc(d.name)}</option>`).join('');
+    const jobDep = document.getElementById('jobDep');
+    const prev = jobDep.value;
+    jobDep.innerHTML = '<option value="">— Selecione o setor —</option>' + opts;
+    if (prev) jobDep.value = prev;
+
+    const filter = document.getElementById('jobFilterDep');
+    const fp = filter.value;
+    filter.innerHTML = '<option value="">Todos os setores</option>' +
+      Enr6MockStore.getDepartments('').map(d => `<option value="${d.id}">${esc(d.name)}</option>`).join('');
+    if (fp) filter.value = fp;
+  }
+
+  function renderJobRoles() {
+    const q = norm(document.getElementById('jobSearch').value);
+    const fd = document.getElementById('jobFilterDep').value;
+    const tb = document.getElementById('jobTable');
+    const fdId = fd ? parseInt(fd, 10) : null;
+    tb.innerHTML = Enr6MockStore.getJobRoles(q, fdId).map(j => {
+        const dep = depById(j.departmentId);
+        const sel = selectedJobId === j.id ? ' class="click sel"' : ' class="click"';
+        const badge = j.active ? 'badge-ok' : 'badge-muted';
+        return `<tr${sel} onclick="selectJobRole(${j.id})"><td>${esc(j.name)}</td><td>${esc(dep ? dep.name : '—')}</td><td><span class="badge ${badge}">${j.active ? 'Ativo' : 'Inativo'}</span></td></tr>`;
+      }).join('');
+  }
+
+  function selectJobRole(id) {
+    selectedJobId = id;
+    const j = Enr6MockStore.getJobRoles('', null).find(x => x.id === id);
+    if (!j) return;
+    syncDepartmentCombos();
+    document.getElementById('jobFormTitle').textContent = 'Editar função';
+    document.getElementById('jobName').value = j.name;
+    document.getElementById('jobDep').value = String(j.departmentId);
+    document.getElementById('jobStatusPreview').textContent = j.active ? 'ATIVO' : 'INATIVO';
+    fb('jobFeedback', '', true);
+    renderJobRoles();
+  }
+
+  function clearJobRoleForm() {
+    selectedJobId = null;
+    document.getElementById('jobFormTitle').textContent = 'Nova função';
+    document.getElementById('jobName').value = '';
+    document.getElementById('jobDep').value = '';
+    document.getElementById('jobStatusPreview').textContent = 'ATIVO';
+    fb('jobFeedback', '', true);
+    renderJobRoles();
+  }
+
+  function createJobRole() {
+    const depId = parseInt(document.getElementById('jobDep').value, 10);
+    try {
+      Enr6MockStore.createJobRole(document.getElementById('jobName').value, depId);
+      fb('jobFeedback', 'Função cadastrada (persistida no mock compartilhado).', true);
+      clearJobRoleForm();
+      renderDepartments();
+      renderJobRoles();
+    } catch (e) { fb('jobFeedback', e.message, false); }
+  }
+
+  function updateJobRole() {
+    if (!selectedJobId) { fb('jobFeedback', 'Selecione uma função para editar.', false); return; }
+    const depId = parseInt(document.getElementById('jobDep').value, 10);
+    try {
+      Enr6MockStore.updateJobRole(selectedJobId, document.getElementById('jobName').value, depId);
+      fb('jobFeedback', 'Função atualizada.', true);
+      renderDepartments();
+      renderJobRoles();
+    } catch (e) { fb('jobFeedback', e.message, false); }
+  }
+
+  function setJobRoleStatus(active) {
+    if (!selectedJobId) { fb('jobFeedback', 'Selecione uma função.', false); return; }
+    const j = Enr6MockStore.getJobRoles('', null).find(x => x.id === selectedJobId);
+    if (!active && !confirm('Inativar função "' + j.name + '"?')) return;
+    try {
+      Enr6MockStore.setJobRoleStatus(selectedJobId, active);
+      fb('jobFeedback', active ? 'Função reativada.' : 'Função inativada.', true);
+      document.getElementById('jobStatusPreview').textContent = active ? 'ATIVO' : 'INATIVO';
+      renderDepartments();
+      renderJobRoles();
+    } catch (e) { fb('jobFeedback', e.message, false); }
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+  }
+
+  Enr6MockStore.initClient().then(function () {
+    renderDepartments();
+    renderJobRoles();
+    syncDepartmentCombos();
+  });
+
+</script>
+<script src="../common.js"></script>
+</body>
+</html>

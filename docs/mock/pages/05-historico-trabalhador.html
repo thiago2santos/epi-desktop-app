@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Histórico trabalhador — Easy NR6 mock</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+<header class="mock-chrome">
+  <span class="title">Histórico por trabalhador</span>
+  <nav><a href="../index.html">Catálogo</a><a href="13-relatorios-hub.html">Relatórios</a></nav>
+</header>
+<main class="page">
+  <header class="page-header">
+    <div class="uc-tag">Consulta · NR-6 6.5.1.1</div>
+    <h1>Histórico de fornecimento</h1>
+    <p class="sub">Entregas, devoluções e estornos — com CA e validação</p>
+  </header>
+  <div class="toolbar panel">
+    <input placeholder="Matrícula ou nome" value="000123" id="search">
+    <input type="date" value="2026-01-01"> até <input type="date" value="2026-09-30">
+    <button class="btn btn-primary" onclick="filtrar()">Filtrar</button>
+    <button class="btn" onclick="alert('Export PDF mock (Jasper).')">Exportar PDF</button>
+  </div>
+  <div class="worker-card" id="wcard" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;background:var(--enr6-surface-sunken);padding:12px;border-radius:6px;">
+    <div colspan="3" style="grid-column:span 3;color:var(--enr6-text-muted)">Busque um trabalhador</div>
+  </div>
+  <section class="panel">
+    <table class="tbl" id="hist">
+      <thead><tr><th>Data</th><th>Tipo</th><th>EPI</th><th>Qtd</th><th>CA</th><th>Lote</th><th>Situação</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
+<script src="../mock-idb.js"></script>
+<script src="../mock-store.js"></script>
+<script>
+function fmt(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return isNaN(d) ? iso : d.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+  }
+  function filtrar() {
+    const q = document.getElementById('search').value;
+    const emp = Enr6MockStore.findActiveEmployee(q) || Enr6MockStore.getEmployees(q)[0];
+    const card = document.getElementById('wcard');
+    if (!emp) {
+      card.innerHTML = '<div style="grid-column:span 3">Nenhum trabalhador encontrado.</div>';
+      document.querySelector('#hist tbody').innerHTML = '';
+      return;
+    }
+    const row = Enr6MockStore.resolveEmployeeRow(emp);
+    card.innerHTML = `<div><strong>${row.fullName}</strong></div><div>Mat. ${row.employeeCode}</div><div>${row.jobRoleName} · ${row.departmentName}</div>`;
+    const db = Enr6MockStore.getIssuances({ employeeId: emp.id });
+    const lines = db.map(i => {
+      const st = i.status === 'ACTIVE' ? 'Vigente' : i.status === 'RETURNED' ? 'Devolvido' : 'Estornado';
+      const badge = i.status === 'ACTIVE' ? 'badge-ok' : i.status === 'REVERSED' ? 'badge-warn' : 'badge-muted';
+      return `<tr><td>${fmt(i.issuedAt)}</td><td>Fornecimento</td><td>${i.epiName}</td><td>${i.qty}</td><td>${i.caNumber}</td><td>${i.lotCode}</td><td><span class="badge ${badge}">${st}</span></td></tr>`;
+    });
+    document.querySelector('#hist tbody').innerHTML = lines.join('') || '<tr><td colspan="7">Sem registros na sessão.</td></tr>';
+  }
+  const p = new URLSearchParams(location.search);
+  if (p.get('mat')) document.getElementById('search').value = p.get('mat');
+
+  Enr6MockStore.initClient().then(function () {
+    filtrar();
+  });
+
+</script>
+  <script src="../common.js"></script>
+</body>
+</html>

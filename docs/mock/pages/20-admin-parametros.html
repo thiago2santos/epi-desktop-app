@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Parâmetros — Easy NR6 mock</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+<header class="mock-chrome">
+  <span class="title">UC-ADM-03</span>
+  <nav><a href="../index.html">Catálogo</a></nav>
+</header>
+<main class="page">
+  <header class="page-header">
+    <h1>Parâmetros do sistema</h1>
+    <p class="sub">Unidade padrão, políticas operacionais · reflete no shell e relatórios</p>
+  </header>
+  <section class="panel">
+    <label class="lbl">Razão social (empresa)</label><input id="legalName">
+    <label class="lbl">CNPJ</label><input id="cnpj">
+    <label class="lbl">Unidade operacional padrão</label><select id="unitName"></select>
+    <label class="lbl">Modo de implantação (mock)</label>
+    <select id="deploymentMode">
+      <option value="local">Local SQLite (demo)</option>
+      <option value="server">Cliente-servidor oficial</option>
+    </select>
+    <label class="lbl">Horário importação CAEPI</label><input type="time" id="caepiImportTime">
+    <p id="parFb" class="feedback"></p>
+    <div class="actions"><button class="btn btn-primary" type="button" onclick="salvar()">Salvar</button></div>
+  </section>
+  <p style="font-size:12px;color:var(--enr6-text-muted);margin-top:12px">Após salvar, recarregue o shell para atualizar a barra superior (unidade).</p>
+</main>
+<script src="../mock-idb.js"></script>
+<script src="../mock-store.js"></script>
+<script>
+function loadForm() {
+    const p = Enr6MockStore.getParams();
+    document.getElementById('legalName').value = p.legalName || '';
+    document.getElementById('cnpj').value = p.cnpj || '';
+    document.getElementById('caepiImportTime').value = p.caepiImportTime || '03:00';
+    document.getElementById('deploymentMode').value = p.deploymentMode || 'local';
+    const sel = document.getElementById('unitName');
+    const units = p.units || [p.unitName];
+    sel.innerHTML = units.map(u => `<option value="${u}">${u}</option>`).join('');
+    sel.value = p.unitName || units[0];
+  }
+
+  function salvar() {
+    const fb = document.getElementById('parFb');
+    try {
+      Enr6MockStore.setParams({
+        legalName: document.getElementById('legalName').value,
+        cnpj: document.getElementById('cnpj').value,
+        unitName: document.getElementById('unitName').value,
+        deploymentMode: document.getElementById('deploymentMode').value,
+        caepiImportTime: document.getElementById('caepiImportTime').value,
+      });
+      fb.textContent = 'Parâmetros salvos na sessão + auditoria.';
+      fb.className = 'feedback ok';
+      try {
+        if (window.parent && window.parent !== window && window.parent.refreshCaepiBar) {
+          window.parent.refreshCaepiBar();
+        }
+      } catch (e) { /* ignore */ }
+    } catch (e) {
+      fb.textContent = e.message;
+      fb.className = 'feedback err';
+    }
+  }
+
+  Enr6MockStore.initClient().then(function () {
+    loadForm();
+  });
+
+</script>
+<script src="../common.js"></script>
+</body>
+</html>

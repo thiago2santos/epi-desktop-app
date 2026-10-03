@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Easy NR6 — Catálogo de mocks HTML</title>
+  <link rel="stylesheet" href="common.css">
+  <style>
+    .catalog { max-width: 960px; margin: 0 auto; padding: 24px 20px 48px; }
+    .catalog h1 { font-size: 24px; margin-bottom: 8px; }
+    .catalog > p { color: var(--enr6-text-muted); margin-bottom: 24px; }
+    section { margin-bottom: 28px; }
+    section h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--enr6-text-muted); margin-bottom: 10px; }
+    ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    ul li a {
+      display: block; padding: 10px 14px; background: var(--enr6-surface-raised);
+      border: 1px solid var(--enr6-border-subtle); border-radius: var(--enr6-radius-md);
+      text-decoration: none; color: var(--enr6-text-primary); font-weight: 500;
+    }
+    ul li a:hover { border-color: var(--enr6-brand-primary); background: var(--enr6-brand-primary-muted); }
+    ul li a span { float: right; font-size: 11px; color: var(--enr6-text-muted); font-weight: 400; }
+  </style>
+</head>
+<body>
+  <header class="mock-chrome">
+    <span class="title">Easy NR6 · Protótipo HTML (mock)</span>
+    <span>Identidade: <a href="../02-arquitetura/easy-nr6-ux-identity.md" style="color:#93c5fd">UX v0.1</a></span>
+  </header>
+  <main class="catalog">
+    <h1>Catálogo de telas</h1>
+    <p style="margin-bottom:16px;padding:14px;background:var(--enr6-brand-primary-muted);border:1px solid var(--enr6-brand-primary);border-radius:8px;">
+      <strong>Validação recomendada:</strong> abra o aplicativo completo em
+      <a href="shell.html" style="font-weight:700">shell.html</a>
+      (menu lateral + telas). Login demo → escolha um perfil rápido.
+    </p>
+    <p>Todas as telas abaixo usam <strong>Enr6MockStore</strong> (dados compartilhados na sessão). Abra preferencialmente via <a href="shell.html">shell.html</a>.</p>
+
+    <section>
+      <h2>Acesso & início</h2>
+      <ul>
+        <li><a href="pages/00-login.html">Login & troca de senha <span>FEAT-M0</span></a></li>
+        <li><a href="pages/01-dashboard.html">Dashboard (fila do dia) <span>FEAT</span></a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Operação — fornecimento legal</h2>
+      <ul>
+        <li><a href="pages/02-entrega-wizard.html">Registrar fornecimento (wizard 5 passos) <span>UC-ENT-01</span></a></li>
+        <li><a href="pages/03-devolucao.html">Devolução / descarte <span>UC pós-entrega</span></a></li>
+        <li><a href="pages/04-estorno.html">Estorno de registro legal <span>UC pós-entrega</span></a></li>
+        <li><a href="pages/05-historico-trabalhador.html">Histórico por trabalhador <span>UC consulta</span></a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Demanda (modo oficial)</h2>
+      <ul>
+        <li><a href="pages/16-solicitar-epi-gestor.html">Solicitar EPI (Gestor) <span>UC-SOL-01</span></a></li>
+        <li><a href="pages/17-fila-solicitacoes.html">Fila de solicitações (SESMT / Almox) <span>UC-SOL-01</span></a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Cadastros mestres</h2>
+      <ul>
+        <li><a href="pages/06-cad-trabalhadores.html">Trabalhadores <span>UC-CAD-03</span></a></li>
+        <li><a href="pages/07-cad-setores-funcoes.html">Setores & funções <span>UC-CAD-02</span></a></li>
+        <li><a href="pages/08-cad-epi.html">Catálogo de EPI <span>UC-CAD-04</span></a></li>
+        <li><a href="pages/09-cad-ca-epi.html">Vincular CA ao EPI <span>UC-CAD-05</span></a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Estoque & regras</h2>
+      <ul>
+        <li><a href="pages/10-estoque-lotes.html">Lotes & saldos <span>UC-LOT-01/02</span></a></li>
+        <li><a href="pages/11-matriz-funcao-epi.html">Matriz função/GHE × EPI <span>UC-MAT-01</span></a></li>
+        <li><a href="pages/12-periodicidade.html">Periodicidade & cobertura <span>UC-MAT</span></a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Relatórios & evidência</h2>
+      <ul>
+        <li><a href="pages/13-relatorios-hub.html">Hub de relatórios <span>M3</span></a></li>
+        <li><a href="pages/14-cobertura.html">Cobertura matriz × vigente <span>M3</span></a></li>
+        <li><a href="pages/15-pendencias.html">Pendências operacionais <span>M3</span></a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Governança</h2>
+      <ul>
+        <li><a href="pages/18-auditoria.html">Consulta de auditoria <span>UC-AUD-01</span></a></li>
+        <li><a href="pages/19-admin-usuarios.html">Usuários & papéis <span>UC-ADM-01/02</span></a></li>
+        <li><a href="pages/20-admin-parametros.html">Parâmetros do sistema <span>UC-ADM-03</span></a></li>
+        <li><a href="pages/21-caepi-import.html">Importação base CAEPI <span>UC-CAE-01</span></a></li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

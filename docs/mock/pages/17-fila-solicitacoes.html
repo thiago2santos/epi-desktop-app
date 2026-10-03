@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Fila solicitações — Easy NR6 mock</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+<header class="mock-chrome">
+  <span class="title">UC-SOL-01 · Fila</span>
+  <nav><a href="../index.html">Catálogo</a><a href="16-solicitar-epi-gestor.html">Gestor</a><a href="02-entrega-wizard.html">Atender via entrega</a></nav>
+</header>
+<main class="page">
+  <header class="page-header">
+    <div class="uc-tag">SESMT / Almoxarife</div>
+    <h1>Fila de solicitações</h1>
+    <p class="sub">Análise, recusa, espera estoque, atendimento parcial</p>
+  </header>
+  <div class="toolbar panel">
+    <select style="margin:0;max-width:200px"><option>Todos status</option><option>Pendente análise</option><option>Aprovada</option><option>Aguardando estoque</option></select>
+    <input placeholder="Trabalhador, EPI..." style="margin:0">
+    <button class="btn btn-primary">Filtrar</button>
+  </div>
+  <div class="grid-2">
+    <section class="panel">
+      <table class="tbl" id="q">
+        <thead><tr><th>#</th><th>Trabalhador</th><th>EPI</th><th>Qtd</th><th>Status</th></tr></thead>
+        <tbody id="reqTb"></tbody>
+      </table>
+    </section>
+    <section class="panel" id="detail">
+      <div class="panel-title">Detalhe #1044</div>
+      <p style="font-size:13px;margin-bottom:12px">Fora da matriz · solicitante Gestor Carlos · 29/09/2026</p>
+      <div class="actions">
+        <button class="btn btn-primary" type="button" onclick="aprovar()">Aprovar (SESMT)</button>
+        <button class="btn btn-danger" type="button" onclick="recusa()">Recusar</button>
+        <button class="btn" type="button" onclick="atender()">Atender via entrega</button>
+      </div>
+      <p style="font-size:11px;color:var(--enr6-text-muted);margin-top:16px">Atendimento total/parcial vincula entrega formal; não baixa saldo só pelo pedido.</p>
+    </section>
+  </div>
+</main>
+<script src="../mock-idb.js"></script>
+<script src="../mock-store.js"></script>
+<script>
+let currentId = null;
+  function badge(st) {
+    if (st === 'PENDING_SESMT') return '<span class="badge badge-warn">SESMT</span>';
+    if (st === 'APPROVED') return '<span class="badge badge-info">Aprovada</span>';
+    if (st === 'FULFILLED') return '<span class="badge badge-ok">Atendida</span>';
+    if (st === 'REJECTED') return '<span class="badge badge-danger">Recusada</span>';
+    return '<span class="badge badge-muted">' + st + '</span>';
+  }
+  function render() {
+    document.getElementById('reqTb').innerHTML = Enr6MockStore.getRequests().map(r =>
+      `<tr class="click" onclick="sel(${r.id})"><td>#${r.id}</td><td>${r.employeeName}</td><td>${r.epiName}</td><td>${r.qty}</td><td>${badge(r.status)}</td></tr>`
+    ).join('');
+  }
+  function sel(id) {
+    currentId = id;
+    const r = Enr6MockStore.getRequests().find(x => x.id === id);
+    document.querySelector('#detail .panel-title').textContent = 'Detalhe #' + id;
+    document.querySelector('#detail p').textContent =
+      (r ? r.reason + ' · ' + r.requestedBy + ' · ' + r.requestedAt.slice(0, 10) : '');
+  }
+  function aprovar() {
+    if (!currentId) return;
+    Enr6MockStore.setRequestStatus(currentId, 'APPROVED');
+    Enr6MockStore.audit('REQUEST_APPROVE', '#' + currentId);
+    render();
+  }
+  function recusa() {
+    const m = prompt('Motivo da recusa (obrigatório):');
+    if (m && m.length > 3) {
+      Enr6MockStore.setRequestStatus(currentId, 'REJECTED');
+      Enr6MockStore.audit('REQUEST_REJECT', '#' + currentId + ' — ' + m);
+      render();
+    }
+  }
+  function atender() {
+    if (!currentId) return;
+    location.href = '02-entrega-wizard.html?request=' + currentId + '&embed=1';
+  }
+
+  Enr6MockStore.initClient().then(function () {
+    render();
+    sel(1042);
+  });
+
+</script>
+  <script src="../common.js"></script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Easy NR6 mock</title>
+  <link rel="stylesheet" href="../common.css">
+  <style>
+    .metrics { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+    .metrics a { text-decoration: none; color: inherit; }
+  </style>
+</head>
+<body>
+<header class="mock-chrome">
+  <span class="title">Dashboard · fila do dia</span>
+  <nav>
+    <a href="../index.html">Catálogo</a>
+    <a href="00-login.html">Sair</a>
+    <a href="02-entrega-wizard.html">Entrega</a>
+  </nav>
+</header>
+<main class="page">
+  <div class="global-status">
+    <span><strong>CAEPI:</strong> carga válida 28/09/2026</span>
+    <span id="userLine">Unidade: Itupeva</span>
+  </div>
+  <header class="page-header">
+    <div class="uc-tag">FEAT · home por papel</div>
+    <h1 id="dashTitle">Início</h1>
+    <p class="sub" id="dashSub">Prioridades operacionais de hoje</p>
+  </header>
+  <div class="metrics" id="metrics"></div>
+  <div class="panel">
+    <div class="panel-title">Atalhos recentes</div>
+    <div class="actions" id="shortcuts"></div>
+  </div>
+</main>
+<script src="../mock-idb.js"></script>
+<script src="../mock-store.js"></script>
+<script>
+  function renderDashboard() {
+  const u = Enr6MockStore.getSessionUser();
+  const unit = Enr6MockStore.getParams().unitName || 'Itupeva';
+  document.getElementById('userLine').textContent = 'Unidade: ' + unit + ' · ' + (u.nome || u.login) + ' (' + (u.papel || u.login) + ')';
+
+  const titles = {
+    Admin: ['Governança & operação', 'Visão consolidada (mock: ' + unit + ')'],
+    SESMT: ['Segurança do trabalho', 'Exceções, matriz e cobertura crítica'],
+    Almoxarife: ['Balcão de EPI', 'Registre fornecimentos e devoluções'],
+    Consulta: ['Consulta & relatórios', 'Extraia evidência para fiscalização'],
+    Gestor: ['Minha equipe', 'Solicite EPI — isto não é entrega'],
+  };
+  const links = {
+    Admin: [['Usuários', '19-admin-usuarios.html'], ['Auditoria', '18-auditoria.html'], ['Parâmetros', '20-admin-parametros.html']],
+    SESMT: [['Matriz EPI', '11-matriz-funcao-epi.html'], ['Cobertura', '14-cobertura.html'], ['Cadastro EPI', '08-cad-epi.html']],
+    Almoxarife: [['Registrar fornecimento', '02-entrega-wizard.html'], ['Devolução', '03-devolucao.html'], ['Lotes', '10-estoque-lotes.html']],
+    Consulta: [['Hub relatórios', '13-relatorios-hub.html'], ['Auditoria', '18-auditoria.html']],
+    Gestor: [['Nova solicitação', '16-solicitar-epi-gestor.html'], ['Histórico equipe', '05-historico-trabalhador.html']],
+  };
+  const role = u.papel || 'Almoxarife';
+  const t = titles[role] || titles.Almoxarife;
+  document.getElementById('dashTitle').textContent = t[0];
+  document.getElementById('dashSub').textContent = t[1];
+  document.getElementById('metrics').innerHTML = Enr6MockStore.dashboardMetrics(role).map(m =>
+    `<a href="${m[2]}" class="card-metric"><div class="v">${m[0]}</div><div class="l">${m[1]}</div></a>`).join('');
+  document.getElementById('shortcuts').innerHTML = (links[role] || links.Almoxarife).map(l =>
+    `<a class="btn btn-primary" href="${l[1]}">${l[0]}</a>`).join('');
+  }
+
+  Enr6MockStore.initClient().then(renderDashboard);
+
+</script>
+  <script src="../common.js"></script>
+</body>
+</html>

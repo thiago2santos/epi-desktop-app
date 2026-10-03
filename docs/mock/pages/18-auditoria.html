@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Auditoria — Easy NR6 mock</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+<header class="mock-chrome">
+  <span class="title">UC-AUD-01</span>
+  <nav><a href="../index.html">Catálogo</a></nav>
+</header>
+<main class="page">
+  <header class="page-header">
+    <div class="uc-tag">Append-only</div>
+    <h1>Trilha de auditoria</h1>
+    <p class="sub">Eventos sensíveis — somente consulta</p>
+  </header>
+  <div class="toolbar panel">
+    <input type="datetime-local" style="margin:0">
+    <input type="datetime-local" style="margin:0">
+    <select style="margin:0"><option>Todas ações</option><option>LOGIN</option><option>ENTREGA</option><option>ESTORNO</option></select>
+    <input placeholder="Entidade / ID" style="margin:0">
+    <button class="btn btn-primary" onclick="filtrar()">Filtrar</button>
+    <button class="btn" onclick="alert('Export CSV mock')">Exportar</button>
+  </div>
+  <section class="panel">
+    <table class="tbl"><thead><tr><th>Instante</th><th>Usuário</th><th>Ação</th><th>Entidade</th><th>ID</th><th>Detalhes</th></tr></thead>
+      <tbody id="tb"></tbody></table>
+  </section>
+</main>
+<script src="../mock-idb.js"></script>
+<script src="../mock-store.js"></script>
+<script>
+function filtrar() {
+    document.getElementById('tb').innerHTML = Enr6MockStore.getAuditLog(100).map(r =>
+      `<tr><td>${r.at.replace('T', ' ').slice(0, 19)}</td><td>${r.user}</td><td>${r.action}</td><td>—</td><td>—</td><td>${r.detail}</td></tr>`
+    ).join('') || '<tr><td colspan="6">Sem eventos.</td></tr>';
+  }
+
+  Enr6MockStore.initClient().then(function () {
+    filtrar();
+  });
+
+</script>
+  <script src="../common.js"></script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Trabalhadores — Easy NR6 mock</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+<header class="mock-chrome">
+  <span class="title">UC-CAD-03 · Trabalhadores</span>
+  <nav><a href="../index.html">Catálogo</a></nav>
+</header>
+<main class="page">
+  <header class="page-header">
+    <div class="uc-tag">UC-CAD-03</div>
+    <h1>Trabalhadores</h1>
+    <p class="sub">Matrícula, setor e função — dados compartilhados com cadastros organizacionais</p>
+  </header>
+  <div class="grid-2">
+    <section class="panel">
+      <div class="toolbar"><input placeholder="Filtrar..." id="f" oninput="render()"><button class="btn btn-primary" onclick="novo()">Novo trabalhador</button></div>
+      <table class="tbl"><thead><tr><th>Matrícula</th><th>Nome</th><th>Setor</th><th>Função</th><th>Status</th></tr></thead><tbody id="tb"></tbody></table>
+    </section>
+    <section class="panel">
+      <div class="panel-title" id="formTitle">Novo trabalhador</div>
+      <label class="lbl">Matrícula</label><input id="code">
+      <label class="lbl">Nome completo</label><input id="name">
+      <label class="lbl">Setor</label><select id="depSel" onchange="syncJobs()"></select>
+      <label class="lbl">Função</label><select id="jobSel"></select>
+      <label class="lbl">Status</label><select id="activeSel"><option value="1">Ativo</option><option value="0">Inativo</option></select>
+      <div class="feedback" id="feedback"></div>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="save()">Salvar</button>
+        <button class="btn" onclick="clearForm()">Limpar</button>
+      </div>
+    </section>
+  </div>
+</main>
+<script src="../mock-idb.js"></script>
+<script src="../mock-store.js"></script>
+<script>
+let selectedId = null;
+
+  function fb(msg, ok) {
+    const el = document.getElementById('feedback');
+    el.textContent = msg || '';
+    el.className = 'feedback' + (msg ? (ok ? ' ok' : ' err') : '');
+  }
+
+  function syncDeps() {
+    const sel = document.getElementById('depSel');
+    sel.innerHTML = Enr6MockStore.getDepartments('').filter(d => d.active)
+      .map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+    syncJobs();
+  }
+
+  function syncJobs() {
+    const depId = parseInt(document.getElementById('depSel').value, 10);
+    const sel = document.getElementById('jobSel');
+    sel.innerHTML = Enr6MockStore.getJobRoles('', depId).filter(j => j.active)
+      .map(j => `<option value="${j.id}">${j.name}</option>`).join('');
+  }
+
+  function render() {
+    const q = document.getElementById('f').value;
+    document.getElementById('tb').innerHTML = Enr6MockStore.getEmployees(q).map(e => {
+      const row = Enr6MockStore.resolveEmployeeRow(e);
+      const sel = selectedId === e.id ? ' class="click sel"' : ' class="click"';
+      return `<tr${sel} onclick="edit(${e.id})"><td>${row.employeeCode}</td><td>${row.fullName}</td><td>${row.departmentName}</td><td>${row.jobRoleName}</td><td><span class="badge ${e.active?'badge-ok':'badge-muted'}">${e.active?'Ativo':'Inativo'}</span></td></tr>`;
+    }).join('');
+  }
+
+  function edit(id) {
+    selectedId = id;
+    const e = Enr6MockStore.getEmployees('').find(x => x.id === id);
+    document.getElementById('formTitle').textContent = 'Editar · ' + e.employeeCode;
+    document.getElementById('code').value = e.employeeCode;
+    document.getElementById('name').value = e.fullName;
+    document.getElementById('depSel').value = String(e.departmentId);
+    syncJobs();
+    document.getElementById('jobSel').value = String(e.jobRoleId);
+    document.getElementById('activeSel').value = e.active ? '1' : '0';
+    render();
+  }
+
+  function novo() { clearForm(); document.getElementById('formTitle').textContent = 'Novo trabalhador'; }
+
+  function clearForm() {
+    selectedId = null;
+    document.getElementById('code').value = '';
+    document.getElementById('name').value = '';
+    document.getElementById('activeSel').value = '1';
+    fb('', true);
+    syncDeps();
+    render();
+  }
+
+  function save() {
+    const payload = {
+      employeeCode: document.getElementById('code').value,
+      fullName: document.getElementById('name').value,
+      departmentId: parseInt(document.getElementById('depSel').value, 10),
+      jobRoleId: parseInt(document.getElementById('jobSel').value, 10),
+      active: document.getElementById('activeSel').value === '1',
+    };
+    try {
+      if (selectedId) Enr6MockStore.updateEmployee(selectedId, payload);
+      else Enr6MockStore.createEmployee(payload);
+      fb('Salvo no mock compartilhado (+ auditoria simulada).', true);
+      clearForm();
+      render();
+    } catch (err) { fb(err.message, false); }
+  }
+
+  Enr6MockStore.initClient().then(function () {
+    syncDeps();
+    render();
+  });
+
+</script>
+<script src="../common.js"></script>
+</body>
+</html>

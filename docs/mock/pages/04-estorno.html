@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Estorno — Easy NR6 mock</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+<header class="mock-chrome">
+  <span class="title">Estorno formal</span>
+  <nav><a href="../index.html">Catálogo</a></nav>
+</header>
+<main class="page">
+  <header class="page-header">
+    <div class="uc-tag">Pós-entrega · imutabilidade</div>
+    <h1>Estornar registro de fornecimento</h1>
+    <p class="sub">Cria evento reverso — nunca edita o original</p>
+  </header>
+  <div class="alert alert-warn">Apenas perfis autorizados (SESMT/Admin). Almoxarife não corrige entrega passada.</div>
+  <section class="panel">
+    <label class="lbl">ID do registro legal</label>
+    <input id="reg" placeholder="ENT-2026-8840">
+    <button class="btn" type="button" onclick="load()">Carregar</button>
+    <div id="detail" class="hidden" style="margin-top:16px">
+      <table class="tbl" id="detTbl"></table>
+      <label class="lbl">Motivo do estorno (obrigatório)</label>
+      <textarea rows="3" id="motivo" placeholder="Descreva o erro operacional..."></textarea>
+      <p id="estFb" class="feedback"></p>
+      <div class="actions">
+        <button class="btn btn-danger" type="button" onclick="estornar()">Confirmar estorno</button>
+      </div>
+    </div>
+  </section>
+  <footer class="legal-bar">Estorno referencia o ENT original e aparece na trilha de auditoria.</footer>
+</main>
+<script src="../mock-idb.js"></script>
+<script src="../mock-store.js"></script>
+<script>
+let current = null;
+  function load() {
+    current = Enr6MockStore.findIssuanceByCode(document.getElementById('reg').value.trim());
+    if (!current) { alert('Registro não encontrado.'); return; }
+    document.getElementById('detail').classList.remove('hidden');
+    document.getElementById('detTbl').innerHTML = `
+      <tr><td>Original</td><td>${current.code} · ${current.issuedAt.slice(0, 16).replace('T', ' ')}</td></tr>
+      <tr><td>Trabalhador</td><td>${current.employeeName}</td></tr>
+      <tr><td>EPI / Lote</td><td>${current.epiName} · ${current.lotCode}</td></tr>
+      <tr><td>Situação</td><td>${current.status}</td></tr>`;
+  }
+  function estornar() {
+    const fb = document.getElementById('estFb');
+    try {
+      const m = document.getElementById('motivo').value.trim();
+      if (!confirm('Confirma estorno? O registro original permanece visível.')) return;
+      const code = Enr6MockStore.createReversal(current.code, m);
+      fb.textContent = 'Estorno ' + code + ' registrado.';
+      fb.className = 'feedback ok';
+      load();
+    } catch (e) {
+      fb.textContent = e.message;
+      fb.className = 'feedback err';
+    }
+  }
+
+  Enr6MockStore.initClient().then(function () {
+    render();
+  });
+
+</script>
+<script src="../common.js"></script>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="shell-root">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Easy NR6 Gestão de EPI</title>
+  <link rel="stylesheet" href="common.css">
+  <link rel="stylesheet" href="shell.css">
+</head>
+<body>
+  <!-- Login no mesmo arquivo: evita loop file:// (sessionStorage não cruza pastas) -->
+  <div class="login-gate" id="loginGate">
+    <div class="login-card">
+      <div class="brand">Easy NR6</div>
+      <p style="color:var(--enr6-text-muted);margin:8px 0 20px;font-size:13px;">Gestão de EPI conforme NR-6 · protótipo</p>
+      <label class="lbl">Login</label>
+      <input type="text" id="loginInput" value="admin" autocomplete="username">
+      <label class="lbl">Senha</label>
+      <input type="password" value="********" autocomplete="current-password">
+      <button type="button" class="btn btn-primary" style="width:100%;margin-top:4px" onclick="enterApp()">Entrar</button>
+      <p style="font-size:11px;color:var(--enr6-text-muted);margin-bottom:8px;">
+        Protótipo: abre como <strong>Admin</strong> para liberar todos os módulos. Use outro perfil abaixo se quiser testar RBAC.
+      </p>
+      <div class="demo">
+        <strong>Outros perfis:</strong>
+        <button type="button" onclick="enterAs('admin','Admin')">admin · Administrador</button>
+        <button type="button" onclick="enterAs('sesmt','SESMT')">sesmt · SESMT</button>
+        <button type="button" onclick="enterAs('almox','Almoxarife')">almox · Almoxarife</button>
+        <button type="button" onclick="enterAs('consulta','Consulta')">consulta · Consulta</button>
+        <button type="button" onclick="enterAs('gestor','Gestor')">gestor · Gestor</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="shell-app gate-hidden" id="shellApp">
+    <header class="shell-top">
+      <span class="brand">Easy NR6 · Gestão de EPI</span>
+      <div>
+        <span class="meta" id="userMeta">—</span>
+        <button type="button" onclick="logout()">Sair</button>
+      </div>
+    </header>
+    <div class="shell-status" id="caepiBar">
+      <span><strong>CAEPI:</strong> carga válida 28/09/2026 · operação normal</span>
+      <span id="unitLine">Unidade: Itupeva</span>
+    </div>
+    <div class="shell-body">
+      <nav class="shell-sidebar" id="sidebar" aria-label="Módulos"></nav>
+      <div class="shell-frame-wrap">
+        <iframe class="shell-frame" id="frame" title="Conteúdo do módulo" src="about:blank"></iframe>
+      </div>
+    </div>
+    <footer class="shell-foot">
+      Protótipo HTML para validação · NR-6 · registro legal imutável
+      <span style="float:right">
+      <a href="index.html">Catálogo</a>
+      · <a href="#" onclick="resetMockDb(); return false;">Reset cadastros mock</a>
+    </span>
+    </footer>
+  </div>
+
+<script src="mock-idb.js"></script>
+<script src="mock-store.js"></script>
+<script>
+  function resetMockDb() {
+    if (confirm('Restaurar todos os dados mock (cadastros, lotes, entregas, fila, auditoria e base CAEPI no IndexedDB)?')) {
+      Enr6MockStore.reset().then(function () {
+        document.getElementById('frame').src = document.getElementById('frame').src;
+        refreshCaepiBar();
+      });
+    }
+  }
+  var NAV = [
+    { g: 'Início', items: [{ page: '01-dashboard.html', label: 'Dashboard', roles: null }]},
+    { g: 'Operação', items: [
+      { page: '02-entrega-wizard.html', label: 'Registrar fornecimento', roles: ['Admin','SESMT','Almoxarife'] },
+      { page: '03-devolucao.html', label: 'Devolução / descarte', roles: ['Admin','SESMT','Almoxarife'] },
+      { page: '04-estorno.html', label: 'Estorno', roles: ['Admin','SESMT'] },
+      { page: '05-historico-trabalhador.html', label: 'Histórico por trabalhador', roles: null }
+    ]},
+    { g: 'Demanda', items: [
+      { page: '16-solicitar-epi-gestor.html', label: 'Solicitar EPI (Gestor)', roles: ['Gestor','Admin'] },
+      { page: '17-fila-solicitacoes.html', label: 'Fila de solicitações', roles: ['Admin','SESMT','Almoxarife'] }
+    ]},
+    { g: 'Cadastros', items: [
+      { page: '06-cad-trabalhadores.html', label: 'Trabalhadores', roles: ['Admin','SESMT'] },
+      { page: '07-cad-setores-funcoes.html', label: 'Setores & funções', roles: ['Admin','SESMT'] },
+      { page: '08-cad-epi.html', label: 'Catálogo EPI', roles: ['Admin','SESMT'] },
+      { page: '09-cad-ca-epi.html', label: 'CA por EPI', roles: ['Admin','SESMT'] }
+    ]},
+    { g: 'Estoque', items: [
+      { page: '10-estoque-lotes.html', label: 'Lotes & saldos', roles: ['Admin','SESMT','Almoxarife','Consulta'] }
+    ]},
+    { g: 'Regras', items: [
+      { page: '11-matriz-funcao-epi.html', label: 'Matriz função × EPI', roles: ['Admin','SESMT'] },
+      { page: '12-periodicidade.html', label: 'Periodicidade', roles: ['Admin','SESMT'] }
+    ]},
+    { g: 'Relatórios', items: [
+      { page: '13-relatorios-hub.html', label: 'Hub de relatórios', roles: null },
+      { page: '14-cobertura.html', label: 'Cobertura', roles: ['Admin','SESMT','Almoxarife','Consulta'] },
+      { page: '15-pendencias.html', label: 'Pendências', roles: ['Admin','SESMT','Almoxarife'] }
+    ]},
+    { g: 'Governança', items: [
+      { page: '18-auditoria.html', label: 'Auditoria', roles: ['Admin','SESMT','Consulta'] },
+      { page: '19-admin-usuarios.html', label: 'Usuários & papéis', roles: ['Admin'] },
+      { page: '20-admin-parametros.html', label: 'Parâmetros', roles: ['Admin'] },
+      { page: '21-caepi-import.html', label: 'Importação CAEPI', roles: ['Admin','SESMT'] }
+    ]}
+  ];
+
+  var user = null;
+  var currentPage = '01-dashboard.html';
+  var ROLE_MAP = { admin: 'Admin', sesmt: 'SESMT', almox: 'Almoxarife', consulta: 'Consulta', gestor: 'Gestor' };
+  var NAV_COLLAPSED_KEY = 'nav-collapsed';
+
+  function loadNavCollapsed() {
+    try {
+      var raw = sessionStorage.getItem(NAV_COLLAPSED_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) { /* ignore */ }
+    return {};
+  }
+
+  function saveNavCollapsed(state) {
+    try { sessionStorage.setItem(NAV_COLLAPSED_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
+  }
+
+  var navCollapsed = loadNavCollapsed();
+
+  function persistUser(u) {
+    user = u;
+    try { sessionStorage.setItem('enr6_mock_user', JSON.stringify(u)); } catch (e) { /* file:// ok */ }
+  }
+
+  function loadStoredUser() {
+    try {
+      var raw = sessionStorage.getItem('enr6_mock_user');
+      if (raw) user = JSON.parse(raw);
+    } catch (e) { user = null; }
+  }
+
+  function normalizePapel(login, papel) {
+    if (papel && papel !== login) return papel;
+    return ROLE_MAP[(login || '').toLowerCase()] || papel || login;
+  }
+
+  function showApp() {
+    document.getElementById('loginGate').classList.add('gate-hidden');
+    document.getElementById('shellApp').classList.remove('gate-hidden');
+    document.getElementById('userMeta').textContent =
+      (user.nome || user.papel) + ' · ' + user.papel;
+    var p = user.papel;
+    if (p === 'Gestor') go('16-solicitar-epi-gestor.html');
+    else if (p === 'Consulta') go('13-relatorios-hub.html');
+    else go('01-dashboard.html');
+  }
+
+  function enterAs(login, papel) {
+    document.getElementById('loginInput').value = login;
+    persistUser({ login: login, papel: papel, nome: papel });
+    showApp();
+  }
+
+  function enterApp() {
+    var login = document.getElementById('loginInput').value.trim();
+    if (!login) return;
+    var papel = normalizePapel(login, login);
+    persistUser({ login: login, papel: papel, nome: papel });
+    showApp();
+  }
+
+  function canAccess(roles) {
+    if (!roles) return true;
+    if (user.papel === 'Admin') return true;
+    return roles.indexOf(user.papel) >= 0;
+  }
+
+  function buildNav() {
+    var side = document.getElementById('sidebar');
+    side.innerHTML = '';
+    NAV.forEach(function (group) {
+      var hasActive = group.items.some(function (item) { return item.page === currentPage; });
+      var collapsed = navCollapsed[group.g] === true;
+      if (hasActive) collapsed = false;
+
+      var section = document.createElement('div');
+      section.className = 'shell-nav-group' + (collapsed ? ' is-collapsed' : '');
+
+      var head = document.createElement('button');
+      head.type = 'button';
+      head.className = 'shell-nav-group-head';
+      head.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      head.innerHTML = '<span class="shell-nav-chevron" aria-hidden="true"></span><span>' + group.g + '</span>';
+      head.onclick = function () {
+        var nowCollapsed = section.classList.toggle('is-collapsed');
+        navCollapsed[group.g] = nowCollapsed;
+        head.setAttribute('aria-expanded', nowCollapsed ? 'false' : 'true');
+        saveNavCollapsed(navCollapsed);
+      };
+
+      var itemsWrap = document.createElement('div');
+      itemsWrap.className = 'shell-nav-group-items';
+
+      group.items.forEach(function (item) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'shell-nav-btn' + (item.page === currentPage ? ' active' : '');
+        btn.textContent = item.label;
+        var ok = canAccess(item.roles);
+        btn.disabled = !ok;
+        if (ok) btn.onclick = function () { go(item.page); };
+        itemsWrap.appendChild(btn);
+      });
+
+      section.appendChild(head);
+      section.appendChild(itemsWrap);
+      side.appendChild(section);
+    });
+  }
+
+  function go(page) {
+    currentPage = page;
+    document.getElementById('frame').src = 'pages/' + page + '?embed=1';
+    buildNav();
+  }
+
+  function logout() {
+    user = null;
+    try { sessionStorage.removeItem('enr6_mock_user'); } catch (e) {}
+    document.getElementById('shellApp').classList.add('gate-hidden');
+    document.getElementById('loginGate').classList.remove('gate-hidden');
+    document.getElementById('frame').src = 'about:blank';
+  }
+
+  window.refreshCaepiBar = function refreshCaepiBar() {
+    var c = Enr6MockStore.getCaepi();
+    var bar = document.getElementById('caepiBar');
+    var n = (c.recordCount || 0).toLocaleString('pt-BR');
+    var store = 'IndexedDB';
+    if (!c.valid) {
+      bar.classList.add('degraded');
+      bar.querySelector('span').innerHTML = '<strong>CAEPI:</strong> carga inválida — mutações EPI/CA bloqueadas';
+    } else if (!c.indexReady) {
+      bar.classList.add('degraded');
+      bar.querySelector('span').innerHTML = '<strong>CAEPI:</strong> carregando índice (' + store + ')…';
+    } else {
+      bar.classList.remove('degraded');
+      var d = (c.loadedAt || '').slice(0, 10).split('-').reverse().join('/');
+      bar.querySelector('span').innerHTML =
+        '<strong>CAEPI:</strong> ' + n + ' CAs · ' + d + ' · ' + store + ' · operação normal';
+    }
+    document.getElementById('unitLine').textContent = 'Unidade: ' + (Enr6MockStore.getParams().unitName || '—');
+  }
+
+  function startShell() {
+    refreshCaepiBar();
+    if (user && user.papel) showApp();
+    else enterAs('admin', 'Admin');
+  }
+
+  loadStoredUser();
+  Enr6MockStore.initHost().then(startShell).catch(function (err) {
+    console.error('Mock bootstrap', err);
+    alert('Falha ao abrir banco local (IndexedDB): ' + (err.message || err));
+  });
+
+  window.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'enr6-caepi-degraded') {
+      refreshCaepiBar();
+    }
+  });
+</script>
+</body>
+</html>

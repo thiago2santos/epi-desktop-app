@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Lotes — Easy NR6 mock</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+<header class="mock-chrome">
+  <span class="title">UC-LOT-01/02 · Lotes</span>
+  <nav><a href="../index.html">Catálogo</a><a href="02-entrega-wizard.html">Entrega</a></nav>
+</header>
+<main class="page">
+  <header class="page-header">
+    <div class="uc-tag">UC-LOT-01 · recebimento</div>
+    <h1>Lotes e saldos</h1>
+    <p class="sub">CA na compra · validade da peça · saldo (sessão mock)</p>
+  </header>
+  <div class="grid-2">
+    <section class="panel">
+      <div class="panel-title">Registrar recebimento</div>
+      <label class="lbl">EPI</label><select id="epiSel"></select>
+      <label class="lbl">Nº CA (consultado na data)</label><input id="caNum">
+      <label class="lbl">Data consulta CAEPI</label><input type="date" id="caDt">
+      <label class="lbl">Código lote (interno)</label><input id="lotCode" placeholder="A">
+      <label class="lbl">Lote fabricante</label><input id="mfgLot">
+      <label class="lbl">Validade da peça</label><input type="date" id="validUntil">
+      <div class="form-row">
+        <div><label class="lbl">Quantidade</label><input type="number" id="qty" value="10" min="1"></div>
+        <div><label class="lbl">Tamanho</label><input id="size" value="Único"></div>
+      </div>
+      <p id="lotFb" class="feedback"></p>
+      <button class="btn btn-primary" type="button" onclick="registrar()">Registrar lote</button>
+    </section>
+    <section class="panel">
+      <div class="panel-title">Saldo & validade</div>
+      <div class="toolbar"><input id="filt" placeholder="Filtrar EPI/lote" oninput="renderTable()"></div>
+      <table class="tbl">
+        <thead><tr><th>Lote</th><th>EPI</th><th>Saldo</th><th>Validade peça</th><th>Alerta</th></tr></thead>
+        <tbody id="lotTb"></tbody>
+      </table>
+    </section>
+  </div>
+</main>
+<script src="../mock-idb.js"></script>
+<script src="../mock-store.js"></script>
+<script>
+function fillEpis() {
+    const sel = document.getElementById('epiSel');
+    sel.innerHTML = Enr6MockStore.getEpis('').filter(e => e.active)
+      .map(e => `<option value="${e.id}">${e.code} — ${e.description}</option>`).join('');
+    document.getElementById('caDt').value = new Date().toISOString().slice(0, 10);
+  }
+  function renderTable() {
+    const q = document.getElementById('filt').value;
+    document.getElementById('lotTb').innerHTML = Enr6MockStore.getLots(q).map(l => {
+      let badge = '<span class="badge badge-ok">OK</span>';
+      if (l.expired) badge = '<span class="badge badge-danger">Vencido</span>';
+      else {
+        const diff = (new Date(l.pieceValidUntil) - new Date()) / 86400000;
+        if (diff <= 30) badge = '<span class="badge badge-warn">30 dias</span>';
+      }
+      return `<tr><td>${l.lotCode}</td><td>${l.epiName}</td><td>${l.qtyOnHand}</td><td>${l.pieceValidUntil}</td><td>${badge}</td></tr>`;
+    }).join('');
+  }
+  function registrar() {
+    const fb = document.getElementById('lotFb');
+    try {
+      Enr6MockStore.createLot({
+        epiId: parseInt(document.getElementById('epiSel').value, 10),
+        caNumber: document.getElementById('caNum').value,
+        caCheckedAt: document.getElementById('caDt').value,
+        lotCode: document.getElementById('lotCode').value,
+        manufacturerLot: document.getElementById('mfgLot').value,
+        pieceValidUntil: document.getElementById('validUntil').value,
+        qtyOnHand: document.getElementById('qty').value,
+        size: document.getElementById('size').value,
+      });
+      fb.textContent = 'Lote registrado na sessão.';
+      fb.className = 'feedback ok';
+      renderTable();
+    } catch (e) {
+      fb.textContent = e.message;
+      fb.className = 'feedback err';
+    }
+  }
+
+  Enr6MockStore.initClient().then(function () {
+    fillEpis();
+    renderTable();
+  });
+
+</script>
+<script src="../common.js"></script>
+</body>
+</html>

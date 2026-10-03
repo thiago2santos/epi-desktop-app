@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Catálogo EPI — Easy NR6 mock</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+<header class="mock-chrome">
+  <span class="title">UC-CAD-04 · EPI</span>
+  <nav><a href="../index.html">Catálogo</a><a href="09-cad-ca-epi.html">CA por EPI</a></nav>
+</header>
+<main class="page">
+  <div class="global-status warn"><span><strong>CAEPI:</strong> carga válida — mutações EPI/CA liberadas</span></div>
+  <header class="page-header">
+    <div class="uc-tag">UC-CAD-04 · Anexo I</div>
+    <h1>Catálogo de EPI</h1>
+    <p class="sub">Classificação Anexo I, fabricante, status operacional (exige CA ativo para ativar)</p>
+  </header>
+  <div class="grid-2">
+    <section class="panel">
+      <div class="toolbar"><input placeholder="Buscar..." id="f" oninput="render()"><button class="btn btn-primary" onclick="novo()">Novo EPI</button></div>
+      <table class="tbl"><thead><tr><th>Código</th><th>Descrição</th><th>Anexo</th><th>CA ativo</th><th>Status</th></tr></thead><tbody id="tb"></tbody></table>
+    </section>
+    <section class="panel">
+      <div class="panel-title" id="formTitle">Novo EPI</div>
+      <label class="lbl">Código</label><input id="code" placeholder="Opcional — gerado automaticamente">
+      <label class="lbl">Descrição</label><input id="desc">
+      <label class="lbl">Grupo Anexo I</label>
+      <select id="annex">
+        <option>A</option><option>B</option><option>C</option><option>D</option><option>E</option>
+        <option>F</option><option>G</option><option>H</option><option>I</option>
+      </select>
+      <label class="lbl">Fabricante</label><input id="mfr">
+      <label class="lbl">Ativo operacional</label>
+      <select id="active"><option value="0">Inativo</option><option value="1">Ativo</option></select>
+      <div class="alert alert-warn hidden" id="noCa">EPI sem CA ativo — ativação bloqueada (CAD-036).</div>
+      <div class="feedback" id="feedback"></div>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="save()">Salvar</button>
+        <button class="btn" onclick="goCa()">Gerenciar CA</button>
+        <button class="btn" onclick="clearForm()">Limpar</button>
+      </div>
+    </section>
+  </div>
+</main>
+<script src="../mock-idb.js"></script>
+<script src="../mock-store.js"></script>
+<script>
+let selectedId = null;
+
+  function fb(msg, ok) {
+    const el = document.getElementById('feedback');
+    el.textContent = msg || '';
+    el.className = 'feedback' + (msg ? (ok ? ' ok' : ' err') : '');
+  }
+
+  function render() {
+    const q = document.getElementById('f').value;
+    document.getElementById('tb').innerHTML = Enr6MockStore.getEpis(q).map(ep => {
+      const hasCa = Enr6MockStore.epiHasActiveCa(ep.id);
+      const sel = selectedId === ep.id ? ' class="click sel"' : ' class="click"';
+      return `<tr${sel} onclick="edit(${ep.id})"><td>${ep.code}</td><td>${ep.description}</td><td>${ep.annexGroup}</td><td>${hasCa?'<span class="badge badge-ok">Sim</span>':'<span class="badge badge-danger">Não</span>'}</td><td>${ep.active?'<span class="badge badge-ok">Ativo</span>':'<span class="badge badge-muted">Inativo</span>'}</td></tr>`;
+    }).join('');
+  }
+
+  function edit(id) {
+    selectedId = id;
+    const ep = Enr6MockStore.getEpis('').find(x => x.id === id);
+    document.getElementById('formTitle').textContent = 'Editar · ' + ep.code;
+    document.getElementById('code').value = ep.code;
+    document.getElementById('desc').value = ep.description;
+    document.getElementById('annex').value = ep.annexGroup;
+    document.getElementById('mfr').value = ep.manufacturer;
+    document.getElementById('active').value = ep.active ? '1' : '0';
+    document.getElementById('noCa').classList.toggle('hidden', Enr6MockStore.epiHasActiveCa(id));
+    render();
+  }
+
+  function novo() { clearForm(); document.getElementById('formTitle').textContent = 'Novo EPI'; }
+
+  function clearForm() {
+    selectedId = null;
+    document.getElementById('code').value = '';
+    document.getElementById('desc').value = '';
+    document.getElementById('mfr').value = '';
+    document.getElementById('active').value = '0';
+    document.getElementById('noCa').classList.add('hidden');
+    fb('', true);
+    render();
+  }
+
+  function save() {
+    const active = document.getElementById('active').value === '1';
+    const payload = {
+      code: document.getElementById('code').value,
+      description: document.getElementById('desc').value,
+      annexGroup: document.getElementById('annex').value,
+      manufacturer: document.getElementById('mfr').value,
+      active,
+    };
+    try {
+      if (selectedId) Enr6MockStore.updateEpi(selectedId, payload);
+      else Enr6MockStore.createEpi(payload);
+      fb('EPI salvo no mock compartilhado.', true);
+      clearForm();
+      render();
+    } catch (e) {
+      document.getElementById('noCa').classList.toggle('hidden', Enr6MockStore.epiHasActiveCa(selectedId || -1));
+      fb(e.message, false);
+    }
+  }
+
+  function goCa() {
+    const code = document.getElementById('code').value;
+    const ep = Enr6MockStore.getEpis('').find(e => e.code === code || e.id === selectedId);
+    location.href = '09-cad-ca-epi.html?epi=' + encodeURIComponent(ep ? ep.code : 'EPI-002');
+  }
+
+  Enr6MockStore.initClient().then(function () {
+    render();
+  });
+
+</script>
+<script src="../common.js"></script>
+</body>
+</html>

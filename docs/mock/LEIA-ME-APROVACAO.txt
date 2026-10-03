@@ -1,0 +1,41 @@
+Easy NR6 — Protótipo HTML para aprovação de usuários
+====================================================
+
+O que é
+-------
+Interface navegável (mock) do produto Easy NR6 Gestão de EPI.
+Não é o sistema final (JavaFX); serve para validar fluxos, textos, regras de negócio e layout.
+
+Como abrir
+----------
+1. Descompacte esta pasta mantendo a estrutura de arquivos.
+2. Abra shell.html no navegador (Chrome, Firefox ou Edge).
+   O login aparece na mesma janela; use os botões de perfil ou digite um login.
+
+3. Perfis de demonstração:
+   - Admin (governança + tudo)
+   - Almoxarife (balcão / entrega)
+   - SESMT (matriz, exceções, CAEPI)
+   - Gestor (solicitações)
+   - Consulta (relatórios / auditoria)
+
+Dados na sessão
+---------------
+- Cadastros, lotes, entregas, fila, cobertura e auditoria persistem enquanto a aba estiver aberta.
+- "Reset cadastros mock" no rodapé do shell restaura o cenário inicial de demonstração.
+- Usuários e parâmetros (telas Admin) também ficam na sessão.
+
+Roteiro sugerido (15 min)
+-------------------------
+Entrega wizard → Histórico → Cobertura/Pendências → Devolução ou Estorno → Auditoria.
+Opcional: Gestor solicita → Fila aprova → Atender via entrega.
+
+Observações
+-----------
+- PDF e assinatura são simulados (checkbox / alert).
+- "Solicitar EPI" não é entrega legal; "Registrar fornecimento" grava registro imutável na sessão.
+- Funciona offline; não envia dados à internet.
+
+Contato / feedback
+------------------
+Anote por tela: clareza, passos faltantes, textos confusos, prioridade de mudança.
