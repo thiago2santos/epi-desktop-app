@@ -10,8 +10,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
@@ -35,7 +33,8 @@ public final class TelasReferencia {
       case FILA -> fila();
       case TRABALHADORES ->
           throw new IllegalStateException("UC-CAD-03 abre pelo shell, com o cadastro real.");
-      case SETORES -> setores();
+      case SETORES ->
+          throw new IllegalStateException("UC-CAD-02 abre pelo shell, com o cadastro real.");
       case EPI -> catalogoEpi(navegar);
       case CA -> caPorEpi(navegar);
       case LOTES -> lotes();
@@ -97,42 +96,6 @@ public final class TelasReferencia {
                     new Label("Busque um trabalhador para ver EPI exigido e situação."))))
         .legal(
             "Registro legal: ao confirmar, grava fornecimento imutável. Correções apenas por estorno.");
-    return ReferenciaPage.scroll(page);
-  }
-
-  private static Node setores() {
-    ReferenciaPage page =
-        ReferenciaPage.of(
-            "UC-CAD-02",
-            "Setores e funções",
-            "Estrutura organizacional para empregados e matriz de EPI. GHE fica na matriz.");
-    Label hint =
-        new Label(
-            "1. Setores: nome e Cadastrar. 2. Funções: setor ativo e nome da função. 3. Inativar em vez de apagar.");
-    hint.setWrapText(true);
-    hint.getStyleClass().add(Enr6Styles.BANNER_INFO);
-    TabPane abas = new TabPane();
-    abas.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-    abas.getTabs()
-        .add(new Tab("Setores", panel("Setor", campo("Nome", "Guarda"), botao("Cadastrar", true))));
-    abas.getTabs()
-        .add(
-            new Tab(
-                "Funções",
-                panel(
-                    "Função",
-                    campo("Setor ativo", "Guarda"),
-                    campo("Nome", "Auxiliar de guarda"),
-                    botao("Cadastrar", true))));
-    page.section(hint).section(abas);
-    page.table(
-        new String[] {"Setor", "Função", "Status"},
-        new String[][] {
-          {"Movimentação", "Operador de empilhadeira", "Ativo"},
-          {"Digitalização", "Operador de digitalização", "Ativo"},
-          {"Guarda", "Auxiliar de guarda", "Ativo"},
-          {"Manutenção", "Eletricista", "Ativo"}
-        });
     return ReferenciaPage.scroll(page);
   }
 

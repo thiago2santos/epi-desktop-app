@@ -7,6 +7,7 @@ import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRe
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.DepartmentSummary;
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.JobRoleOption;
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.JobRoleSummary;
+import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.UnitOption;
 import br.com.easynr6.gestaoepi.modules.employee.application.usecase.CreateDepartmentUseCase;
 import br.com.easynr6.gestaoepi.modules.employee.application.usecase.CreateEmployeeUseCase;
 import br.com.easynr6.gestaoepi.modules.employee.application.usecase.CreateJobRoleUseCase;
@@ -135,6 +136,10 @@ public class EmployeeManagementService {
 
   public List<JobRoleSummary> listJobRoles(Long actorId, String term) {
     return listJobRolesUseCase.execute(actorId, term);
+  }
+
+  public List<UnitOption> listActiveUnits() {
+    return orgStructureRepository.listActiveUnits();
   }
 
   public List<DepartmentOption> listActiveDepartments() {

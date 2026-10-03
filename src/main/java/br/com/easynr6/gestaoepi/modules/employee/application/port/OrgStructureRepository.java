@@ -44,9 +44,13 @@ public interface OrgStructureRepository {
 
   List<JobRoleSummary> listJobRolesByTerm(String term);
 
+  List<UnitOption> listActiveUnits();
+
   List<DepartmentOption> listActiveDepartments();
 
   List<JobRoleOption> listActiveJobRolesByDepartment(Long departmentId);
+
+  record UnitOption(Long id, String name, String cnpj) {}
 
   record DepartmentOption(Long id, String name, Long unitId, String unitName, boolean active) {}
 
@@ -55,5 +59,10 @@ public interface OrgStructureRepository {
   record DepartmentSummary(Long id, String name, Long unitId, String unitName, boolean active) {}
 
   record JobRoleSummary(
-      Long id, String name, Long departmentId, String departmentName, boolean active) {}
+      Long id,
+      String name,
+      Long departmentId,
+      String departmentName,
+      String unitName,
+      boolean active) {}
 }

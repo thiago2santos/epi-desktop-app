@@ -6,6 +6,7 @@ import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
 import br.com.easynr6.gestaoepi.ui.Enr6Styles;
 import br.com.easynr6.gestaoepi.ui.cadastro.EmployeeManagementView;
+import br.com.easynr6.gestaoepi.ui.cadastro.OrgStructureManagementView;
 import java.util.EnumMap;
 import java.util.Map;
 import javafx.geometry.Insets;
@@ -174,6 +175,9 @@ public class MainShellView extends BorderPane {
   private Node conteudo(Destino destino) {
     if (destino == Destino.TRABALHADORES) {
       return new EmployeeManagementView(usuario, empregados, alvo -> abrir(alvo, true)).root();
+    }
+    if (destino == Destino.SETORES) {
+      return new OrgStructureManagementView(usuario, empregados).root();
     }
     return TelasReferencia.criar(destino, alvo -> abrir(alvo, true));
   }

@@ -138,17 +138,26 @@ public class JdbcOrgStructureRepository implements OrgStructureRepository {
       WHERE (:term = '' OR d.name LIKE :termLike)
       ORDER BY u.name, d.name
       """;
+  private static final String LIST_ACTIVE_UNITS_SQL =
+      """
+      SELECT id, name, cnpj
+      FROM unit
+      WHERE active = 1
+      ORDER BY name, cnpj
+      """;
   private static final String LIST_JOB_ROLES_BY_TERM_SQL =
       """
       SELECT jr.id,
              jr.name,
              jr.department_id,
              d.name AS department_name,
+             u.name AS unit_name,
              jr.active
       FROM job_role jr
       JOIN department d ON d.id = jr.department_id
-      WHERE (:term = '' OR jr.name LIKE :termLike)
-      ORDER BY d.name, jr.name
+      JOIN unit u ON u.id = d.unit_id
+      WHERE (:term = '' OR jr.name LIKE :termLike OR d.name LIKE :termLike)
+      ORDER BY u.name, d.name, jr.name
       """;
 
   private final NamedParameterJdbcTemplate jdbcTemplate;
@@ -389,7 +398,16 @@ public class JdbcOrgStructureRepository implements OrgStructureRepository {
                 rs.getString("name"),
                 rs.getLong("department_id"),
                 rs.getString("department_name"),
+                rs.getString("unit_name"),
                 rs.getInt("active") == 1));
+  }
+
+  @Override
+  public List<UnitOption> listActiveUnits() {
+    return jdbcTemplate.query(
+        LIST_ACTIVE_UNITS_SQL,
+        (rs, rowNum) ->
+            new UnitOption(rs.getLong("id"), rs.getString("name"), rs.getString("cnpj")));
   }
 
   @Override

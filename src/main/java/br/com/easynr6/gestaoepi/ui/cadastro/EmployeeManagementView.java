@@ -8,6 +8,7 @@ import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRe
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.JobRoleOption;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
 import br.com.easynr6.gestaoepi.ui.Enr6Styles;
+import br.com.easynr6.gestaoepi.ui.MensagemTemporaria;
 import br.com.easynr6.gestaoepi.ui.cadastro.PlanoCadastroTrabalhador.Passo;
 import br.com.easynr6.gestaoepi.ui.shell.Destino;
 import br.com.easynr6.gestaoepi.ui.shell.ReferenciaPage;
@@ -81,6 +82,7 @@ public final class EmployeeManagementView {
   private final TableView<EmployeeSummary> tabela = new TableView<>();
   private final Label tituloForm = new Label("Novo trabalhador");
   private final Label feedbackLabel = new Label();
+  private final MensagemTemporaria mensagens = new MensagemTemporaria();
   private final Label vazio = new Label("Nenhum trabalhador cadastrado.");
   private final Label banner = new Label();
   private final HBox avisoSetor = new HBox(8);
@@ -307,13 +309,12 @@ public final class EmployeeManagementView {
     limparMarcacoes();
     if (setorSemFuncao()) {
       feedback(
-          "CAD-002 Este setor não tem função ativa. Cadastre a função em Setores e funções.",
-          Tom.ERRO);
+          "Este setor não tem função ativa. Cadastre a função em Setores e funções.", Tom.ERRO);
       marcar(funcaoCombo, true);
       return;
     }
     if (!obrigatoriosPreenchidos()) {
-      feedback("CAD-004 Informe matrícula, nome, setor e função.", Tom.ERRO);
+      feedback("Informe matrícula, nome, setor e função.", Tom.ERRO);
       return;
     }
     EmployeeSummary atual = editando;
@@ -643,6 +644,7 @@ public final class EmployeeManagementView {
           .getStyleClass()
           .removeAll(Enr6Styles.FEEDBACK_OK, Enr6Styles.FEEDBACK_DANGER, Enr6Styles.FEEDBACK_WARN);
     }
+    mensagens.agendar(feedbackLabel, feedbackLabel.getText());
   }
 
   private static void marcar(Node node, boolean invalido) {
