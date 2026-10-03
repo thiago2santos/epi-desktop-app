@@ -1,0 +1,219 @@
+/*
+ * Camada semantica Easy NR6, carregada depois do user-agent Primer Light.
+ * Tokens alinhados a docs/02-arquitetura/design-tokens.css.
+ * JavaFX nao le var(--token); as cores sao looked-up colors.
+ */
+
+.root {
+  -enr6-brand-primary: #0d6e6e;
+  -enr6-brand-primary-hover: #0a5858;
+  -enr6-text-muted: #57606a;
+  -enr6-text-inverse: #ffffff;
+  -enr6-surface-raised: #ffffff;
+  -enr6-surface-sunken: #eceef2;
+  -enr6-border-subtle: #d8dee4;
+  -enr6-status-ok: #1a7f37;
+  -enr6-status-danger: #cf222e;
+  -enr6-status-warn: #7d4e00;
+  -enr6-header-bg: #1f2328;
+
+  /* Recolore o acento Primer (azul) para o teal da marca. */
+  -color-accent-0: #e6f4f4;
+  -color-accent-1: #c5e8e8;
+  -color-accent-2: #8fd0d0;
+  -color-accent-3: #4eb0b0;
+  -color-accent-4: #1f8f8f;
+  -color-accent-5: #0d6e6e;
+  -color-accent-6: #0a5858;
+  -color-accent-7: #084646;
+  -color-accent-8: #063636;
+  -color-accent-9: #042424;
+  -color-accent-fg: #0d6e6e;
+  -color-accent-emphasis: #0d6e6e;
+  -color-accent-muted: rgba(13, 110, 110, 0.35);
+  -color-accent-subtle: #e6f4f4;
+}
+
+.enr6-page-title {
+  -fx-font-size: 18px;
+  -fx-font-weight: bold;
+}
+
+.enr6-page-description {
+  -fx-text-fill: -enr6-text-muted;
+}
+
+.enr6-feedback-ok {
+  -fx-text-fill: -enr6-status-ok;
+  -fx-font-weight: bold;
+}
+
+.enr6-feedback-danger {
+  -fx-text-fill: -enr6-status-danger;
+  -fx-font-weight: bold;
+}
+
+.enr6-feedback-warn {
+  -fx-text-fill: -enr6-status-warn;
+}
+
+.enr6-emphasis {
+  -fx-font-weight: bold;
+}
+
+.enr6-field-invalid {
+  -fx-border-color: -enr6-status-danger;
+  -fx-border-width: 1;
+  -fx-border-radius: 4;
+}
+
+.enr6-placeholder {
+  -fx-font-size: 18px;
+}
+
+.enr6-shell-sidebar {
+  -fx-background-color: -enr6-surface-raised;
+  -fx-border-color: -enr6-border-subtle;
+  -fx-border-width: 0 1 0 0;
+  -fx-pref-width: 260px;
+}
+
+.enr6-shell-sidebar-title {
+  -fx-font-size: 11px;
+  -fx-font-weight: bold;
+  -fx-text-fill: -enr6-text-muted;
+}
+
+.enr6-nav-group-head {
+  -fx-background-color: transparent;
+  -fx-alignment: center-left;
+  -fx-padding: 10 8 10 8;
+  -fx-font-size: 11px;
+  -fx-font-weight: bold;
+  -fx-text-fill: -enr6-text-muted;
+}
+
+.enr6-nav-group-head:hover {
+  -fx-background-color: -enr6-surface-sunken;
+  -fx-text-fill: -enr6-text-primary;
+}
+
+.enr6-nav-chevron {
+  -fx-font-size: 10px;
+  -fx-text-fill: -enr6-text-muted;
+  -fx-min-width: 12px;
+}
+
+.enr6-nav-item {
+  -fx-background-color: transparent;
+  -fx-alignment: center-left;
+  -fx-background-radius: 6;
+  -fx-padding: 8 8 8 22;
+}
+
+.enr6-nav-item:hover {
+  -fx-background-color: -enr6-surface-sunken;
+}
+
+.enr6-shell-header {
+  -fx-background-color: -enr6-header-bg;
+}
+
+.enr6-shell-header .menu-bar {
+  -fx-background-color: -enr6-header-bg;
+}
+
+.enr6-shell-header .menu-bar .label {
+  -fx-text-fill: #e5e7eb;
+}
+
+.enr6-shell-brand {
+  -fx-text-fill: -enr6-text-inverse;
+  -fx-font-size: 16px;
+  -fx-font-weight: bold;
+}
+
+.enr6-shell-meta {
+  -fx-text-fill: #e5e7eb;
+}
+
+.enr6-login-root {
+  -fx-background-color: linear-gradient(to bottom right, #0a5858, #1f2328);
+}
+
+.enr6-login-card {
+  -fx-background-color: -enr6-surface-raised;
+  -fx-background-radius: 8;
+  -fx-border-color: transparent;
+  -fx-border-radius: 8;
+  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.28), 24, 0.15, 0, 8);
+}
+
+.enr6-login-title {
+  -fx-font-size: 22px;
+  -fx-font-weight: bold;
+  -fx-text-fill: -enr6-brand-primary;
+}
+
+.enr6-login-subtitle {
+  -fx-text-fill: -enr6-text-muted;
+  -fx-font-size: 14px;
+}
+
+.enr6-nav-item-active {
+  -fx-background-color: -color-accent-subtle;
+  -fx-text-fill: -enr6-brand-primary;
+  -fx-font-weight: bold;
+}
+
+.enr6-status-strip {
+  -fx-background-color: -color-accent-subtle;
+  -fx-padding: 8 16 8 16;
+  -fx-text-fill: -enr6-text-primary;
+}
+
+.enr6-uc-tag {
+  -fx-text-fill: -enr6-text-muted;
+  -fx-font-size: 11px;
+  -fx-font-weight: bold;
+}
+
+.enr6-banner-info {
+  -fx-background-color: -color-accent-subtle;
+  -fx-background-radius: 6;
+  -fx-padding: 10 12 10 12;
+  -fx-text-fill: -enr6-text-primary;
+  -fx-wrap-text: true;
+}
+
+.enr6-panel {
+  -fx-background-color: -enr6-surface-raised;
+  -fx-border-color: -enr6-border-subtle;
+  -fx-border-radius: 6;
+  -fx-background-radius: 6;
+  -fx-padding: 16;
+}
+
+.enr6-metric {
+  -fx-background-color: -enr6-surface-raised;
+  -fx-border-color: -enr6-border-subtle;
+  -fx-border-radius: 6;
+  -fx-background-radius: 6;
+  -fx-padding: 16;
+  -fx-pref-width: 180;
+  -fx-min-height: 88;
+}
+
+.enr6-metric-value {
+  -fx-font-size: 22px;
+  -fx-font-weight: bold;
+  -fx-text-fill: -enr6-brand-primary;
+}
+
+.enr6-legal-bar {
+  -fx-background-color: #f6f8fa;
+  -fx-border-color: -enr6-border-subtle;
+  -fx-border-width: 1 0 0 0;
+  -fx-padding: 12 16 12 16;
+  -fx-text-fill: -enr6-text-muted;
+}

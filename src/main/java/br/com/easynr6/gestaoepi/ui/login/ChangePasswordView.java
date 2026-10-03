@@ -1,8 +1,10 @@
 package br.com.easynr6.gestaoepi.ui.login;
 
+import atlantafx.base.theme.Styles;
 import br.com.easynr6.gestaoepi.shared.auth.CredentialManager;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
 import br.com.easynr6.gestaoepi.shared.auth.WeakPasswordException;
+import br.com.easynr6.gestaoepi.ui.Enr6Styles;
 import java.util.function.Consumer;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -33,10 +35,10 @@ public class ChangePasswordView extends VBox {
     setAlignment(Pos.CENTER);
 
     Label titulo = new Label("Atualizacao obrigatoria de credencial");
-    titulo.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+    titulo.getStyleClass().add(Enr6Styles.PAGE_TITLE);
 
     Label subtitulo = new Label("Defina uma nova credencial para continuar.");
-    subtitulo.setStyle("-fx-text-fill: #4b5563;");
+    subtitulo.getStyleClass().add(Enr6Styles.PAGE_DESCRIPTION);
 
     novaSenhaField = new PasswordField();
     novaSenhaField.setPromptText("Nova senha");
@@ -47,11 +49,12 @@ public class ChangePasswordView extends VBox {
     confirmarSenhaField.setMaxWidth(320);
 
     Button atualizarButton = new Button("Atualizar credencial");
+    atualizarButton.getStyleClass().add(Styles.ACCENT);
     atualizarButton.setDefaultButton(true);
     atualizarButton.setOnAction(event -> atualizarCredencial());
 
     feedbackLabel = new Label();
-    feedbackLabel.setStyle("-fx-text-fill: #b91c1c;");
+    feedbackLabel.getStyleClass().add(Enr6Styles.FEEDBACK_DANGER);
 
     getChildren()
         .addAll(

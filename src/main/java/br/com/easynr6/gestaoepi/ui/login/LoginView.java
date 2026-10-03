@@ -1,9 +1,11 @@
 package br.com.easynr6.gestaoepi.ui.login;
 
+import atlantafx.base.theme.Styles;
 import br.com.easynr6.gestaoepi.shared.auth.AuthenticationProvider;
 import br.com.easynr6.gestaoepi.shared.auth.AuthenticationResult;
 import br.com.easynr6.gestaoepi.shared.auth.AuthenticationStatus;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
+import br.com.easynr6.gestaoepi.ui.Enr6Styles;
 import java.util.function.Consumer;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -32,50 +34,40 @@ public class LoginView extends BorderPane {
     this.onPasswordChangeRequired = onPasswordChangeRequired;
 
     setPadding(new Insets(32));
-    setStyle("-fx-background-color: linear-gradient(to bottom, #eef2ff, #f8fafc);");
+    getStyleClass().add(Enr6Styles.LOGIN_ROOT);
 
     VBox card = new VBox(14);
-    card.setPadding(new Insets(30));
+    card.setPadding(new Insets(28));
     card.setAlignment(Pos.CENTER_LEFT);
-    card.setPrefWidth(500);
-    card.setMaxWidth(500);
-    card.setStyle(
-        "-fx-background-color: white;"
-            + "-fx-background-radius: 12;"
-            + "-fx-border-color: #cbd5e1;"
-            + "-fx-border-radius: 12;");
+    card.setPrefWidth(420);
+    card.setMaxWidth(420);
+    card.getStyleClass().add(Enr6Styles.LOGIN_CARD);
 
     Label titulo = new Label("Easy NR6 Gestao de EPI");
-    titulo.setStyle("-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #0f172a;");
+    titulo.getStyleClass().add(Enr6Styles.LOGIN_TITLE);
 
     Label subtitulo = new Label("Login de acesso");
-    subtitulo.setStyle("-fx-text-fill: #1e293b; -fx-font-size: 16px;");
+    subtitulo.getStyleClass().add(Enr6Styles.LOGIN_SUBTITLE);
 
     loginField = new TextField();
     loginField.setPromptText("Login");
-    loginField.setPrefWidth(440);
+    loginField.setPrefWidth(360);
     loginField.setMaxWidth(Double.MAX_VALUE);
-    loginField.setStyle("-fx-font-size: 16px; -fx-padding: 10 12 10 12;");
 
     senhaField = new PasswordField();
     senhaField.setPromptText("Senha");
-    senhaField.setPrefWidth(440);
+    senhaField.setPrefWidth(360);
     senhaField.setMaxWidth(Double.MAX_VALUE);
-    senhaField.setStyle("-fx-font-size: 16px; -fx-padding: 10 12 10 12;");
 
     Button entrarButton = new Button("Entrar");
+    entrarButton.getStyleClass().add(Styles.ACCENT);
     entrarButton.setDefaultButton(true);
     entrarButton.setOnAction(event -> autenticar());
-    entrarButton.setPrefHeight(42);
+    entrarButton.setPrefHeight(40);
     entrarButton.setMaxWidth(Double.MAX_VALUE);
-    entrarButton.setStyle(
-        "-fx-font-size: 16px;"
-            + "-fx-font-weight: bold;"
-            + "-fx-background-color: #1d4ed8;"
-            + "-fx-text-fill: white;");
 
     feedbackLabel = new Label();
-    feedbackLabel.setStyle("-fx-text-fill: #991b1b; -fx-font-size: 14px; -fx-font-weight: bold;");
+    feedbackLabel.getStyleClass().add(Enr6Styles.FEEDBACK_DANGER);
     feedbackLabel.setWrapText(true);
     feedbackLabel.setMaxWidth(Double.MAX_VALUE);
 
