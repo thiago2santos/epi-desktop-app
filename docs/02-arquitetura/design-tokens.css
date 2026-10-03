@@ -1,0 +1,105 @@
+/*
+ * Easy NR6 — design tokens (referência)
+ *
+ * Uso previsto:
+ * 1. Carregar após o tema AtlantaFX escolhido (UserAgentBuilder).
+ * 2. Referenciar variáveis em folhas de estilo de telas (.page-header, .legal-bar, etc.).
+ * 3. Protótipos HTML em docs/mock/ podem espelhar estes nomes em :root.
+ *
+ * AtlantaFX expõe variáveis por tema; aqui definimos a camada semântica ENR6.
+ * Ajuste valores após teste de contraste (WCAG AA) no tema final.
+ */
+
+:root {
+  /* Marca */
+  --enr6-brand-primary: #0d6e6e;
+  --enr6-brand-primary-hover: #0a5858;
+  --enr6-brand-primary-muted: #e6f4f4;
+
+  /* Superfícies */
+  --enr6-surface-default: #f4f5f7;
+  --enr6-surface-raised: #ffffff;
+  --enr6-surface-sunken: #eceef2;
+  --enr6-border-subtle: #d8dee4;
+  --enr6-border-strong: #afb8c1;
+
+  /* Texto */
+  --enr6-text-primary: #1f2328;
+  --enr6-text-muted: #57606a;
+  --enr6-text-inverse: #ffffff;
+
+  /* Status semânticos (sempre com rótulo; não usar cor sozinha) */
+  --enr6-status-ok: #1a7f37;
+  --enr6-status-ok-bg: #dafbe1;
+  --enr6-status-warn: #7d4e00;
+  --enr6-status-warn-bg: #fff8c5;
+  --enr6-status-danger: #cf222e;
+  --enr6-status-danger-bg: #ffebe9;
+  --enr6-status-info: #0969da;
+  --enr6-status-info-bg: #ddf4ff;
+
+  /* Registro legal imutável */
+  --enr6-record-frozen-bg: #f6f8fa;
+  --enr6-record-frozen-border: #d0d7de;
+
+  /* Espaçamento (px) */
+  --enr6-space-1: 4px;
+  --enr6-space-2: 8px;
+  --enr6-space-3: 12px;
+  --enr6-space-4: 16px;
+  --enr6-space-5: 24px;
+  --enr6-space-6: 32px;
+
+  /* Raio */
+  --enr6-radius-sm: 4px;
+  --enr6-radius-md: 6px;
+  --enr6-radius-lg: 8px;
+
+  /* Tipografia (JavaFX: aplicar via -fx-font-size em classes) */
+  --enr6-font-size-body: 13px;
+  --enr6-font-size-body-comfort: 14px;
+  --enr6-font-size-title: 18px;
+  --enr6-font-size-caption: 11px;
+
+  /* Layout */
+  --enr6-sidebar-width: 260px;
+  --enr6-status-bar-height: 28px;
+  --enr6-legal-bar-min-height: 56px;
+}
+
+/* Exemplo: classes utilitárias para protótipo ou JavaFX stylesheet */
+
+.enr6-page-header {
+  -fx-spacing: var(--enr6-space-2);
+}
+
+.enr6-panel {
+  -fx-background-color: var(--enr6-surface-raised);
+  -fx-border-color: var(--enr6-border-subtle);
+  -fx-border-radius: var(--enr6-radius-md);
+  -fx-background-radius: var(--enr6-radius-md);
+  -fx-padding: var(--enr6-space-4);
+}
+
+.enr6-badge-ok {
+  -fx-background-color: var(--enr6-status-ok-bg);
+  -fx-text-fill: var(--enr6-status-ok);
+}
+
+.enr6-badge-warn {
+  -fx-background-color: var(--enr6-status-warn-bg);
+  -fx-text-fill: var(--enr6-status-warn);
+}
+
+.enr6-badge-danger {
+  -fx-background-color: var(--enr6-status-danger-bg);
+  -fx-text-fill: var(--enr6-status-danger);
+}
+
+.enr6-legal-commit-bar {
+  -fx-background-color: var(--enr6-record-frozen-bg);
+  -fx-border-color: var(--enr6-border-strong);
+  -fx-border-width: 1 0 0 0;
+  -fx-padding: var(--enr6-space-3) var(--enr6-space-4);
+  -fx-min-height: var(--enr6-legal-bar-min-height);
+}

@@ -15,9 +15,11 @@ Este documento foi construído com base nos artefatos já existentes:
 ## Decisões já fechadas
 
 1. **Stack UI**: JavaFX + AtlantaFX.
-2. **Navegação principal**: menu lateral por módulos.
+2. **Navegação principal**: menu lateral por módulos (evolução: **home por papel** — ver identidade UX).
 3. **Escopo da primeira rodada de telas**: quase completo.
-4. **Tom visual**: corporativo sóbrio (azul/cinza, foco em clareza).
+4. **Tom visual**: corporativo sóbrio, foco em clareza; paleta e padrões assinatura em **`easy-nr6-ux-identity.md`** + **`design-tokens.css`**.
+
+> **Identidade de experiência (v0.1):** `docs/02-arquitetura/easy-nr6-ux-identity.md` — marca perceptível, três padrões Easy NR6, tokens, processo mock → tela ouro → campo. Este blueprint continua sendo o mapa de telas e matriz de componentes JavaFX.
 
 ## Princípios de design (regras do produto)
 
@@ -27,6 +29,13 @@ Este documento foi construído com base nos artefatos já existentes:
 4. **Consistência**: mesmo padrão de botões, filtros, tabelas e mensagens.
 5. **Prevenção de erro**: bloquear ações inválidas antes da confirmação.
 6. **Rastreabilidade visível**: histórico e status sempre acessíveis.
+7. **Trabalho em background**: tarefas demoradas devem informar andamento sem bloquear a thread principal nem a navegação.
+
+## Feedback de tarefas em background
+
+- Importações e operações demoradas devem manter a janela JavaFX responsiva; rede, parse e persistência não executam na thread da UI.
+- Uma barra de status informa a tarefa ativa, fase e resultado. Usar progresso percentual apenas quando mensurável; caso contrário, indicador indeterminado e texto da etapa.
+- O feedback de andamento não deve substituir banners persistentes de indisponibilidade ou alertas que exigem ação do operador.
 
 ## Identidade visual (v1)
 
@@ -446,6 +455,19 @@ Implementar em ondas, mantendo sempre "entregável testável" ao final de cada e
 
 ## Onda 3 — Cadastros e regras de negócio
 
+### Importacao CSV de cadastros (FE-CAD-01 — registrado)
+
+Hub **Importar cadastros** (Admin/SESMT), espelhando espirito da revisao CAEPI:
+
+- upload por tipo (setor, funcao, trabalhador) ou wizard com ordem recomendada;
+- **staging**: tabela com linhas validas (verde claro) e com pendencia (amarelo claro);
+- destaque na celula causadora; filtros todas / validas / com pendencia;
+- celula acionavel **somente** quando faltar mestre (setor/funcao) e o usuario precisar cadastrar — deep link com campo pre-preenchido; revalidar ao retornar;
+- confirmacao importa linhas validas; resumo + auditoria.
+
+Spec: `docs/03-operacao/spec-uc-cad-imp-01-importacao-csv-cadastros.md`. **Nao implementar ate DoR.**
+
+0. (Futuro pós-DoR) Importação CSV com staging — `FE-CAD-01`.
 1. Trabalhadores.
 2. Funções/Setores/GHE.
 3. EPI e CA.

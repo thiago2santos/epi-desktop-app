@@ -180,6 +180,8 @@ Modo de bootstrap:
 
 A pasta `docs/` concentra os artefatos de negocio, arquitetura, operacao e governanca.
 
+Identidade de UX (marca, tokens, mocks): `docs/02-arquitetura/easy-nr6-ux-identity.md`.
+
 ## Status atual (checkpoint rapido)
 
 - `R0` e `M0` concluidos (fundacao, RBAC, credencial, auditoria append-only).
