@@ -57,18 +57,18 @@ class CadastroTrabalhadorUxTest {
   }
 
   @Test
-  void mensagensMantemOCodigoDoCasoDeUso() {
+  void mensagensExplicamSemExporOCodigo() {
     assertEquals(
-        "CAD-001 Matrícula já cadastrada.",
+        "Matrícula já cadastrada.",
         MensagensCadastroTrabalhador.erro(
             new IllegalArgumentException("CAD-001 Matricula ja existente.")));
     assertEquals(
-        "CAD-005 Não é possível inativar: o histórico deste trabalhador impede a operação.",
+        "Não é possível inativar: o histórico deste trabalhador impede a operação.",
         MensagensCadastroTrabalhador.erro(
             new IllegalArgumentException(
                 "CAD-005 Operacao nao permitida por dependencia historica.")));
     assertEquals(
-        "CAD-007 Escolha um gestor ativo da mesma unidade, ou deixe sem gestor.",
+        "Escolha um gestor ativo da mesma unidade, ou deixe sem gestor.",
         MensagensCadastroTrabalhador.erro(
             new IllegalArgumentException("CAD-007 Gestor invalido para este trabalhador.")));
     assertEquals(

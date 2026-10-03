@@ -3,6 +3,7 @@ package br.com.easynr6.gestaoepi.modules.employee.application.usecase;
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository;
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.DepartmentOption;
 import br.com.easynr6.gestaoepi.modules.employee.domain.JobRolePolicy;
+import br.com.easynr6.gestaoepi.shared.audit.AcaoAuditada;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ public class CreateJobRoleUseCase {
     this.auditTrail = auditTrail;
   }
 
+  @AcaoAuditada(acao = "JOB_ROLE_CREATED", entidade = "JOB_ROLE")
   @Transactional
   public Long execute(Long actorId, String name, Long departmentId, boolean active) {
     accessAuthorizer.assertCanManageEmployees(actorId);

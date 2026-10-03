@@ -92,15 +92,16 @@ class AuthenticateUserUseCaseTest {
             new IdentityUser(
                 40L, "Operador", "operador", "hash-ok", true, new CredentialState(false, 0, null)),
             EnumSet.noneOf(Papel.class));
+    RecordingAuditTrail auditTrail = new RecordingAuditTrail();
     AuthenticateUserUseCase useCase =
-        new AuthenticateUserUseCase(
-            repository, new StubHasher(), LocalDateTime::now, new RecordingAuditTrail());
+        new AuthenticateUserUseCase(repository, new StubHasher(), LocalDateTime::now, auditTrail);
 
     AuthenticationResult result = useCase.execute("operador", "SenhaCorreta#2026");
 
     assertEquals(AuthenticationStatus.NO_ROLE, result.status());
     assertNull(result.usuario());
     assertTrue(repository.clearedFailures);
+    assertEquals("LOGIN_SEM_PAPEL", auditTrail.lastAction);
   }
 
   private static class StubHasher implements CredentialHasher {

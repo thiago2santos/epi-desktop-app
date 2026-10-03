@@ -64,7 +64,7 @@ public class ChangePasswordView extends VBox {
   private void atualizarCredencial() {
     feedbackLabel.setText("");
     if (!novaSenhaField.getText().equals(confirmarSenhaField.getText())) {
-      feedbackLabel.setText("AUTH-014 As credenciais informadas nao conferem.");
+      feedbackLabel.setText("As credenciais informadas não conferem.");
       return;
     }
     try {

@@ -96,10 +96,10 @@ public class LoginView extends BorderPane {
 
   private static String mensagemErro(AuthenticationStatus status) {
     return switch (status) {
-      case BLOCKED -> "AUTH-002 Conta temporariamente bloqueada. Tente novamente mais tarde.";
-      case NO_ROLE -> "AUTH-012 Usuario sem papel operacional. Contate o admin.";
-      case INACTIVE_USER -> "AUTH-013 Usuario inativo. Contate o admin.";
-      default -> "AUTH-001 Credenciais invalidas.";
+      case BLOCKED -> "Conta temporariamente bloqueada. Tente novamente mais tarde.";
+      case NO_ROLE -> "Usuário sem papel operacional. Contate o admin.";
+      case INACTIVE_USER -> "Usuário inativo. Contate o admin.";
+      default -> "Credenciais inválidas.";
     };
   }
 }

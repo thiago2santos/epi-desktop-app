@@ -1,6 +1,7 @@
 package br.com.easynr6.gestaoepi.modules.employee.application.usecase;
 
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository;
+import br.com.easynr6.gestaoepi.shared.audit.AcaoAuditada;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,11 @@ public class SetJobRoleStatusUseCase {
     this.auditTrail = auditTrail;
   }
 
+  @AcaoAuditada(
+      entidade = "JOB_ROLE",
+      acaoQuandoAtivo = "JOB_ROLE_REACTIVATED",
+      acaoQuandoInativo = "JOB_ROLE_DEACTIVATED",
+      alvo = 1)
   @Transactional
   public void execute(Long actorId, Long jobRoleId, boolean active) {
     accessAuthorizer.assertCanManageEmployees(actorId);

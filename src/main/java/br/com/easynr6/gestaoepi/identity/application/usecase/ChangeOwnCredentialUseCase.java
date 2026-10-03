@@ -2,6 +2,7 @@ package br.com.easynr6.gestaoepi.identity.application.usecase;
 
 import br.com.easynr6.gestaoepi.identity.application.port.CredentialHasher;
 import br.com.easynr6.gestaoepi.identity.application.port.IdentityRepository;
+import br.com.easynr6.gestaoepi.shared.audit.AcaoAuditada;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import br.com.easynr6.gestaoepi.shared.auth.PasswordPolicy;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class ChangeOwnCredentialUseCase {
     this.auditTrail = auditTrail;
   }
 
+  @AcaoAuditada(acao = "CREDENCIAL_TROCADA", entidade = "USUARIO", alvo = 0)
   @Transactional
   public void execute(Long userId, String login, String newCredential) {
     passwordPolicy.validar(login, newCredential);

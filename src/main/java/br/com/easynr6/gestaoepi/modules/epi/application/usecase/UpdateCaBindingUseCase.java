@@ -3,6 +3,7 @@ package br.com.easynr6.gestaoepi.modules.epi.application.usecase;
 import br.com.easynr6.gestaoepi.modules.epi.application.port.EpiRepository;
 import br.com.easynr6.gestaoepi.modules.epi.domain.CaPolicy;
 import br.com.easynr6.gestaoepi.modules.epi.domain.CaStatus;
+import br.com.easynr6.gestaoepi.shared.audit.AcaoAuditada;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,6 +27,7 @@ public class UpdateCaBindingUseCase {
     this.auditTrail = auditTrail;
   }
 
+  @AcaoAuditada(acao = "EPI_CA_UPDATED", entidade = "EPI_CA", alvo = 1)
   @Transactional
   public void execute(
       Long actorId,

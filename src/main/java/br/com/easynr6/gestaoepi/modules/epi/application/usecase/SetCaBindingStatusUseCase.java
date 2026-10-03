@@ -2,6 +2,7 @@ package br.com.easynr6.gestaoepi.modules.epi.application.usecase;
 
 import br.com.easynr6.gestaoepi.modules.epi.application.port.EpiRepository;
 import br.com.easynr6.gestaoepi.modules.epi.domain.CaPolicy;
+import br.com.easynr6.gestaoepi.shared.audit.AcaoAuditada;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,11 @@ public class SetCaBindingStatusUseCase {
     this.auditTrail = auditTrail;
   }
 
+  @AcaoAuditada(
+      entidade = "EPI_CA",
+      acaoQuandoAtivo = "EPI_CA_REACTIVATED",
+      acaoQuandoInativo = "EPI_CA_DEACTIVATED",
+      alvo = 1)
   @Transactional
   public void execute(Long actorId, Long bindingId, boolean active) {
     accessAuthorizer.assertCanManageCatalog(actorId);

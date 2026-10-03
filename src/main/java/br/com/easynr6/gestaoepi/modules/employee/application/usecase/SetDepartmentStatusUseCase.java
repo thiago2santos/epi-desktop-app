@@ -1,6 +1,7 @@
 package br.com.easynr6.gestaoepi.modules.employee.application.usecase;
 
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository;
+import br.com.easynr6.gestaoepi.shared.audit.AcaoAuditada;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,11 @@ public class SetDepartmentStatusUseCase {
     this.auditTrail = auditTrail;
   }
 
+  @AcaoAuditada(
+      entidade = "DEPARTMENT",
+      acaoQuandoAtivo = "DEPARTMENT_REACTIVATED",
+      acaoQuandoInativo = "DEPARTMENT_DEACTIVATED",
+      alvo = 1)
   @Transactional
   public void execute(Long actorId, Long departmentId, boolean active) {
     accessAuthorizer.assertCanManageEmployees(actorId);

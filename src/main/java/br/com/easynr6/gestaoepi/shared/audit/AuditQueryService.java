@@ -16,7 +16,10 @@ public class AuditQueryService {
              a.acao,
              a.entidade,
              a.entidade_id,
-             a.detalhes
+             a.detalhes,
+             a.resultado,
+             a.codigo,
+             a.correlacao
       FROM auditoria a
       LEFT JOIN usuario u ON u.id = a.usuario_id
       WHERE (? = ''
@@ -24,7 +27,10 @@ public class AuditQueryService {
           OR a.entidade LIKE ?
           OR a.entidade_id LIKE ?
           OR IFNULL(a.detalhes, '') LIKE ?
-          OR IFNULL(u.login, '') LIKE ?)
+          OR IFNULL(u.login, '') LIKE ?
+          OR IFNULL(a.codigo, '') LIKE ?
+          OR IFNULL(a.correlacao, '') LIKE ?
+          OR a.resultado LIKE ?)
       ORDER BY a.id DESC
       LIMIT ?
       """;
@@ -47,18 +53,27 @@ public class AuditQueryService {
           ps.setString(4, "%" + cleanTerm + "%");
           ps.setString(5, "%" + cleanTerm + "%");
           ps.setString(6, "%" + cleanTerm + "%");
-          ps.setInt(7, safeLimit);
+          ps.setString(7, "%" + cleanTerm + "%");
+          ps.setString(8, "%" + cleanTerm + "%");
+          ps.setString(9, "%" + cleanTerm + "%");
+          ps.setInt(10, safeLimit);
         },
-        (rs, rowNum) ->
-            new AuditEventSummary(
-                rs.getLong("id"),
-                rs.getString("instante"),
-                rs.getLong("usuario_id"),
-                rs.getString("usuario_login"),
-                rs.getString("acao"),
-                rs.getString("entidade"),
-                rs.getString("entidade_id"),
-                rs.getString("detalhes")));
+        (rs, rowNum) -> {
+          long usuarioId = rs.getLong("usuario_id");
+          boolean usuarioAusente = rs.wasNull();
+          return new AuditEventSummary(
+              rs.getLong("id"),
+              rs.getString("instante"),
+              usuarioAusente ? null : usuarioId,
+              rs.getString("usuario_login"),
+              rs.getString("acao"),
+              rs.getString("entidade"),
+              rs.getString("entidade_id"),
+              rs.getString("detalhes"),
+              rs.getString("resultado"),
+              rs.getString("codigo"),
+              rs.getString("correlacao"));
+        });
   }
 
   public record AuditEventSummary(
@@ -69,5 +84,8 @@ public class AuditQueryService {
       String action,
       String entity,
       String entityId,
-      String details) {}
+      String details,
+      String resultado,
+      String codigo,
+      String correlacao) {}
 }

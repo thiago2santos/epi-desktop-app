@@ -1,6 +1,7 @@
 package br.com.easynr6.gestaoepi.identity.application.usecase;
 
 import br.com.easynr6.gestaoepi.identity.application.port.IdentityRepository;
+import br.com.easynr6.gestaoepi.shared.audit.AcaoAuditada;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import br.com.easynr6.gestaoepi.shared.auth.DuplicateLoginException;
 import org.springframework.dao.DuplicateKeyException;
@@ -23,6 +24,7 @@ public class UpdateUserUseCase {
     this.auditTrail = auditTrail;
   }
 
+  @AcaoAuditada(acao = "USUARIO_EDITADO", entidade = "USUARIO", alvo = 1)
   @Transactional
   public void execute(Long adminId, Long userId, String nome, String login, boolean ativo) {
     adminAuthorizer.requireAdmin(adminId);

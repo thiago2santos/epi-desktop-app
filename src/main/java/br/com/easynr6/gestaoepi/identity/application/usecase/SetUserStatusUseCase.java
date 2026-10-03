@@ -1,6 +1,7 @@
 package br.com.easynr6.gestaoepi.identity.application.usecase;
 
 import br.com.easynr6.gestaoepi.identity.application.port.IdentityRepository;
+import br.com.easynr6.gestaoepi.shared.audit.AcaoAuditada;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,11 +22,13 @@ public class SetUserStatusUseCase {
     this.auditTrail = auditTrail;
   }
 
+  @AcaoAuditada(acao = "USUARIO_BLOQUEADO", entidade = "USUARIO", alvo = 1)
   @Transactional
   public void block(Long adminId, Long userId) {
     setStatus(adminId, userId, false, "USUARIO_BLOQUEADO", "Usuario bloqueado para autenticacao");
   }
 
+  @AcaoAuditada(acao = "USUARIO_REATIVADO", entidade = "USUARIO", alvo = 1)
   @Transactional
   public void reactivate(Long adminId, Long userId) {
     setStatus(adminId, userId, true, "USUARIO_REATIVADO", "Usuario reativado para autenticacao");

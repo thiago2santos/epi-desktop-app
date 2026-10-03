@@ -1,6 +1,7 @@
 package br.com.easynr6.gestaoepi.identity.application.usecase;
 
 import br.com.easynr6.gestaoepi.identity.application.port.IdentityRepository;
+import br.com.easynr6.gestaoepi.shared.audit.AcaoAuditada;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class DeleteUserUseCase {
     this.auditTrail = auditTrail;
   }
 
+  @AcaoAuditada(acao = "USUARIO_EXCLUIDO", entidade = "USUARIO", alvo = 1)
   @Transactional
   public void execute(Long adminId, Long userId) {
     adminAuthorizer.requireAdmin(adminId);

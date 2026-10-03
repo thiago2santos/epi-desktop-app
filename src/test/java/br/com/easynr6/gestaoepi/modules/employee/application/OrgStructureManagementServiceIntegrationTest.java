@@ -62,6 +62,17 @@ class OrgStructureManagementServiceIntegrationTest {
                 employeeManagementService.createDepartment(
                     adminId, " logistica ", itupevaId(), true));
     assertEquals("CAD-021 Nome de setor ja existente.", ex.getMessage());
+    Integer falhas =
+        jdbcTemplate.queryForObject(
+            """
+            SELECT COUNT(1) FROM auditoria
+            WHERE usuario_id = ? AND acao = 'DEPARTMENT_CREATED'
+              AND resultado = 'FALHA' AND codigo = 'CAD-021'
+              AND correlacao IS NOT NULL AND correlacao <> ''
+            """,
+            Integer.class,
+            adminId);
+    assertEquals(1, falhas);
   }
 
   @Test
@@ -162,6 +173,16 @@ class OrgStructureManagementServiceIntegrationTest {
         () ->
             employeeManagementService.createDepartment(
                 consultaId, "Sem Permissao", itupevaId(), true));
+    Integer falhas =
+        jdbcTemplate.queryForObject(
+            """
+            SELECT COUNT(1) FROM auditoria
+            WHERE usuario_id = ? AND acao = 'DEPARTMENT_CREATED'
+              AND resultado = 'FALHA' AND codigo = 'AUTH-004'
+            """,
+            Integer.class,
+            consultaId);
+    assertEquals(1, falhas);
   }
 
   @Test

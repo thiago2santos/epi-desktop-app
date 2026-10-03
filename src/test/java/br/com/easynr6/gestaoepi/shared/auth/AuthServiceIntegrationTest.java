@@ -43,6 +43,35 @@ class AuthServiceIntegrationTest {
 
     assertEquals(AuthenticationStatus.BLOCKED, resultado.status());
     assertNotNull(resultado.bloqueadoAte());
+    Integer falhas =
+        jdbcTemplate.queryForObject(
+            """
+            SELECT COUNT(1) FROM auditoria
+            WHERE usuario_id = ? AND acao = 'LOGIN_BLOQUEIO_TEMPORARIO'
+              AND resultado = 'FALHA' AND codigo = 'AUTH-002'
+              AND correlacao IS NOT NULL
+            """,
+            Integer.class,
+            usuarioId);
+    assertEquals(1, falhas);
+  }
+
+  @Test
+  void deveRegistrarLoginInexistente() {
+    AuthenticationResult resultado = authService.autenticar("nao-existe", "qualquer");
+
+    assertEquals(AuthenticationStatus.INVALID_CREDENTIAL, resultado.status());
+    Integer falhas =
+        jdbcTemplate.queryForObject(
+            """
+            SELECT COUNT(1) FROM auditoria
+            WHERE acao = 'LOGIN_USUARIO_DESCONHECIDO'
+              AND resultado = 'FALHA' AND codigo = 'AUTH-001'
+              AND usuario_id IS NULL
+              AND correlacao IS NOT NULL
+            """,
+            Integer.class);
+    assertEquals(1, falhas);
   }
 
   @Test

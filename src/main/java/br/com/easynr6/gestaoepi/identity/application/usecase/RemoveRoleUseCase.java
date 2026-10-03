@@ -1,6 +1,7 @@
 package br.com.easynr6.gestaoepi.identity.application.usecase;
 
 import br.com.easynr6.gestaoepi.identity.application.port.IdentityRepository;
+import br.com.easynr6.gestaoepi.shared.audit.AcaoAuditada;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import br.com.easynr6.gestaoepi.shared.auth.Papel;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class RemoveRoleUseCase {
     this.auditTrail = auditTrail;
   }
 
+  @AcaoAuditada(acao = "PAPEL_REMOVIDO", entidade = "USUARIO", alvo = 1)
   @Transactional
   public void execute(Long adminId, Long userId, Papel papel) {
     adminAuthorizer.requireAdmin(adminId);

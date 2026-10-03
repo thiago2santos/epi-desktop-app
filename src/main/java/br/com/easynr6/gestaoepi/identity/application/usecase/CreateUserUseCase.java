@@ -2,6 +2,7 @@ package br.com.easynr6.gestaoepi.identity.application.usecase;
 
 import br.com.easynr6.gestaoepi.identity.application.port.CredentialHasher;
 import br.com.easynr6.gestaoepi.identity.application.port.IdentityRepository;
+import br.com.easynr6.gestaoepi.shared.audit.AcaoAuditada;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import br.com.easynr6.gestaoepi.shared.auth.DuplicateLoginException;
 import br.com.easynr6.gestaoepi.shared.auth.Papel;
@@ -33,6 +34,7 @@ public class CreateUserUseCase {
     this.auditTrail = auditTrail;
   }
 
+  @AcaoAuditada(acao = "USUARIO_CRIADO", entidade = "USUARIO")
   @Transactional
   public Long execute(
       Long adminId,
