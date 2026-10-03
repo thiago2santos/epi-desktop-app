@@ -1,17 +1,11 @@
 package br.com.easynr6.gestaoepi.ui.shell;
 
-import br.com.easynr6.gestaoepi.modules.employee.application.EmployeeManagementService;
-import br.com.easynr6.gestaoepi.modules.epi.application.EpiCatalogManagementService;
-import br.com.easynr6.gestaoepi.shared.audit.AuditQueryService;
+import atlantafx.base.theme.Styles;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
-import br.com.easynr6.gestaoepi.shared.auth.Papel;
-import br.com.easynr6.gestaoepi.shared.auth.UserAdministrationService;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
-import br.com.easynr6.gestaoepi.ui.admin.UserAdministrationView;
-import br.com.easynr6.gestaoepi.ui.auditoria.AuditTrailView;
-import br.com.easynr6.gestaoepi.ui.cadastros.CadastrosManagementView;
-import br.com.easynr6.gestaoepi.ui.operacao.EntregaWizardView;
-import java.util.EnumSet;
+import br.com.easynr6.gestaoepi.ui.Enr6Styles;
+import java.util.EnumMap;
+import java.util.Map;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -20,68 +14,32 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Region;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class MainShellView extends BorderPane {
 
   private final UsuarioAutenticado usuario;
   private final AuditTrail auditTrail;
-  private final AuditQueryService auditQueryService;
-  private final UserAdministrationService userAdministrationService;
-  private final EmployeeManagementService employeeManagementService;
-  private final EpiCatalogManagementService epiCatalogManagementService;
-  private final Label conteudoLabel;
+  private final Map<Destino, Button> navButtons = new EnumMap<>(Destino.class);
+  private final Map<Destino.Grupo, VBox> grupoItens = new EnumMap<>(Destino.Grupo.class);
+  private final Map<Destino.Grupo, Label> grupoSetas = new EnumMap<>(Destino.Grupo.class);
+  private Destino destinoAtual;
 
-  public MainShellView(
-      UsuarioAutenticado usuario,
-      AuditTrail auditTrail,
-      AuditQueryService auditQueryService,
-      UserAdministrationService userAdministrationService,
-      EmployeeManagementService employeeManagementService,
-      EpiCatalogManagementService epiCatalogManagementService,
-      Runnable onLogout) {
+  public MainShellView(UsuarioAutenticado usuario, AuditTrail auditTrail, Runnable onLogout) {
     this.usuario = usuario;
     this.auditTrail = auditTrail;
-    this.auditQueryService = auditQueryService;
-    this.userAdministrationService = userAdministrationService;
-    this.employeeManagementService = employeeManagementService;
-    this.epiCatalogManagementService = epiCatalogManagementService;
-    setLeft(buildSidebar());
     setTop(buildHeader(onLogout));
-    this.conteudoLabel = new Label("Selecione um modulo para comecar.");
-    conteudoLabel.setStyle("-fx-font-size: 18px;");
-    renderContent(conteudoLabel);
-  }
-
-  private VBox buildSidebar() {
-    VBox sidebar = new VBox(8);
-    sidebar.setPadding(new Insets(16));
-    sidebar.setPrefWidth(260);
-    sidebar.setStyle("-fx-background-color: #f3f4f6;");
-
-    Label title = new Label("Modulos");
-    title.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
-    sidebar.getChildren().add(title);
-
-    for (Modulo modulo : Modulo.values()) {
-      Button button = new Button(modulo.label);
-      button.setMaxWidth(Double.MAX_VALUE);
-      button.setAlignment(Pos.CENTER_LEFT);
-      boolean habilitado = modulo.papeisPermitidos.stream().anyMatch(usuario::temPapel);
-      button.setDisable(!habilitado);
-      button.setOnAction(event -> acionarModulo(modulo));
-      sidebar.getChildren().add(button);
-    }
-    return sidebar;
+    setLeft(buildSidebar());
+    abrir(Destino.DASHBOARD, false);
   }
 
   private VBox buildHeader(Runnable onLogout) {
     VBox header = new VBox();
-    header.setPadding(new Insets(0, 16, 12, 16));
-    header.setStyle("-fx-background-color: #1f2937;");
+    header.getStyleClass().add(Enr6Styles.SHELL_HEADER);
 
     MenuBar menuBar = new MenuBar();
     Menu arquivoMenu = new Menu("Arquivo");
@@ -89,91 +47,123 @@ public class MainShellView extends BorderPane {
     sairItem.setOnAction(event -> onLogout.run());
     arquivoMenu.getItems().add(sairItem);
 
-    Menu modulosMenu = new Menu("Modulos");
-    for (Modulo modulo : Modulo.values()) {
-      boolean habilitado = modulo.papeisPermitidos.stream().anyMatch(usuario::temPapel);
-      MenuItem item = new MenuItem(modulo.label);
-      item.setDisable(!habilitado);
-      item.setOnAction(event -> acionarModulo(modulo));
-      modulosMenu.getItems().add(item);
+    Menu modulosMenu = new Menu("Módulos");
+    for (Destino.Grupo grupo : Destino.Grupo.values()) {
+      if (!modulosMenu.getItems().isEmpty()) {
+        modulosMenu.getItems().add(new SeparatorMenuItem());
+      }
+      for (Destino destino : grupo.destinos()) {
+        MenuItem item = new MenuItem(grupo.titulo() + " · " + destino.label());
+        boolean habilitado = destino.visivelPara(usuario::temPapel);
+        item.setDisable(!habilitado);
+        item.setOnAction(event -> abrir(destino, true));
+        modulosMenu.getItems().add(item);
+      }
     }
 
-    Menu sessaoMenu = new Menu("Sessao");
-    MenuItem perfilItem = new MenuItem("Usuario: " + usuario.login());
+    Menu sessaoMenu = new Menu("Sessão");
+    MenuItem perfilItem = new MenuItem("Usuário: " + usuario.login());
     perfilItem.setDisable(true);
-    MenuItem logoutItem = new MenuItem("Logout");
+    MenuItem logoutItem = new MenuItem("Sair");
     logoutItem.setOnAction(event -> onLogout.run());
     sessaoMenu.getItems().addAll(perfilItem, new SeparatorMenuItem(), logoutItem);
-
     menuBar.getMenus().addAll(arquivoMenu, modulosMenu, sessaoMenu);
 
     BorderPane topLine = new BorderPane();
-    topLine.setPadding(new Insets(8, 0, 0, 0));
-    Label produto = new Label("Easy NR6 Gestao de EPI");
-    produto.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;");
-    topLine.setLeft(produto);
-
+    topLine.setPadding(new Insets(8, 16, 12, 16));
+    Label produto = new Label("Easy NR6 · Gestão de EPI");
+    produto.getStyleClass().add(Enr6Styles.SHELL_BRAND);
     Label usuarioInfo = new Label(usuario.nome() + " (" + usuario.login() + ")");
-    usuarioInfo.setStyle("-fx-text-fill: #e5e7eb;");
-
-    BorderPane right = new BorderPane();
-    right.setLeft(usuarioInfo);
-    Region spacer = new Region();
-    spacer.setMinWidth(10);
-    right.setCenter(spacer);
-
-    topLine.setRight(right);
-    setMargin(right, new Insets(0, 0, 0, 16));
+    usuarioInfo.getStyleClass().add(Enr6Styles.SHELL_META);
+    topLine.setLeft(produto);
+    topLine.setRight(usuarioInfo);
     header.getChildren().addAll(menuBar, topLine);
-    return header;
+
+    Label status = new Label("CAEPI: carga válida 28/09/2026 · operação normal · Unidade: Itupeva");
+    status.getStyleClass().add(Enr6Styles.STATUS_STRIP);
+    status.setMaxWidth(Double.MAX_VALUE);
+    VBox chrome = new VBox(header, status);
+    return chrome;
   }
 
-  private void acionarModulo(Modulo modulo) {
-    renderContent(contentFor(modulo));
-    auditTrail.registrarEventoCritico(
-        usuario.id(), "ACESSO_MODULO", "MODULO", modulo.name(), "Acesso ao modulo " + modulo.label);
+  private ScrollPane buildSidebar() {
+    VBox sidebar = new VBox(4);
+    sidebar.setPadding(new Insets(8, 8, 16, 8));
+    sidebar.setPrefWidth(260);
+    sidebar.getStyleClass().add(Enr6Styles.SHELL_SIDEBAR);
+
+    for (Destino.Grupo grupo : Destino.Grupo.values()) {
+      VBox itens = new VBox(2);
+      Label seta = new Label("▸");
+      seta.getStyleClass().add(Enr6Styles.NAV_CHEVRON);
+      seta.setRotate(90);
+      Label titulo = new Label(grupo.titulo().toUpperCase());
+      titulo.getStyleClass().add(Enr6Styles.SHELL_SIDEBAR_TITLE);
+      HBox cabecalho = new HBox(8, seta, titulo);
+      cabecalho.setAlignment(Pos.CENTER_LEFT);
+      Button head = new Button();
+      head.setGraphic(cabecalho);
+      head.getStyleClass().addAll(Styles.FLAT, Enr6Styles.NAV_GROUP_HEAD);
+      head.setMaxWidth(Double.MAX_VALUE);
+      head.setAlignment(Pos.CENTER_LEFT);
+      head.setOnAction(event -> setGrupoAberto(grupo, !itens.isVisible()));
+      for (Destino destino : grupo.destinos()) {
+        Button button = new Button(destino.label());
+        button.getStyleClass().addAll(Styles.FLAT, Enr6Styles.NAV_ITEM);
+        button.setMaxWidth(Double.MAX_VALUE);
+        button.setAlignment(Pos.CENTER_LEFT);
+        button.setDisable(!destino.visivelPara(usuario::temPapel));
+        button.setOnAction(event -> abrir(destino, true));
+        navButtons.put(destino, button);
+        itens.getChildren().add(button);
+      }
+      grupoItens.put(grupo, itens);
+      grupoSetas.put(grupo, seta);
+      sidebar.getChildren().addAll(head, itens);
+    }
+
+    ScrollPane scroll = new ScrollPane(sidebar);
+    scroll.setFitToWidth(true);
+    scroll.setPrefWidth(260);
+    scroll.setMinWidth(260);
+    return scroll;
   }
 
-  private Node contentFor(Modulo modulo) {
-    if (modulo == Modulo.OPERACAO) {
-      return new EntregaWizardView(usuario, auditTrail);
+  private void abrir(Destino destino, boolean auditar) {
+    if (destinoAtual != null) {
+      Button anterior = navButtons.get(destinoAtual);
+      if (anterior != null) {
+        anterior.getStyleClass().remove(Enr6Styles.NAV_ITEM_ACTIVE);
+      }
     }
-    if (modulo == Modulo.ADMINISTRACAO) {
-      return new UserAdministrationView(usuario, userAdministrationService);
+    destinoAtual = destino;
+    setGrupoAberto(destino.grupo(), true);
+    Button atual = navButtons.get(destino);
+    if (atual != null && !atual.getStyleClass().contains(Enr6Styles.NAV_ITEM_ACTIVE)) {
+      atual.getStyleClass().add(Enr6Styles.NAV_ITEM_ACTIVE);
     }
-    if (modulo == Modulo.CADASTROS) {
-      return new CadastrosManagementView(
-          usuario, employeeManagementService, epiCatalogManagementService);
+    Node conteudo = conteudo(destino);
+    setCenter(conteudo);
+    setMargin(conteudo, new Insets(16));
+    if (auditar) {
+      auditTrail.registrarEventoCritico(
+          usuario.id(), "ACESSO_MODULO", "MODULO", destino.name(), "Acesso a " + destino.label());
     }
-    if (modulo == Modulo.AUDITORIA) {
-      return new AuditTrailView(usuario, auditQueryService);
-    }
-    conteudoLabel.setText("Modulo selecionado: " + modulo.label);
-    return conteudoLabel;
   }
 
-  private void renderContent(Node node) {
-    setCenter(node);
-    setMargin(node, new Insets(16));
+  private void setGrupoAberto(Destino.Grupo grupo, boolean aberto) {
+    VBox itens = grupoItens.get(grupo);
+    if (itens != null) {
+      itens.setVisible(aberto);
+      itens.setManaged(aberto);
+    }
+    Label seta = grupoSetas.get(grupo);
+    if (seta != null) {
+      seta.setRotate(aberto ? 90 : 0);
+    }
   }
 
-  private enum Modulo {
-    DASHBOARD("Dashboard", EnumSet.of(Papel.ADMIN, Papel.SESMT, Papel.ALMOXARIFE, Papel.CONSULTA)),
-    OPERACAO("Operacao", EnumSet.of(Papel.ADMIN, Papel.SESMT, Papel.ALMOXARIFE)),
-    CADASTROS("Cadastros", EnumSet.of(Papel.ADMIN, Papel.SESMT)),
-    ESTOQUE("Estoque", EnumSet.of(Papel.ADMIN, Papel.SESMT, Papel.ALMOXARIFE, Papel.CONSULTA)),
-    REGRAS("Regras", EnumSet.of(Papel.ADMIN, Papel.SESMT)),
-    RELATORIOS(
-        "Relatorios", EnumSet.of(Papel.ADMIN, Papel.SESMT, Papel.ALMOXARIFE, Papel.CONSULTA)),
-    AUDITORIA("Auditoria", EnumSet.of(Papel.ADMIN, Papel.SESMT, Papel.CONSULTA)),
-    ADMINISTRACAO("Administracao", EnumSet.of(Papel.ADMIN));
-
-    private final String label;
-    private final EnumSet<Papel> papeisPermitidos;
-
-    Modulo(String label, EnumSet<Papel> papeisPermitidos) {
-      this.label = label;
-      this.papeisPermitidos = papeisPermitidos;
-    }
+  private Node conteudo(Destino destino) {
+    return TelasReferencia.criar(destino, alvo -> abrir(alvo, true));
   }
 }

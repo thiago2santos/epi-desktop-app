@@ -1,12 +1,8 @@
 package br.com.easynr6.gestaoepi.ui;
 
-import br.com.easynr6.gestaoepi.modules.employee.application.EmployeeManagementService;
-import br.com.easynr6.gestaoepi.modules.epi.application.EpiCatalogManagementService;
-import br.com.easynr6.gestaoepi.shared.audit.AuditQueryService;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import br.com.easynr6.gestaoepi.shared.auth.AuthenticationProvider;
 import br.com.easynr6.gestaoepi.shared.auth.CredentialManager;
-import br.com.easynr6.gestaoepi.shared.auth.UserAdministrationService;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
 import br.com.easynr6.gestaoepi.ui.login.ChangePasswordView;
 import br.com.easynr6.gestaoepi.ui.login.LoginView;
@@ -22,10 +18,6 @@ public class EasyNr6DesktopApp extends Application {
 
   private AuthenticationProvider authenticationProvider;
   private CredentialManager credentialManager;
-  private UserAdministrationService userAdministrationService;
-  private EmployeeManagementService employeeManagementService;
-  private EpiCatalogManagementService epiCatalogManagementService;
-  private AuditQueryService auditQueryService;
   private AuditTrail auditTrail;
   private Stage stage;
 
@@ -35,14 +27,10 @@ public class EasyNr6DesktopApp extends Application {
 
   @Override
   public void start(Stage primaryStage) {
+    Enr6Theme.install();
     this.stage = primaryStage;
     this.authenticationProvider = applicationContext.getBean(AuthenticationProvider.class);
     this.credentialManager = applicationContext.getBean(CredentialManager.class);
-    this.userAdministrationService = applicationContext.getBean(UserAdministrationService.class);
-    this.employeeManagementService = applicationContext.getBean(EmployeeManagementService.class);
-    this.epiCatalogManagementService =
-        applicationContext.getBean(EpiCatalogManagementService.class);
-    this.auditQueryService = applicationContext.getBean(AuditQueryService.class);
     this.auditTrail = applicationContext.getBean(AuditTrail.class);
     this.stage.setTitle("Easy NR6 Gestao de EPI");
     abrirTelaLogin();
@@ -62,6 +50,7 @@ public class EasyNr6DesktopApp extends Application {
             authenticationProvider, this::abrirShellPrincipal, this::abrirTelaTrocaObrigatoria);
     stage.setMaximized(false);
     Scene scene = new Scene(loginView, 620, 760);
+    Enr6Theme.apply(scene);
     stage.setScene(scene);
     stage.centerOnScreen();
   }
@@ -70,7 +59,9 @@ public class EasyNr6DesktopApp extends Application {
     stage.setMaximized(false);
     ChangePasswordView view =
         new ChangePasswordView(credentialManager, usuario, this::abrirShellPrincipal);
-    stage.setScene(new Scene(view, 620, 420));
+    Scene scene = new Scene(view, 620, 420);
+    Enr6Theme.apply(scene);
+    stage.setScene(scene);
     stage.centerOnScreen();
   }
 
@@ -86,10 +77,6 @@ public class EasyNr6DesktopApp extends Application {
         new MainShellView(
             usuario,
             auditTrail,
-            auditQueryService,
-            userAdministrationService,
-            employeeManagementService,
-            epiCatalogManagementService,
             () -> {
               auditTrail.registrarEventoCritico(
                   usuario.id(),
@@ -100,7 +87,9 @@ public class EasyNr6DesktopApp extends Application {
               abrirTelaLogin();
             });
 
-    stage.setScene(new Scene(shell, 1280, 800));
+    Scene scene = new Scene(shell, 1280, 800);
+    Enr6Theme.apply(scene);
+    stage.setScene(scene);
     stage.setMaximized(true);
   }
 }
