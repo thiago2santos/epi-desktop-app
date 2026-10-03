@@ -27,7 +27,8 @@ class OrgStructureManagementServiceIntegrationTest {
   void shouldCreateAndUpdateDepartmentWithAudit() {
     long adminId = createUserWithRole("admin.department", Papel.ADMIN);
 
-    long departmentId = employeeManagementService.createDepartment(adminId, " Qualidade ", true);
+    long departmentId =
+        employeeManagementService.createDepartment(adminId, " Qualidade ", itupevaId(), true);
     employeeManagementService.updateDepartment(adminId, departmentId, "Qualidade e SGI", true);
 
     String storedName =
@@ -52,19 +53,22 @@ class OrgStructureManagementServiceIntegrationTest {
   @Test
   void shouldRejectDuplicateDepartmentName() {
     long adminId = createUserWithRole("admin.department.duplicate", Papel.ADMIN);
-    employeeManagementService.createDepartment(adminId, "Logistica", true);
+    employeeManagementService.createDepartment(adminId, "Logistica", itupevaId(), true);
 
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class,
-            () -> employeeManagementService.createDepartment(adminId, " logistica ", true));
+            () ->
+                employeeManagementService.createDepartment(
+                    adminId, " logistica ", itupevaId(), true));
     assertEquals("CAD-021 Nome de setor ja existente.", ex.getMessage());
   }
 
   @Test
   void shouldBlockDepartmentDeactivateWhenHasActiveJobRole() {
     long adminId = createUserWithRole("admin.department.block", Papel.ADMIN);
-    long departmentId = employeeManagementService.createDepartment(adminId, "Manutencao", true);
+    long departmentId =
+        employeeManagementService.createDepartment(adminId, "Manutencao", itupevaId(), true);
     employeeManagementService.createJobRole(adminId, "Mecanico", departmentId, true);
 
     IllegalArgumentException ex =
@@ -106,7 +110,8 @@ class OrgStructureManagementServiceIntegrationTest {
   @Test
   void shouldRejectJobRoleWhenDepartmentInactive() {
     long adminId = createUserWithRole("admin.jobrole.department.inactive", Papel.ADMIN);
-    long departmentId = employeeManagementService.createDepartment(adminId, "Temporario", false);
+    long departmentId =
+        employeeManagementService.createDepartment(adminId, "Temporario", itupevaId(), false);
 
     IllegalArgumentException ex =
         assertThrows(
@@ -139,7 +144,7 @@ class OrgStructureManagementServiceIntegrationTest {
     long jobRoleId = findJobRoleIdByNameAndDepartment("Almoxarife", departmentId);
 
     employeeManagementService.createEmployee(
-        adminId, "MTR-BLOCK-1", "Empregado Vinculado", departmentId, jobRoleId, true);
+        adminId, "MTR-BLOCK-1", "Empregado Vinculado", departmentId, jobRoleId, null, true);
 
     IllegalArgumentException ex =
         assertThrows(
@@ -154,7 +159,50 @@ class OrgStructureManagementServiceIntegrationTest {
 
     assertThrows(
         AuthorizationDeniedException.class,
-        () -> employeeManagementService.createDepartment(consultaId, "Sem Permissao", true));
+        () ->
+            employeeManagementService.createDepartment(
+                consultaId, "Sem Permissao", itupevaId(), true));
+  }
+
+  @Test
+  void shouldAllowSameDepartmentNameInAnotherUnit() {
+    long adminId = createUserWithRole("admin.department.unit", Papel.ADMIN);
+    long curitibaId = findUnitIdByCnpj("22755266000420");
+
+    long itupevaDepartmentId =
+        employeeManagementService.createDepartment(adminId, "Expedicao", itupevaId(), true);
+    long curitibaDepartmentId =
+        employeeManagementService.createDepartment(adminId, "Expedicao", curitibaId, true);
+
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                employeeManagementService.createDepartment(adminId, "expedicao", curitibaId, true));
+    assertEquals("CAD-021 Nome de setor ja existente.", ex.getMessage());
+
+    Long itupevaUnit =
+        jdbcTemplate.queryForObject(
+            "SELECT unit_id FROM department WHERE id = ?", Long.class, itupevaDepartmentId);
+    Long curitibaUnit =
+        jdbcTemplate.queryForObject(
+            "SELECT unit_id FROM department WHERE id = ?", Long.class, curitibaDepartmentId);
+    assertEquals(itupevaId(), itupevaUnit);
+    assertEquals(curitibaId, curitibaUnit);
+  }
+
+  @Test
+  void shouldRejectDepartmentWhenUnitIsInactive() {
+    long adminId = createUserWithRole("admin.department.unit.inactive", Papel.ADMIN);
+    long lagoaSantaId = findUnitIdByCnpj("22755266000691");
+    jdbcTemplate.update("UPDATE unit SET active = 0 WHERE id = ?", lagoaSantaId);
+
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                employeeManagementService.createDepartment(adminId, "Arquivo", lagoaSantaId, true));
+    assertEquals("CAD-027 Unidade invalida ou inativa.", ex.getMessage());
   }
 
   private long createUserWithRole(String loginBase, Papel role) {
@@ -180,6 +228,15 @@ class OrgStructureManagementServiceIntegrationTest {
         userId,
         role.name());
     return userId;
+  }
+
+  private long itupevaId() {
+    return findUnitIdByCnpj("22755266000268");
+  }
+
+  private long findUnitIdByCnpj(String cnpj) {
+    Long id = jdbcTemplate.queryForObject("SELECT id FROM unit WHERE cnpj = ?", Long.class, cnpj);
+    return id == null ? -1L : id;
   }
 
   private long findDepartmentIdByName(String name) {

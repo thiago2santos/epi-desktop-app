@@ -26,7 +26,7 @@ class JobRolePolicyTest {
 
   @Test
   void shouldRejectInactiveDepartment() {
-    DepartmentOption department = new DepartmentOption(1L, "Operacao", false);
+    DepartmentOption department = new DepartmentOption(1L, "Operacao", 1L, "Itupeva", false);
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class, () -> policy.validateActiveDepartment(department));
@@ -35,7 +35,7 @@ class JobRolePolicyTest {
 
   @Test
   void shouldAcceptActiveDepartment() {
-    DepartmentOption department = new DepartmentOption(1L, "Operacao", true);
+    DepartmentOption department = new DepartmentOption(1L, "Operacao", 1L, "Itupeva", true);
     assertDoesNotThrow(() -> policy.validateActiveDepartment(department));
   }
 }

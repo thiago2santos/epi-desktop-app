@@ -1,6 +1,7 @@
 package br.com.easynr6.gestaoepi.modules.employee.application.usecase;
 
 import br.com.easynr6.gestaoepi.modules.employee.application.port.EmployeeRepository;
+import br.com.easynr6.gestaoepi.modules.employee.application.port.EmployeeRepository.EmployeeAssignment;
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository;
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.DepartmentOption;
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.JobRoleOption;
@@ -36,6 +37,7 @@ public class CreateEmployeeUseCase {
       String fullName,
       Long departmentId,
       Long jobRoleId,
+      Long managerId,
       boolean active) {
     accessAuthorizer.assertCanManageEmployees(actorId);
     employeePolicy.validateRequiredFields(employeeCode, fullName, departmentId, jobRoleId);
@@ -50,9 +52,14 @@ public class CreateEmployeeUseCase {
         orgStructureRepository.findDepartmentById(departmentId).orElse(null);
     JobRoleOption jobRole = orgStructureRepository.findJobRoleById(jobRoleId).orElse(null);
     employeePolicy.validateDepartmentAndRole(department, jobRole);
+    EmployeeAssignment manager =
+        managerId == null ? null : employeeRepository.findAssignmentById(managerId).orElse(null);
+    employeePolicy.validateManager(
+        null, managerId, department == null ? null : department.unitId(), manager);
 
     Long employeeId =
-        employeeRepository.create(normalizedCode, normalizedName, departmentId, jobRoleId, active);
+        employeeRepository.create(
+            normalizedCode, normalizedName, departmentId, jobRoleId, managerId, active);
     auditTrail.registrarEventoCritico(
         actorId,
         "EMPLOYEE_CREATED",

@@ -13,11 +13,13 @@ public interface OrgStructureRepository {
 
   boolean jobRoleExists(Long jobRoleId);
 
-  boolean existsDepartmentByName(String name);
+  boolean isActiveUnit(Long unitId);
 
-  boolean existsDepartmentByNameExcludingId(String name, Long departmentId);
+  boolean existsDepartmentByNameInUnit(String name, Long unitId);
 
-  Long createDepartment(String name, boolean active);
+  boolean existsDepartmentByNameInUnitExcludingId(String name, Long unitId, Long departmentId);
+
+  Long createDepartment(String name, Long unitId, boolean active);
 
   void updateDepartment(Long departmentId, String name, boolean active);
 
@@ -46,11 +48,11 @@ public interface OrgStructureRepository {
 
   List<JobRoleOption> listActiveJobRolesByDepartment(Long departmentId);
 
-  record DepartmentOption(Long id, String name, boolean active) {}
+  record DepartmentOption(Long id, String name, Long unitId, String unitName, boolean active) {}
 
   record JobRoleOption(Long id, String name, Long departmentId, boolean active) {}
 
-  record DepartmentSummary(Long id, String name, boolean active) {}
+  record DepartmentSummary(Long id, String name, Long unitId, String unitName, boolean active) {}
 
   record JobRoleSummary(
       Long id, String name, Long departmentId, String departmentName, boolean active) {}

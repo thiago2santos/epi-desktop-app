@@ -1,6 +1,7 @@
 package br.com.easynr6.gestaoepi.modules.employee.application.usecase;
 
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository;
+import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.DepartmentOption;
 import br.com.easynr6.gestaoepi.modules.employee.domain.DepartmentPolicy;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import org.springframework.stereotype.Service;
@@ -26,12 +27,17 @@ public class UpdateDepartmentUseCase {
   @Transactional
   public void execute(Long actorId, Long departmentId, String name, boolean active) {
     accessAuthorizer.assertCanManageEmployees(actorId);
-    if (departmentId == null || !orgStructureRepository.departmentExists(departmentId)) {
+    DepartmentOption current =
+        departmentId == null
+            ? null
+            : orgStructureRepository.findDepartmentById(departmentId).orElse(null);
+    if (current == null) {
       throw new IllegalArgumentException("CAD-023 Setor alvo nao encontrado.");
     }
     departmentPolicy.validateRequiredName(name);
     String normalizedName = departmentPolicy.normalizeName(name);
-    if (orgStructureRepository.existsDepartmentByNameExcludingId(normalizedName, departmentId)) {
+    if (orgStructureRepository.existsDepartmentByNameInUnitExcludingId(
+        normalizedName, current.unitId(), departmentId)) {
       throw new IllegalArgumentException("CAD-021 Nome de setor ja existente.");
     }
     if (!active && orgStructureRepository.hasActiveJobRoles(departmentId)) {

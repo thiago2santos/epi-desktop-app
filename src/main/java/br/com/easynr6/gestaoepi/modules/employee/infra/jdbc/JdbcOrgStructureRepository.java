@@ -12,9 +12,10 @@ public class JdbcOrgStructureRepository implements OrgStructureRepository {
 
   private static final String SELECT_DEPARTMENT_BY_ID_SQL =
       """
-      SELECT id, name, active
-      FROM department
-      WHERE id = :departmentId
+      SELECT d.id, d.name, d.unit_id, u.name AS unit_name, d.active
+      FROM department d
+      JOIN unit u ON u.id = d.unit_id
+      WHERE d.id = :departmentId
       """;
   private static final String SELECT_JOB_ROLE_BY_ID_SQL =
       """
@@ -24,10 +25,11 @@ public class JdbcOrgStructureRepository implements OrgStructureRepository {
       """;
   private static final String SELECT_ACTIVE_DEPARTMENTS_SQL =
       """
-      SELECT id, name, active
-      FROM department
-      WHERE active = 1
-      ORDER BY name
+      SELECT d.id, d.name, d.unit_id, u.name AS unit_name, d.active
+      FROM department d
+      JOIN unit u ON u.id = d.unit_id
+      WHERE d.active = 1
+      ORDER BY u.name, d.name
       """;
   private static final String SELECT_ACTIVE_JOB_ROLES_BY_DEPARTMENT_SQL =
       """
@@ -41,14 +43,25 @@ public class JdbcOrgStructureRepository implements OrgStructureRepository {
       "SELECT COUNT(1) FROM department WHERE id = :departmentId";
   private static final String COUNT_JOB_ROLE_BY_ID_SQL =
       "SELECT COUNT(1) FROM job_role WHERE id = :jobRoleId";
+  private static final String COUNT_ACTIVE_UNIT_SQL =
+      "SELECT COUNT(1) FROM unit WHERE id = :unitId AND active = 1";
   private static final String COUNT_DEPARTMENT_BY_NAME_SQL =
-      "SELECT COUNT(1) FROM department WHERE UPPER(name) = UPPER(:name)";
+      """
+      SELECT COUNT(1) FROM department
+      WHERE UPPER(name) = UPPER(:name) AND unit_id = :unitId
+      """;
   private static final String COUNT_DEPARTMENT_BY_NAME_EXCLUDING_ID_SQL =
-      "SELECT COUNT(1) FROM department WHERE UPPER(name) = UPPER(:name) AND id <> :departmentId";
+      """
+      SELECT COUNT(1) FROM department
+      WHERE UPPER(name) = UPPER(:name) AND unit_id = :unitId AND id <> :departmentId
+      """;
   private static final String INSERT_DEPARTMENT_SQL =
-      "INSERT INTO department (name, active) VALUES (:name, :active)";
+      "INSERT INTO department (name, unit_id, active) VALUES (:name, :unitId, :active)";
   private static final String SELECT_DEPARTMENT_ID_BY_NAME_SQL =
-      "SELECT id FROM department WHERE UPPER(name) = UPPER(:name)";
+      """
+      SELECT id FROM department
+      WHERE UPPER(name) = UPPER(:name) AND unit_id = :unitId
+      """;
   private static final String UPDATE_DEPARTMENT_SQL =
       """
       UPDATE department
@@ -119,10 +132,11 @@ public class JdbcOrgStructureRepository implements OrgStructureRepository {
       """;
   private static final String LIST_DEPARTMENTS_BY_TERM_SQL =
       """
-      SELECT id, name, active
-      FROM department
-      WHERE (:term = '' OR name LIKE :termLike)
-      ORDER BY name
+      SELECT d.id, d.name, d.unit_id, u.name AS unit_name, d.active
+      FROM department d
+      JOIN unit u ON u.id = d.unit_id
+      WHERE (:term = '' OR d.name LIKE :termLike)
+      ORDER BY u.name, d.name
       """;
   private static final String LIST_JOB_ROLES_BY_TERM_SQL =
       """
@@ -151,7 +165,11 @@ public class JdbcOrgStructureRepository implements OrgStructureRepository {
             new MapSqlParameterSource().addValue("departmentId", departmentId),
             (rs, rowNum) ->
                 new DepartmentOption(
-                    rs.getLong("id"), rs.getString("name"), rs.getInt("active") == 1));
+                    rs.getLong("id"),
+                    rs.getString("name"),
+                    rs.getLong("unit_id"),
+                    rs.getString("unit_name"),
+                    rs.getInt("active") == 1));
     return rows.stream().findFirst();
   }
 
@@ -191,35 +209,53 @@ public class JdbcOrgStructureRepository implements OrgStructureRepository {
   }
 
   @Override
-  public boolean existsDepartmentByName(String name) {
+  public boolean isActiveUnit(Long unitId) {
+    if (unitId == null) {
+      return false;
+    }
     Integer count =
         jdbcTemplate.queryForObject(
-            COUNT_DEPARTMENT_BY_NAME_SQL,
-            new MapSqlParameterSource().addValue("name", name),
+            COUNT_ACTIVE_UNIT_SQL,
+            new MapSqlParameterSource().addValue("unitId", unitId),
             Integer.class);
     return count != null && count > 0;
   }
 
   @Override
-  public boolean existsDepartmentByNameExcludingId(String name, Long departmentId) {
+  public boolean existsDepartmentByNameInUnit(String name, Long unitId) {
+    Integer count =
+        jdbcTemplate.queryForObject(
+            COUNT_DEPARTMENT_BY_NAME_SQL,
+            new MapSqlParameterSource().addValue("name", name).addValue("unitId", unitId),
+            Integer.class);
+    return count != null && count > 0;
+  }
+
+  @Override
+  public boolean existsDepartmentByNameInUnitExcludingId(
+      String name, Long unitId, Long departmentId) {
     Integer count =
         jdbcTemplate.queryForObject(
             COUNT_DEPARTMENT_BY_NAME_EXCLUDING_ID_SQL,
             new MapSqlParameterSource()
                 .addValue("name", name)
+                .addValue("unitId", unitId)
                 .addValue("departmentId", departmentId),
             Integer.class);
     return count != null && count > 0;
   }
 
   @Override
-  public Long createDepartment(String name, boolean active) {
+  public Long createDepartment(String name, Long unitId, boolean active) {
     jdbcTemplate.update(
         INSERT_DEPARTMENT_SQL,
-        new MapSqlParameterSource().addValue("name", name).addValue("active", active ? 1 : 0));
+        new MapSqlParameterSource()
+            .addValue("name", name)
+            .addValue("unitId", unitId)
+            .addValue("active", active ? 1 : 0));
     return jdbcTemplate.queryForObject(
         SELECT_DEPARTMENT_ID_BY_NAME_SQL,
-        new MapSqlParameterSource().addValue("name", name),
+        new MapSqlParameterSource().addValue("name", name).addValue("unitId", unitId),
         Long.class);
   }
 
@@ -332,7 +368,11 @@ public class JdbcOrgStructureRepository implements OrgStructureRepository {
             .addValue("termLike", "%" + cleanTerm + "%"),
         (rs, rowNum) ->
             new DepartmentSummary(
-                rs.getLong("id"), rs.getString("name"), rs.getInt("active") == 1));
+                rs.getLong("id"),
+                rs.getString("name"),
+                rs.getLong("unit_id"),
+                rs.getString("unit_name"),
+                rs.getInt("active") == 1));
   }
 
   @Override
@@ -357,7 +397,12 @@ public class JdbcOrgStructureRepository implements OrgStructureRepository {
     return jdbcTemplate.query(
         SELECT_ACTIVE_DEPARTMENTS_SQL,
         (rs, rowNum) ->
-            new DepartmentOption(rs.getLong("id"), rs.getString("name"), rs.getInt("active") == 1));
+            new DepartmentOption(
+                rs.getLong("id"),
+                rs.getString("name"),
+                rs.getLong("unit_id"),
+                rs.getString("unit_name"),
+                rs.getInt("active") == 1));
   }
 
   @Override

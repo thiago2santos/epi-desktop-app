@@ -32,7 +32,7 @@ class EmployeeManagementServiceIntegrationTest {
 
     long employeeId =
         employeeManagementService.createEmployee(
-            adminId, "MTR-1001", "Thiago Teste", departmentId, jobRoleId, true);
+            adminId, "MTR-1001", "Thiago Teste", departmentId, jobRoleId, null, true);
 
     Integer employeeCount =
         jdbcTemplate.queryForObject(
@@ -53,7 +53,7 @@ class EmployeeManagementServiceIntegrationTest {
     long jobRoleId = findJobRoleIdByNameAndDepartment("Tecnico de Seguranca", departmentId);
 
     employeeManagementService.createEmployee(
-        sesmtId, "MTR-2002", "Colaborador Sesmt", departmentId, jobRoleId, true);
+        sesmtId, "MTR-2002", "Colaborador Sesmt", departmentId, jobRoleId, null, true);
 
     Integer employeeCount =
         jdbcTemplate.queryForObject(
@@ -71,7 +71,7 @@ class EmployeeManagementServiceIntegrationTest {
         AuthorizationDeniedException.class,
         () ->
             employeeManagementService.createEmployee(
-                consultaId, "MTR-3003", "Sem permissao", departmentId, jobRoleId, true));
+                consultaId, "MTR-3003", "Sem permissao", departmentId, jobRoleId, null, true));
   }
 
   @Test
@@ -86,7 +86,13 @@ class EmployeeManagementServiceIntegrationTest {
             IllegalArgumentException.class,
             () ->
                 employeeManagementService.createEmployee(
-                    adminId, "MTR-4004", "Mismatch", departmentOperacaoId, sesmtRoleId, true));
+                    adminId,
+                    "MTR-4004",
+                    "Mismatch",
+                    departmentOperacaoId,
+                    sesmtRoleId,
+                    null,
+                    true));
     assertEquals("CAD-003 Inconsistencia entre funcao e setor.", ex.getMessage());
   }
 
@@ -100,10 +106,10 @@ class EmployeeManagementServiceIntegrationTest {
 
     long employeeId =
         employeeManagementService.createEmployee(
-            adminId, "MTR-5005", "Nome Inicial", depOperacao, roleAlmox, true);
+            adminId, "MTR-5005", "Nome Inicial", depOperacao, roleAlmox, null, true);
 
     employeeManagementService.updateEmployee(
-        adminId, employeeId, "Nome Atualizado", depSesmt, roleSesmt, true);
+        adminId, employeeId, "Nome Atualizado", depSesmt, roleSesmt, null, true);
     employeeManagementService.setEmployeeStatus(adminId, employeeId, false);
 
     String updatedName =
@@ -136,14 +142,14 @@ class EmployeeManagementServiceIntegrationTest {
     long jobRoleId = findJobRoleIdByNameAndDepartment("Almoxarife", departmentId);
 
     employeeManagementService.createEmployee(
-        adminId, "MTR-7007", "Primeiro Cadastro", departmentId, jobRoleId, true);
+        adminId, "MTR-7007", "Primeiro Cadastro", departmentId, jobRoleId, null, true);
 
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class,
             () ->
                 employeeManagementService.createEmployee(
-                    adminId, " MTR-7007 ", "Duplicado", departmentId, jobRoleId, true));
+                    adminId, " MTR-7007 ", "Duplicado", departmentId, jobRoleId, null, true));
     assertEquals("CAD-001 Matricula ja existente.", ex.getMessage());
   }
 
@@ -159,7 +165,7 @@ class EmployeeManagementServiceIntegrationTest {
             IllegalArgumentException.class,
             () ->
                 employeeManagementService.createEmployee(
-                    adminId, "MTR-8008", "Role Inativa", departmentId, jobRoleId, true));
+                    adminId, "MTR-8008", "Role Inativa", departmentId, jobRoleId, null, true));
     assertEquals("CAD-002 Funcao invalida ou inativa.", ex.getMessage());
   }
 
@@ -171,7 +177,7 @@ class EmployeeManagementServiceIntegrationTest {
 
     long employeeId =
         employeeManagementService.createEmployee(
-            adminId, "  mtr-9009 ", "  Nome com espacos  ", departmentId, jobRoleId, true);
+            adminId, "  mtr-9009 ", "  Nome com espacos  ", departmentId, jobRoleId, null, true);
 
     String storedCode =
         jdbcTemplate.queryForObject(
@@ -192,7 +198,7 @@ class EmployeeManagementServiceIntegrationTest {
 
     long employeeId =
         employeeManagementService.createEmployee(
-            adminId, "MTR-10010", "Inativo Idempotente", departmentId, jobRoleId, false);
+            adminId, "MTR-10010", "Inativo Idempotente", departmentId, jobRoleId, null, false);
 
     assertDoesNotThrow(
         () -> employeeManagementService.setEmployeeStatus(adminId, employeeId, false));
@@ -200,6 +206,82 @@ class EmployeeManagementServiceIntegrationTest {
         jdbcTemplate.queryForObject(
             "SELECT active FROM employee WHERE id = ?", Integer.class, employeeId);
     assertEquals(0, active);
+  }
+
+  @Test
+  void shouldKeepManagerInsideTheSameUnit() {
+    long adminId = createUserWithRole("admin.employee.manager", Papel.ADMIN);
+    long departmentId = findDepartmentIdByName("Operacao");
+    long jobRoleId = findJobRoleIdByNameAndDepartment("Almoxarife", departmentId);
+    long curitibaId = findUnitIdByCnpj("22755266000420");
+    long curitibaDepartmentId =
+        employeeManagementService.createDepartment(adminId, "Guarda", curitibaId, true);
+    long curitibaRoleId =
+        employeeManagementService.createJobRole(adminId, "Guardiao", curitibaDepartmentId, true);
+
+    long managerId =
+        employeeManagementService.createEmployee(
+            adminId, "MTR-GESTOR", "Gestor Itupeva", departmentId, jobRoleId, null, true);
+    long workerId =
+        employeeManagementService.createEmployee(
+            adminId, "MTR-TIME", "Trabalhador Itupeva", departmentId, jobRoleId, managerId, true);
+    long otherUnitWorkerId =
+        employeeManagementService.createEmployee(
+            adminId,
+            "MTR-CURITIBA",
+            "Trabalhador Curitiba",
+            curitibaDepartmentId,
+            curitibaRoleId,
+            null,
+            true);
+
+    Long storedManager =
+        jdbcTemplate.queryForObject(
+            "SELECT manager_id FROM employee WHERE id = ?", Long.class, workerId);
+    assertEquals(managerId, storedManager);
+
+    IllegalArgumentException otherUnit =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                employeeManagementService.updateEmployee(
+                    adminId,
+                    otherUnitWorkerId,
+                    "Trabalhador Curitiba",
+                    curitibaDepartmentId,
+                    curitibaRoleId,
+                    managerId,
+                    true));
+    assertEquals("CAD-007 Gestor invalido para este trabalhador.", otherUnit.getMessage());
+
+    IllegalArgumentException self =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                employeeManagementService.updateEmployee(
+                    adminId,
+                    workerId,
+                    "Trabalhador Itupeva",
+                    departmentId,
+                    jobRoleId,
+                    workerId,
+                    true));
+    assertEquals("CAD-007 Gestor invalido para este trabalhador.", self.getMessage());
+
+    employeeManagementService.setEmployeeStatus(adminId, managerId, false);
+    IllegalArgumentException inactive =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                employeeManagementService.updateEmployee(
+                    adminId,
+                    workerId,
+                    "Trabalhador Itupeva",
+                    departmentId,
+                    jobRoleId,
+                    managerId,
+                    true));
+    assertEquals("CAD-007 Gestor invalido para este trabalhador.", inactive.getMessage());
   }
 
   private long createUserWithRole(String loginBase, Papel role) {
@@ -225,6 +307,11 @@ class EmployeeManagementServiceIntegrationTest {
         userId,
         role.name());
     return userId;
+  }
+
+  private long findUnitIdByCnpj(String cnpj) {
+    Long id = jdbcTemplate.queryForObject("SELECT id FROM unit WHERE cnpj = ?", Long.class, cnpj);
+    return id == null ? -1L : id;
   }
 
   private long findDepartmentIdByName(String name) {

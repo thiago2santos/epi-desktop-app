@@ -1,5 +1,6 @@
 package br.com.easynr6.gestaoepi.modules.employee.domain;
 
+import br.com.easynr6.gestaoepi.modules.employee.application.port.EmployeeRepository.EmployeeAssignment;
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.DepartmentOption;
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.JobRoleOption;
 
@@ -15,6 +16,19 @@ public class EmployeePolicy {
   public void validateUpdateFields(String fullName, Long departmentId, Long jobRoleId) {
     if (isBlank(fullName) || departmentId == null || jobRoleId == null) {
       throw new IllegalArgumentException("CAD-004 Campos obrigatorios ausentes.");
+    }
+  }
+
+  public void validateManager(
+      Long employeeId, Long managerId, Long unitId, EmployeeAssignment manager) {
+    if (managerId == null) {
+      return;
+    }
+    boolean proprio = employeeId != null && employeeId.equals(managerId);
+    boolean vigente =
+        manager != null && manager.active() && unitId != null && unitId.equals(manager.unitId());
+    if (proprio || !vigente) {
+      throw new IllegalArgumentException("CAD-007 Gestor invalido para este trabalhador.");
     }
   }
 

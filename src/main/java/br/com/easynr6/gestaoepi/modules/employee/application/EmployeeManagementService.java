@@ -1,5 +1,6 @@
 package br.com.easynr6.gestaoepi.modules.employee.application;
 
+import br.com.easynr6.gestaoepi.modules.employee.application.port.EmployeeRepository.EmployeeOption;
 import br.com.easynr6.gestaoepi.modules.employee.application.port.EmployeeRepository.EmployeeSummary;
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository;
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.DepartmentOption;
@@ -73,9 +74,10 @@ public class EmployeeManagementService {
       String fullName,
       Long departmentId,
       Long jobRoleId,
+      Long managerId,
       boolean active) {
     return createEmployeeUseCase.execute(
-        actorId, employeeCode, fullName, departmentId, jobRoleId, active);
+        actorId, employeeCode, fullName, departmentId, jobRoleId, managerId, active);
   }
 
   public void updateEmployee(
@@ -84,8 +86,10 @@ public class EmployeeManagementService {
       String fullName,
       Long departmentId,
       Long jobRoleId,
+      Long managerId,
       boolean active) {
-    updateEmployeeUseCase.execute(actorId, employeeId, fullName, departmentId, jobRoleId, active);
+    updateEmployeeUseCase.execute(
+        actorId, employeeId, fullName, departmentId, jobRoleId, managerId, active);
   }
 
   public void setEmployeeStatus(Long actorId, Long employeeId, boolean active) {
@@ -96,8 +100,12 @@ public class EmployeeManagementService {
     return listEmployeesUseCase.execute(actorId, term);
   }
 
-  public Long createDepartment(Long actorId, String name, boolean active) {
-    return createDepartmentUseCase.execute(actorId, name, active);
+  public List<EmployeeOption> listActiveEmployeesByUnit(Long unitId) {
+    return listEmployeesUseCase.listActiveByUnit(unitId);
+  }
+
+  public Long createDepartment(Long actorId, String name, Long unitId, boolean active) {
+    return createDepartmentUseCase.execute(actorId, name, unitId, active);
   }
 
   public void updateDepartment(Long actorId, Long departmentId, String name, boolean active) {

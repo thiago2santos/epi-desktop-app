@@ -24,14 +24,17 @@ public class CreateDepartmentUseCase {
   }
 
   @Transactional
-  public Long execute(Long actorId, String name, boolean active) {
+  public Long execute(Long actorId, String name, Long unitId, boolean active) {
     accessAuthorizer.assertCanManageEmployees(actorId);
+    if (unitId == null || !orgStructureRepository.isActiveUnit(unitId)) {
+      throw new IllegalArgumentException("CAD-027 Unidade invalida ou inativa.");
+    }
     departmentPolicy.validateRequiredName(name);
     String normalizedName = departmentPolicy.normalizeName(name);
-    if (orgStructureRepository.existsDepartmentByName(normalizedName)) {
+    if (orgStructureRepository.existsDepartmentByNameInUnit(normalizedName, unitId)) {
       throw new IllegalArgumentException("CAD-021 Nome de setor ja existente.");
     }
-    Long departmentId = orgStructureRepository.createDepartment(normalizedName, active);
+    Long departmentId = orgStructureRepository.createDepartment(normalizedName, unitId, active);
     auditTrail.registrarEventoCritico(
         actorId,
         "DEPARTMENT_CREATED",

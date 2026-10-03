@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import br.com.easynr6.gestaoepi.identity.application.port.IdentityRepository;
 import br.com.easynr6.gestaoepi.identity.domain.IdentityUser;
 import br.com.easynr6.gestaoepi.modules.employee.application.port.EmployeeRepository;
+import br.com.easynr6.gestaoepi.modules.employee.application.port.EmployeeRepository.EmployeeAssignment;
+import br.com.easynr6.gestaoepi.modules.employee.application.port.EmployeeRepository.EmployeeOption;
 import br.com.easynr6.gestaoepi.modules.employee.application.port.EmployeeRepository.EmployeeSummary;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import br.com.easynr6.gestaoepi.shared.auth.Papel;
@@ -149,13 +151,33 @@ class SetEmployeeStatusUseCaseTest {
 
     @Override
     public Long create(
-        String employeeCode, String fullName, Long departmentId, Long jobRoleId, boolean active) {
+        String employeeCode,
+        String fullName,
+        Long departmentId,
+        Long jobRoleId,
+        Long managerId,
+        boolean active) {
       return 1L;
     }
 
     @Override
     public void update(
-        Long employeeId, String fullName, Long departmentId, Long jobRoleId, boolean active) {}
+        Long employeeId,
+        String fullName,
+        Long departmentId,
+        Long jobRoleId,
+        Long managerId,
+        boolean active) {}
+
+    @Override
+    public Optional<EmployeeAssignment> findAssignmentById(Long employeeId) {
+      return Optional.empty();
+    }
+
+    @Override
+    public List<EmployeeOption> listActiveByUnit(Long unitId) {
+      return List.of();
+    }
 
     @Override
     public void setActive(Long employeeId, boolean active) {
