@@ -25,6 +25,7 @@ Cada caso de uso segue o formato:
 - **SESMT**
 - **Almoxarife**
 - **Consulta**
+- **Gestor** (ator do fluxo de solicitacao; escopo limitado aos trabalhadores sob sua responsabilidade)
 - **Trabalhador** (ator participante na validacao de entrega; nao opera com login)
 
 ---
@@ -149,14 +150,15 @@ Cada caso de uso segue o formato:
 ### UC-CAD-03 — Cadastrar empregado (trabalhador)
 - **Atores**: SESMT, Admin
 - **Descricao**: Inclui e mantem trabalhador apto a receber EPI (editar e alterar status sem delete fisico).
-- **Pre-condicoes**: Funcao e setor cadastrados e ativos.
+- **Pre-condicoes**: Funcao e setor/departamento cadastrados e ativos; gestor selecionado pertence ao escopo organizacional valido, quando aplicavel.
 - **Gatilho**: Admissao ou regularizacao de cadastro.
 - **Fluxo principal**:
-  1. Operador informa matricula, nome, funcao e setor.
-  2. Define status inicial (ativo/inativo).
-  3. Sistema valida obrigatorios, unicidade da matricula e coerencia entre funcao e setor.
-  4. Operador confirma cadastro.
-  5. Para inativacao, sistema exige confirmacao explicita em tela.
+  1. Operador informa matricula, nome, funcao e setor/departamento.
+  2. Vincula gestor responsavel vigente, quando aplicavel.
+  3. Define status inicial (ativo/inativo).
+  4. Sistema valida obrigatorios, unicidade da matricula, coerencia entre funcao e setor e vigencia da relacao gestor-trabalhador.
+  5. Operador confirma cadastro.
+  6. Para inativacao, sistema exige confirmacao explicita em tela.
 - **Fluxos alternativos/excecoes**:
   - `CAD-001` Matricula ja existente.
   - `CAD-002` Funcao invalida ou inativa.
@@ -164,8 +166,8 @@ Cada caso de uso segue o formato:
   - `CAD-004` Campos obrigatorios ausentes.
   - `CAD-005` Operacao bloqueada por dependencia historica (quando aplicavel).
   - `CAD-006` Trabalhador alvo inexistente/nao selecionado para alteracao de status/edicao.
-- **Pos-condicoes**: Trabalhador ativo/inativo disponivel para entrega e rastreavel por auditoria.
-- **Regras relacionadas**: matricula unica; consistencia funcao-setor; sem delete fisico; auditoria em criar/editar/inativar/reativar.
+- **Pos-condicoes**: Trabalhador ativo/inativo disponivel para entrega e rastreavel por auditoria, com lotacao e gestor responsavel vigentes identificaveis.
+- **Regras relacionadas**: matricula unica; consistencia funcao-setor; relacao trabalhador-gestor com vigencia/historico; sem delete fisico; auditoria em criar/editar/inativar/reativar.
 
 ### UC-CAD-04 — Cadastrar EPI
 - **Atores**: SESMT
@@ -214,6 +216,50 @@ Cada caso de uso segue o formato:
   - Registro com dependencia critica: sistema alerta e solicita confirmacao.
 - **Pos-condicoes**: Registro inativo para novas operacoes.
 - **Regras relacionadas**: historico preservado; auditoria.
+
+### UC-CAD-IMP-01 — Importar cadastros via CSV (validacao previa)
+
+- **Atores**: Admin, SESMT
+- **Descricao**: Carga em lote de setores, funcoes e trabalhadores via CSV padronizado, com revisao visual antes de persistir.
+- **Pre-condicoes**: Layout CSV documentado; permissoes de importacao; mestres exigidos conforme tipo de arquivo.
+- **Gatilho**: Adocao/go-live com volume alto ou migracao de planilha.
+- **Fluxo principal**:
+  1. Operador envia CSV e tipo de cadastro.
+  2. Sistema valida e exibe staging (linhas validas vs linhas com pendencia).
+  3. Operador filtra, corrige pendencias via cadastro mestre quando necessario, revalida.
+  4. Operador confirma importacao das linhas validas.
+  5. Sistema persiste e audita.
+- **Fluxos alternativos/excecoes**: ver `docs/03-operacao/spec-uc-cad-imp-01-importacao-csv-cadastros.md` (`CAD-IMP-*`).
+- **Pos-condicoes**: Registros validos no cadastro; tentativa auditada.
+- **Regras relacionadas**: mesmas invariantes de UC-CAD-02/03; deep link para setor/funcao apenas quando acao humana for necessaria.
+- **Detalhamento**: `docs/04-uml/cadastros/UC-CAD-IMP-01 — Importar cadastros via CSV (validacao previa).md`
+- **Status**: registrado — DoR aberto (nao implementado).
+
+## Modulo: Integracoes oficiais
+
+### UC-CAE-01 — Importar base oficial CAEPI
+- **Atores**: Agendador CAEPI (sistema); `Admin` ou `SESMT` para tentativa manual autorizada.
+- **Descricao**: Atualiza a base local de consulta de CAs por meio do arquivo oficial CAEPI.
+- **Pre-condicoes**:
+  - Fonte oficial configurada.
+  - Para tentativa manual, usuario autenticado com permissao.
+- **Gatilho**: Tentativa diaria agendada ou nova tentativa manual.
+- **Fluxo principal**:
+  1. Sistema identifica o ator da tentativa (`SISTEMA` ou `USUARIO`).
+  2. Inicia a tarefa em background e devolve controle imediatamente a interface JavaFX.
+  3. Exibe fases e andamento na barra de status enquanto mantem a janela responsiva.
+  4. Em background, baixa e valida o arquivo ZIP e o texto CAEPI, processa todos os registros sem publicar dados parciais e publica a nova base de forma atomica.
+  5. Confirma a publicacao da base e a auditoria de sucesso no mesmo commit, registrando ator, arquivo e quantidade processada.
+  6. Atualiza o estado exibido na UI, finaliza a barra de status e remove banner de pendencia/falha.
+- **Fluxos alternativos/excecoes**:
+  - Download, formato, parse ou persistencia falha: preservar a ultima carga completa, registrar auditoria de falha com motivo e emitir logs tecnicos.
+  - Carga pendente/falha: manter app e modulos nao dependentes acessiveis; exibir banner; consultas EPI/CA em somente leitura e mutacoes EPI/CA bloqueadas.
+  - Auditoria nao persistida: nao considerar a carga bem-sucedida e manter mutacoes EPI/CA bloqueadas.
+  - Usuario sem permissao: negar tentativa manual.
+- **Regra de UI**: nenhuma operacao de rede, parse ou persistencia bloqueia a thread JavaFX; tentativa manual concorrente nao inicia uma segunda carga.
+- **Pos-condicoes**: Em sucesso, nova base fica disponivel e EPI/CA e habilitado para mutacao; em falha, ultima base integral permanece consultavel, mas mutacoes EPI/CA ficam indisponiveis.
+- **Regras relacionadas**: uma auditoria por tentativa com tipo de ator, resultado e motivo em falha; carga atomica; falha CAEPI nao bloqueia acesso geral.
+- **Especificacao**: `docs/03-operacao/spec-uc-cae-01-importar-base-caepi.md`.
 
 ---
 
@@ -283,6 +329,36 @@ Cada caso de uso segue o formato:
 ---
 
 ## Modulo: Entrega (core)
+
+### UC-SOL-01 — Solicitar EPI para trabalhador
+- **Atores**: Gestor; SESMT (analise tecnica); Almoxarife (atendimento).
+- **Descricao**: Permite ao gestor solicitar EPI em nome de trabalhador sob seu escopo, consultar historico de entregas efetivas e acompanhar a demanda sem registrar a entrega.
+- **Pre-condicoes**:
+  - Gestor autenticado no servico central e autorizado para o escopo organizacional vigente.
+  - Trabalhador ativo vinculado a unidade/setor/departamento e gestor responsavel.
+  - EPI elegivel no catalogo confiavel, conforme estado da base CAEPI.
+- **Gatilho**: Necessidade de fornecimento, reposicao, dano, perda ou planejamento operacional.
+- **Fluxo principal**:
+  1. Gestor seleciona trabalhador do proprio escopo.
+  2. Sistema exibe snapshot organizacional vigente, resumo limitado do historico de entregas e solicitacoes em aberto.
+  3. Gestor seleciona EPI, quantidade inteira positiva e motivo/contexto.
+  4. Sistema valida escopo, elegibilidade, duplicidade e matriz vigente.
+  5. Pedido fora da matriz e encaminhado ao SESMT para decisao; demais pedidos seguem a politica de aprovacao definida.
+  6. Sistema grava solicitacao, estado inicial e auditoria, sem reservar/baixar estoque.
+  7. Almoxarife autorizado atende total ou parcialmente pelo `UC-ENT-01`.
+  8. Sistema vincula entrega efetiva ao pedido e atualiza, em metricas separadas, historico e demanda/forecast.
+- **Fluxos alternativos/excecoes**:
+  - Usuario sem papel Gestor ou trabalhador fora do escopo: negar sem revelar cadastro.
+  - Trabalhador inativo/transferido, EPI inativo ou CAEPI sem estado confiavel: bloquear ou encaminhar conforme regra aprovada.
+  - Solicitacao duplicada/em aberto: apresentar a existente; nao duplicar silenciosamente.
+  - Fora da matriz: exige decisao SESMT com justificativa; Gestor nao autoaprova excecao.
+  - Estoque insuficiente/vencido: aguardar estoque ou atender parcialmente se autorizado; pedido nao altera saldo.
+  - Mudanca de gestor/setor/unidade, desligamento, cancelamento ou atendimento concorrente: preservar snapshot e aplicar transicao atomica/auditada.
+- **Pos-condicoes**: Pedido e decisao ficam rastreaveis. Somente atendimento via UC-ENT-01 cria entrega, baixa estoque e entra no consumo realizado.
+- **Regras relacionadas**: escopo organizacional validado no backend; pedido != entrega/reserva/consumo; historico limitado; forecast separa demanda solicitada/aprovada de fornecimento realizado.
+- **Especificacao**: `docs/03-operacao/spec-uc-sol-01-solicitar-epi-para-trabalhador.md`.
+- **Matriz de testes**: `docs/03-operacao/matriz-testes-uc-sol-01.md`.
+- **Persistencia e UX propostas**: modelo logico e mock textual nas secoes 6.1/6.2 da especificacao.
 
 ### UC-ENT-01 — Registrar entrega de EPI
 - **Atores**: Almoxarife, SESMT; Trabalhador (participante)

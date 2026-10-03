@@ -24,6 +24,8 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 - `docs/02-arquitetura/ui-ux-blueprint.md`
 - `docs/03-operacao/comparativo-posicionamento-landing.md`
 - `docs/04-uml/casos-de-uso-uml.md`
+- **Protótipo HTML (fluxo + regras na sessão):** `docs/mock/shell.html`, store `docs/mock/mock-store.js`
+- **Paridade mock × Java × backlog:** `docs/03-operacao/paridade-mock-java-backlog.md`
 
 ## Definicoes de identidade (fechadas)
 
@@ -48,7 +50,9 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 - `M0`: concluido (shell desktop, autenticacao com resultado tipado, RBAC, auditoria append-only, politica de credenciais em runtime).
 - `M0` hardening arquitetural: concluido (identidade desacoplada por `ports + use cases + adapters`, com fachadas compativeis para UI).
 - `M1`: em andamento (UC-CAD-03 concluida e UC-CAD-04/05 implementada no baseline: cadastro EPI/CA com regras `CAD-03x`, RBAC, auditoria, migration e cobertura inicial de testes).
+- `M1` inclui agora `UC-CAE-01` (importacao diaria da base oficial CAEPI); caso de uso registrado, refinamento e decisoes operacionais pendentes.
 - `M1` cadastros organizacionais: concluido para baseline (UC-CAD-02 com setores e funcoes, inativacao/reativacao controlada, validacoes de dependencia e auditoria).
+- `M1` **FE-CAD-01 / UC-CAD-IMP-01** (importacao CSV de cadastros com staging): **registrado**, refinamento pendente — foco adocao; ver `docs/01-negocio/feature-cadastros-importacao-csv-lote.md`.
 - `M3` auditoria: baseline de consulta habilitado na UI (`UC-AUD-01`), pendente evolucao de filtros por periodo/exportacao.
 - `M2`: permanece bloqueado por DoR ate fechamento real de M1.
 
@@ -80,18 +84,23 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 - **[UC]** Trilha de auditoria append-only para eventos criticos.
 - **[FEAT]** Padrao de mensagens de erro e confirmacao em fluxos sensiveis.
 - **[FEAT]** Politica de credenciais (senha forte, troca obrigatoria inicial, reset administrativo, bloqueio por tentativas invalidas).
+- **[TECH]** Backend/API central com PostgreSQL remoto para o modo oficial; requisito para colaboracao multiusuario, fila compartilhada, escopo central e concorrencia.
 
 **Criterio de pronto**
 - usuario autenticado navega entre modulos;
 - eventos criticos geram rastreio consistente;
 - permissao bloqueia acoes fora do perfil.
 - ciclo de credencial aplica politica de senha e rastreabilidade.
+- clientes oficiais operam pelo servico central; SQLite permanece isolado no modo demo/freemium.
 
 ## M1 - Prontidao operacional para entrega real (Must)
 
 - **[UC]** `Trabalhadores` (minimo operacional: matricula, nome, funcao/setor, status).
 - **[UC]** `Funcoes/Setores/GHE` (minimo para vinculo com matriz).
+- **[FEAT]** `FE-CAD-01` Importacao em lote de cadastros via CSV (setor, funcao, trabalhador) com **tela de validacao previa** (verde/amarelo, filtros, deep link condicional para mestres ausentes). Spec: `spec-uc-cad-imp-01-importacao-csv-cadastros.md`. **Should para adocao** — DoR aberto.
+- **[UC]** `UC-CAD-IMP-01` Orquestra upload, staging, revalidacao e publicacao atomica do lote elegivel.
 - **[UC]** `EPI e CA` (minimo para itens entregaveis).
+- **[UC]** `UC-CAE-01 Importar base oficial CAEPI` diariamente em background, com UI responsiva e barra de status, carga atomica, auditoria de cada tentativa, banner de estado e bloqueio apenas das mutacoes EPI/CA quando a carga vigente nao estiver confirmada.
 - **[UC]** `Lotes` (entrada, validade da peca e saldo).
 - **[UC]** `Matriz Funcao/GHE x EPI` (minimo para orientar/bloquear entrega).
 - **[UC]** `Periodicidade` (parametro minimo para cobertura/reposicao).
@@ -111,6 +120,7 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 - **[UC]** Tela `Historico por trabalhador`.
 - **[UC]** Tela `Devolucao/Descarte`.
 - **[UC]** Tela `Estorno`.
+- **[UC]** `UC-SOL-01 Solicitar EPI para trabalhador` no produto oficial cliente-servidor, condicionado a cadastro organizacional com escopo de gestor, histórico de entrega e fila central.
 
 **Justificativa do wizard (5 passos)**
 - reduz erro operacional em fluxo juridicamente sensivel;
@@ -125,6 +135,7 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 - impedir entrega fora da matriz sem justificativa/autorizacao;
 - impedir devolucao com data anterior a entrega;
 - impedir alteracao/apagamento de entrega legal (somente estorno formal).
+- Solicitações não baixam/reservam saldo nem contam como entrega/consumo; atendimento deve ser vinculado ao fluxo formal `UC-ENT-01`.
 
 **Criterio de pronto**
 - cenario ponta a ponta executavel e persistido:
@@ -144,6 +155,8 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
   - pendencias de devolucao.
 - **[UC]** `UC-AUD-01 Consultar auditoria` (listagem e filtro livre para validacao operacional de trilha critica).
 - **[FEAT]** Exportacao PDF padronizada.
+- **[FEAT]** Visao de demanda para planejamento de compra, separando solicitacoes abertas/aprovadas/parcialmente atendidas de entregas efetivas.
+- Rejeitados/cancelados nao contam como demanda em aberto; solicitacao nao equivale a ordem de compra nem a consumo realizado.
 
 **Diretriz de usabilidade**
 - filtros essenciais devem abrir por padrao para simplicidade;
@@ -250,6 +263,16 @@ M2 (core operacional governado) so pode iniciar quando todos os itens abaixo est
 - [x] Catalogo de erros `CAD-03x` definido.
 - [x] Implementacao do cadastro EPI/CA concluida com auditoria e RBAC.
 - [ ] Rodada de usabilidade com key user executada e registrada.
+
+### Gate especifico para UC-CAE-01 (importacao oficial CAEPI)
+
+- [x] Registro inicial do caso de uso, criterios de aceite e matriz de testes criado.
+- [ ] Horario/fuso e comportamento da agenda quando a aplicacao estiver fechada definidos.
+- [ ] Data de referencia/frescor do arquivo oficial definida.
+- [ ] Regra de conciliacao das multiplas linhas por CA e dos dados locais definida.
+- [ ] Auditoria por tentativa, carga atomica, banner e bloqueio restrito a EPI/CA aprovados.
+- [ ] Importacao em background, UI responsiva e barra de status com progresso/fases aprovadas.
+- [ ] Matriz de testes revisada e DoR aprovado antes do codigo.
 
 ### Gate especifico para UC-AUD-01 (Consulta de auditoria) - baseline
 
@@ -406,8 +429,12 @@ Toda task deve conter:
 
 ## Proximo ataque recomendado (sequencia objetiva)
 
-1. Fechar usabilidade dos cadastros ja entregues (`Trabalhador`, `Setor/Funcao`, `EPI/CA`, `Auditoria`).
-2. Implementar `UC-LOT-01/02` (lotes com validade e saldo).
-3. Implementar `UC-MAT-01/02` (matriz funcao/GHE x EPI).
-4. Implementar parametros de periodicidade.
-5. Reavaliar DoR de M2 e abrir desenvolvimento do core de entrega transacional.
+> Roteiro UX já validável no mock: `docs/mock/LEIA-ME-APROVACAO.txt`.
+> Detalhamento sprint Java espelhando telas: `docs/03-operacao/paridade-mock-java-backlog.md` (Sprints J1–J5).
+
+1. Fechar usabilidade dos cadastros ja entregues (`Trabalhador`, `Setor/Funcao`, `EPI/CA`, `Auditoria`) — comparar com mock `06`–`09` e `18`.
+2. **Sprint J1:** `UC-LOT-01/02` (UI/regras ≈ mock `10`) + `UC-MAT-01` + periodicidade (mock `11`–`12`) + specs/cenarios antes do codigo.
+3. **Sprint J2:** core transacional M2 — refatorar `EntregaWizardView` para paridade mock `02`, persistir entrega, `03`/`04`/`05`.
+4. **Sprint J3:** relatorios M3 — mock `13`–`15` + PDF minimo.
+5. **Sprint J4:** `UC-CAE-01` (mock `21`) + `UC-SOL-01` (mock `16`–`17`, papel Gestor) + parametros (mock `20`).
+6. Reavaliar DoR de M2 apos J1 concluido (lote + matriz no SQLite).

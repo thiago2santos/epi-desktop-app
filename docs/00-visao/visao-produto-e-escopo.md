@@ -6,15 +6,20 @@ Pasta do projeto: `/home/thiago/epi`. O Riffle não faz parte disso.
 
 ## O que é
 
-Sistema desktop para uma indústria de planta fixa. A primeira versão prova o fornecimento de EPI exigido pela NR-6: quem recebeu o quê, com qual CA e lote, em que data, com ciência registrada.
+Sistema desktop para uma indústria de planta fixa. O produto possui dois modos distintos:
 
-No dia a dia, duas pessoas (SESMT e almoxarifado) usam o sistema para responder se cada trabalhador está com o EPI vigente da função. A prova de conceito roda em **um PC, um operador**, para validar rápido.
+- **Demonstração/teste/freemium**: SQLite local, para um técnico/operador trabalhar sozinho e avaliar o produto por período definido.
+- **Oficial/comercial**: cliente-servidor, com banco remoto centralizado on-premises ou cloud, obrigatório para operação multiusuário.
+
+A primeira versão funcional prova o fornecimento de EPI exigido pela NR-6: quem recebeu o quê, com qual CA e lote, em que data, com ciência registrada. A fila de solicitações compartilhada entre gestores e almoxarifado pertence ao modo oficial centralizado.
 
 Orçamento, entrega e estoque foram o pedido original. Na primeira versão o estoque entra só como rastreio de lote (senão a ficha mente) e o orçamento fica de fora, com gancho no dado.
 
 ## Promessa para o cliente
 
 Na fiscalização ou no processo, em minutos sai o relatório de fornecimento.
+
+**Adocao (registrado):** importacao em lote de cadastros organizacionais via CSV, com revisao previa (staging) antes de gravar — ver `docs/01-negocio/feature-cadastros-importacao-csv-lote.md` (`FE-CAD-01` / `UC-CAD-IMP-01`). Refinamento pendente; fora do MVP operacional minimo ate DoR fechado.
 
 A ficha prova fornecimento. Não prova uso efetivo nem neutraliza insalubridade (Súmula 289 do TST). Aposentadoria especial e o evento S-2240 do eSocial exigem hierarquia de controle, CA na compra, troca na periodicidade, uso ao longo do tempo e higienização. A primeira versão não marca “EPI eficaz” e não gera eSocial.
 
@@ -76,14 +81,17 @@ flowchart LR
 
 ## Acesso
 
-Quem opera é SESMT, almoxarifado ou consulta. O trabalhador que recebe o EPI não tem login.
+Quem opera pode incluir SESMT, almoxarifado, consulta e gestor com escopo organizacional. O trabalhador que recebe o EPI não precisa ter login.
 
-Papéis fixos, sem matriz de permissão:
+Papéis e escopos:
 
 - **Admin** — usuários, backup, parâmetros, e o que os outros fazem.
 - **SESMT** — matriz, cadastro de EPI, exceção de entrega fora da matriz, leitura de tudo. Não apaga histórico.
 - **Almoxarife** — recebimento de lote, entrega, devolução, saldo. Não mexe na matriz nem corrige entrega passada.
 - **Consulta** — só relatórios.
+- **Gestor** — solicita EPI para trabalhadores sob sua responsabilidade e consulta somente o histórico necessário dessas pessoas; não recebe acesso geral a cadastros, estoque ou entrega.
+
+No modo oficial, papel e escopo organizacional são validados no servico central. A associacao trabalhador-gestor e setor/departamento deve ser vigente e auditavel.
 
 Tabelas:
 
@@ -107,7 +115,8 @@ O Spring Security de filtro HTTP, sessão e CSRF não entra. Não há request. A
 
 - Java 25 e JavaFX 25.
 - Spring Boot 4.1, sem servidor web (`spring.main.web-application-type=none`). O Spring entra pela transação: entrega e baixa do lote commitam juntas. JDBC explícito, sem JPA.
-- SQLite em WAL, um arquivo, migrações Flyway.
+- SQLite em WAL e migrações Flyway apenas para demonstracao/teste/freemium local de operador unico.
+- Modo oficial multiusuario cliente-servidor: cliente JavaFX -> serviço central -> PostgreSQL remoto, on-premises ou cloud.
 - JasperReports para a ficha e o relatório por período. PDFBox fica para carimbo ou junção futura. Jasper é LGPL: distribuir o jar sem modificar a biblioteca cabe no instalador.
 - JUnit 5 contra um SQLite temporário.
 - Maven.
@@ -124,19 +133,21 @@ Um fat jar único do Spring Boot briga com os nativos do JavaFX e ainda exige um
 - Banco em `%ProgramData%\Epi\`, nunca sobrescrito pelo instalador.
 - Desenvolvimento no Linux com `mvn javafx:run`. O `.exe` não se gera daqui.
 
-O JDBC fala com uma URL, e a tela só chama serviço. Se cada operador ganhar o próprio PC, troca-se o arquivo local por um Postgres na planta sem reescrever a ficha. Isso não se constrói agora. Dois processos gravando o mesmo SQLite em pasta de rede corrompem o arquivo.
+O cliente JavaFX chama serviços da aplicação. No modo local, os adapters operam sobre SQLite privado da instalação. No modo oficial, a API/serviço central aplica autorização, transações, auditoria e regras de concorrência antes de acessar PostgreSQL remoto. Dois processos nunca devem gravar um arquivo SQLite compartilhado por pasta de rede.
 
 ## Quando for codar
 
-1. Esqueleto Maven: Java 25, JavaFX 25, Spring Boot 4.1 sem web, Flyway, SQLite.
+1. Esqueleto Maven: Java 25, JavaFX 25, Spring Boot 4.1, Flyway e adapter SQLite para modo local.
 2. Login, papéis e auditoria, com a entrega já imutável no schema.
 3. Matriz, recebimento por lote (CA na compra separado da validade da peça) e entrega nos dois modos.
 4. Cobertura e relatório exportável.
 5. Instalador por último, numa máquina Windows.
+
+Arquitetura oficial cliente-servidor obrigatória para operação multiusuário; o desenho da API/backend e da implantação on-premises/cloud deve ser fechado antes dos casos de uso dependentes de colaboração entre usuários.
 
 Definido para uso externo:
 - marca: `Easy NR6`;
 - produto: `Easy NR6 Gestao de EPI`;
 - dominio: `easynr6.com.br`.
 
-Ainda em aberto, e nao bloqueia o esqueleto: se as duas pessoas do dia a dia terao cada uma o seu PC depois da prova de conceito.
+Ainda em aberto: janela e limites do modo freemium, topologia de implantação do serviço oficial, gestão de identidade central, disponibilidade/conectividade e estratégia de atualização dos clientes desktop.
