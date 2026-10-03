@@ -35,6 +35,8 @@ Modelar a parte de entrega/devolucao de EPI com validade juridica, atendendo ao 
 ## Modelo conceitual (resumo)
 
 - `empresa` 1---N `trabalhador`
+- `trabalhador` N:1 `setor/departamento` e funcao vigente
+- `trabalhador` N:N `usuario Gestor` ao longo do tempo (atribuicao com vigencia)
 - `epi` 1---N `epi_ca`
 - `epi` 1---N `lote_epi`
 - `funcao` N---N `epi` (via `matriz_funcao_epi`)
@@ -43,6 +45,10 @@ Modelar a parte de entrega/devolucao de EPI com validade juridica, atendendo ao 
 - `entrega_epi_item` 0..1---1 `devolucao_epi_item`
 - `entrega_epi` 1---1 `termo_responsabilidade_aceite`
 - Todos os eventos relevantes geram `auditoria`
+
+### Extensao organizacional para solicitacoes
+
+`UC-SOL-01` depende de identificar o gestor responsavel e o setor/departamento do trabalhador. A atribuicao de gestor deve ter vigencia e trilha de alteracoes; a solicitacao armazena snapshot da unidade, setor, funcao e gestor no momento do envio. Isso evita que transferencia ou troca de gestor altere retrospectivamente escopo e autoria. Detalhes e decisoes pendentes: `docs/03-operacao/spec-uc-sol-01-solicitar-epi-para-trabalhador.md`.
 
 ## Regras de negocio essenciais
 
