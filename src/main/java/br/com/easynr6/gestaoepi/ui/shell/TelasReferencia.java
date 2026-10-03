@@ -33,7 +33,8 @@ public final class TelasReferencia {
       case HISTORICO -> historico();
       case SOLICITAR -> solicitar();
       case FILA -> fila();
-      case TRABALHADORES -> trabalhadores();
+      case TRABALHADORES ->
+          throw new IllegalStateException("UC-CAD-03 abre pelo shell, com o cadastro real.");
       case SETORES -> setores();
       case EPI -> catalogoEpi(navegar);
       case CA -> caPorEpi(navegar);
@@ -89,38 +90,13 @@ public final class TelasReferencia {
             split(
                 panel(
                     "Buscar trabalhador ativo",
-                    campo("Matrícula ou nome", "000123"),
+                    campo("Matrícula ou nome", "4418"),
                     botao("Buscar", false)),
                 panel(
                     "Cobertura (matriz × vigente)",
                     new Label("Busque um trabalhador para ver EPI exigido e situação."))))
         .legal(
             "Registro legal: ao confirmar, grava fornecimento imutável. Correções apenas por estorno.");
-    return ReferenciaPage.scroll(page);
-  }
-
-  private static Node trabalhadores() {
-    ReferenciaPage page =
-        ReferenciaPage.of(
-            "UC-CAD-03",
-            "Trabalhadores",
-            "Matrícula, setor e função — dados compartilhados com cadastros organizacionais");
-    page.section(
-        split(
-            panel("Lista", campo("Filtrar", ""), botao("Novo trabalhador", true)),
-            panel(
-                "Novo trabalhador",
-                campo("Matrícula", ""),
-                campo("Nome completo", ""),
-                campo("Setor", "Produção"),
-                campo("Função", "Operador de produção"),
-                botao("Salvar", true))));
-    page.table(
-        new String[] {"Matrícula", "Nome", "Setor", "Função", "Status"},
-        new String[][] {
-          {"000123", "Ana Souza", "Produção", "Operador de produção", "Ativo"},
-          {"000124", "Carlos Lima", "Manutenção", "Eletricista", "Ativo"}
-        });
     return ReferenciaPage.scroll(page);
   }
 
@@ -138,23 +114,23 @@ public final class TelasReferencia {
     TabPane abas = new TabPane();
     abas.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
     abas.getTabs()
-        .add(
-            new Tab(
-                "Setores", panel("Setor", campo("Nome", "Produção"), botao("Cadastrar", true))));
+        .add(new Tab("Setores", panel("Setor", campo("Nome", "Guarda"), botao("Cadastrar", true))));
     abas.getTabs()
         .add(
             new Tab(
                 "Funções",
                 panel(
                     "Função",
-                    campo("Setor ativo", "Produção"),
-                    campo("Nome", "Operador de produção"),
+                    campo("Setor ativo", "Guarda"),
+                    campo("Nome", "Auxiliar de guarda"),
                     botao("Cadastrar", true))));
     page.section(hint).section(abas);
     page.table(
         new String[] {"Setor", "Função", "Status"},
         new String[][] {
-          {"Produção", "Operador de produção", "Ativo"},
+          {"Movimentação", "Operador de empilhadeira", "Ativo"},
+          {"Digitalização", "Operador de digitalização", "Ativo"},
+          {"Guarda", "Auxiliar de guarda", "Ativo"},
           {"Manutenção", "Eletricista", "Ativo"}
         });
     return ReferenciaPage.scroll(page);
@@ -172,16 +148,18 @@ public final class TelasReferencia {
                 panel(
                     "Novo EPI",
                     campo("Código", ""),
-                    campo("Descrição", "Luva nitrílica"),
-                    campo("Grupo Anexo I", "A"),
+                    campo("Descrição", "Luva de vaqueta"),
+                    campo("Grupo Anexo I", "Mãos"),
                     campo("Fabricante", ""),
                     botao("Salvar", true),
                     link("Gerenciar CA", Destino.CA, navegar))))
         .table(
             new String[] {"Código", "Descrição", "Anexo", "CA ativo", "Status"},
             new String[][] {
-              {"LUV-NIT", "Luva nitrílica", "A", "12345", "Ativo"},
-              {"CAP-B", "Capacete classe B", "B", "99881", "Ativo"}
+              {"LUV-VAQ", "Luva de vaqueta", "Mãos", "28941", "Ativo"},
+              {"BOT-BIQ", "Bota de segurança com biqueira", "Pés", "35602", "Ativo"},
+              {"AUR-CON", "Protetor auricular tipo concha", "Audição", "41287", "Ativo"},
+              {"CAP-JUG", "Capacete com jugular", "Cabeça", "19844", "Ativo"}
             });
     return ReferenciaPage.scroll(page);
   }
@@ -202,14 +180,16 @@ public final class TelasReferencia {
         .section(
             panel(
                 "Vínculo",
-                campo("EPI", "LUV-NIT — Luva nitrílica"),
-                campo("Número do CA", "12345"),
+                campo("EPI", "LUV-VAQ — Luva de vaqueta"),
+                campo("Número do CA", "28941"),
                 campo("Situação", "Válido"),
                 campo("Evidência", "Carga CAEPI 28/09/2026 · CA válido"),
                 botao("Vincular", true)))
         .table(
             new String[] {"CA", "Situação", "Vigência", "Evidência"},
-            new String[][] {{"12345", "Válido", "01/01/2026 — 01/01/2028", "Consulta CAEPI"}});
+            new String[][] {
+              {"28941", "Válido", "12/03/2025 — 12/03/2030", "Carga CAEPI 28/09/2026"}
+            });
     return ReferenciaPage.scroll(page);
   }
 
@@ -228,8 +208,22 @@ public final class TelasReferencia {
         .table(
             new String[] {"Instante", "Usuário", "Ação", "Entidade", "ID", "Detalhes"},
             new String[][] {
-              {"28/09/2026 09:12", "admin", "LOGIN", "USUARIO", "1", "Login realizado"},
-              {"28/09/2026 09:40", "sesmt", "ACESSO_MODULO", "MODULO", "EPI", "Catálogo EPI"}
+              {
+                "03/10/2026 08:14",
+                "juliana.andrade",
+                "LOGIN",
+                "USUARIO",
+                "juliana.andrade",
+                "Login realizado"
+              },
+              {
+                "03/10/2026 08:22",
+                "paulo.lima",
+                "ACESSO_MODULO",
+                "MODULO",
+                "LOTES",
+                "Lotes e saldos"
+              }
             });
     return ReferenciaPage.scroll(page);
   }
@@ -243,16 +237,16 @@ public final class TelasReferencia {
                 panel("Lista", botao("Novo usuário", true)),
                 panel(
                     "Selecione um usuário",
-                    campo("Nome exibido", "Administrador"),
-                    campo("Papel", "Admin"),
+                    campo("Nome exibido", "Juliana Cristina de Andrade de Oliveira"),
+                    campo("Papel", "SESMT"),
                     botao("Salvar", true),
                     botao("Reset senha", false))))
         .table(
             new String[] {"Login", "Nome", "Papel", "Status"},
             new String[][] {
-              {"admin", "Administrador", "Admin", "Ativo"},
-              {"sesmt", "SESMT", "SESMT", "Ativo"},
-              {"almox", "Almoxarife", "Almoxarife", "Ativo"}
+              {"juliana.andrade", "Juliana Cristina de Andrade de Oliveira", "SESMT", "Ativo"},
+              {"paulo.lima", "Paulo Sergio Lima dos Santos", "Almoxarife", "Ativo"},
+              {"eduardo.regis", "Eduardo Regis Ferreira Teixeira", "Admin", "Ativo"}
             });
     return ReferenciaPage.scroll(page);
   }
@@ -266,13 +260,13 @@ public final class TelasReferencia {
     page.section(
             panel(
                 "Buscar entrega",
-                campo("Trabalhador ou entrega", "000123 ou ENT-2026-8840"),
+                campo("Trabalhador ou entrega", "4418 ou ITU-2026-04418"),
                 botao("Buscar itens entregues", false)))
         .table(
             new String[] {"Data", "EPI", "Qtd", "Status"},
             new String[][] {
-              {"12/09/2026", "Luva nitrílica", "1", "Entregue"},
-              {"02/08/2026", "Capacete classe B", "1", "Entregue"}
+              {"12/09/2026", "Luva de vaqueta", "1", "Entregue"},
+              {"02/08/2026", "Bota de segurança com biqueira", "1", "Entregue"}
             })
         .legal("Devolução gera novo evento; não apaga a entrega original.");
     return ReferenciaPage.scroll(page);
@@ -287,8 +281,8 @@ public final class TelasReferencia {
     page.section(
             panel(
                 "Estorno",
-                campo("Entrega", "ENT-2026-8840"),
-                campo("Motivo", "Registro lançado no trabalhador errado"),
+                campo("Entrega", "ITU-2026-04418"),
+                campo("Motivo", "Luva lançada na matrícula 3902 em vez da 4418"),
                 botao("Registrar estorno", true)))
         .legal("Estorno não edita nem apaga o fornecimento.");
     return ReferenciaPage.scroll(page);
@@ -300,12 +294,18 @@ public final class TelasReferencia {
             "Histórico por trabalhador",
             "Histórico de fornecimento",
             "Entregas efetivas, separadas de solicitações em aberto.");
-    page.section(campo("Matrícula", "000123"))
+    page.section(campo("Matrícula", "4418"))
         .table(
             new String[] {"Data", "EPI", "CA", "Lote", "Evento"},
             new String[][] {
-              {"12/09/2026", "Luva nitrílica", "12345", "A-19", "Fornecimento"},
-              {"02/08/2026", "Capacete classe B", "99881", "C-02", "Fornecimento"}
+              {"12/09/2026", "Luva de vaqueta", "28941", "VG-26-0418", "Fornecimento"},
+              {
+                "02/08/2026",
+                "Bota de segurança com biqueira",
+                "35602",
+                "BT-25-1102",
+                "Fornecimento"
+              }
             });
     return ReferenciaPage.scroll(page);
   }
@@ -319,8 +319,8 @@ public final class TelasReferencia {
     page.section(
         panel(
             "Pedido",
-            campo("Trabalhador do escopo", "000123 · Ana Souza"),
-            campo("EPI", "Protetor auricular"),
+            campo("Trabalhador do escopo", "4418 · Adalto Candido Alves da Silva"),
+            campo("EPI", "Protetor auricular tipo concha"),
             campo("Quantidade", "1"),
             campo("Motivo", "Reposição por dano"),
             botao("Enviar solicitação", true)));
@@ -336,8 +336,20 @@ public final class TelasReferencia {
     page.table(
         new String[] {"Pedido", "Trabalhador", "EPI", "Qtd", "Estado"},
         new String[][] {
-          {"SOL-104", "Ana Souza", "Protetor auricular", "1", "Aberta"},
-          {"SOL-098", "Carlos Lima", "Luva nitrílica", "2", "Fora da matriz · SESMT"}
+          {
+            "SOL-1044",
+            "Adalto Candido Alves da Silva",
+            "Protetor auricular tipo concha",
+            "1",
+            "Aberta"
+          },
+          {
+            "SOL-1038",
+            "Eduardo Gomes dos Santos",
+            "Luva isolante classe 00",
+            "1",
+            "Fora da matriz · SESMT"
+          }
         });
     return ReferenciaPage.scroll(page);
   }
@@ -351,11 +363,16 @@ public final class TelasReferencia {
     form.setVgap(8);
     form.add(new Label("EPI"), 0, 0);
     ComboBox<String> epi = new ComboBox<>();
-    epi.getItems().addAll("LUV-NIT — Luva nitrílica", "CAP-B — Capacete classe B");
+    epi.getItems()
+        .addAll(
+            "LUV-VAQ — Luva de vaqueta",
+            "BOT-BIQ — Bota de segurança com biqueira",
+            "AUR-CON — Protetor auricular tipo concha",
+            "CAP-JUG — Capacete com jugular");
     epi.getSelectionModel().selectFirst();
     form.add(epi, 1, 0);
     form.add(new Label("Nº CA"), 0, 1);
-    form.add(new TextField("12345"), 1, 1);
+    form.add(new TextField("28941"), 1, 1);
     form.add(new Label("Validade da peça"), 0, 2);
     form.add(new DatePicker(), 1, 2);
     form.add(botao("Registrar lote", true), 1, 3);
@@ -363,8 +380,9 @@ public final class TelasReferencia {
         .table(
             new String[] {"Lote", "EPI", "Saldo", "Validade da peça", "Alerta"},
             new String[][] {
-              {"A-19", "Luva nitrílica", "40", "15/03/2027", "OK"},
-              {"C-02", "Capacete classe B", "6", "20/10/2026", "30 dias"}
+              {"VG-26-0418", "Luva de vaqueta", "40", "15/03/2027", "OK"},
+              {"BT-25-1102", "Bota de segurança com biqueira", "18", "20/11/2027", "OK"},
+              {"CP-24-0088", "Capacete com jugular", "6", "20/10/2026", "30 dias"}
             });
     return ReferenciaPage.scroll(page);
   }
@@ -378,9 +396,10 @@ public final class TelasReferencia {
     page.table(
         new String[] {"Função", "EPI", "Obrigatório", "Vigência"},
         new String[][] {
-          {"Operador de produção", "Protetor auricular", "Sim", "01/01/2026 —"},
-          {"Eletricista", "Capacete classe B", "Sim", "01/01/2026 —"},
-          {"Eletricista", "Luva isolante", "Sim", "01/01/2026 —"}
+          {"Operador de empilhadeira", "Protetor auricular tipo concha", "Sim", "01/03/2026 —"},
+          {"Operador de empilhadeira", "Bota de segurança com biqueira", "Sim", "01/03/2026 —"},
+          {"Auxiliar de guarda", "Luva de vaqueta", "Sim", "01/03/2026 —"},
+          {"Eletricista", "Luva isolante classe 00", "Sim", "01/03/2026 —"}
         });
     return ReferenciaPage.scroll(page);
   }
@@ -394,8 +413,9 @@ public final class TelasReferencia {
     page.table(
         new String[] {"Função", "EPI", "Prazo", "Unidade"},
         new String[][] {
-          {"Operador de produção", "Protetor auricular", "180", "dias"},
-          {"Eletricista", "Luva isolante", "365", "dias"}
+          {"Operador de empilhadeira", "Protetor auricular tipo concha", "180", "dias"},
+          {"Auxiliar de guarda", "Luva de vaqueta", "60", "dias"},
+          {"Eletricista", "Luva isolante classe 00", "365", "dias"}
         });
     return ReferenciaPage.scroll(page);
   }
@@ -424,8 +444,14 @@ public final class TelasReferencia {
     page.table(
         new String[] {"Trabalhador", "Função", "EPI exigido", "Situação"},
         new String[][] {
-          {"Ana Souza", "Operador de produção", "Protetor auricular", "Coberto"},
-          {"Carlos Lima", "Eletricista", "Luva isolante", "Descoberto"}
+          {
+            "Adalto Candido Alves da Silva",
+            "Operador de empilhadeira",
+            "Protetor auricular tipo concha",
+            "Coberto"
+          },
+          {"Camila Gomes Pinto", "Auxiliar de guarda", "Luva de vaqueta", "Coberto"},
+          {"Eduardo Gomes dos Santos", "Eletricista", "Luva isolante classe 00", "Descoberto"}
         });
     return ReferenciaPage.scroll(page);
   }
@@ -439,8 +465,8 @@ public final class TelasReferencia {
     page.table(
         new String[] {"Tipo", "Quem", "Detalhe", "Desde"},
         new String[][] {
-          {"Troca", "Carlos Lima", "Luva isolante vencida", "01/09/2026"},
-          {"Exceção", "SOL-098", "Fora da matriz, aguardando SESMT", "28/09/2026"}
+          {"Troca", "Eduardo Gomes dos Santos", "Luva isolante classe 00 vencida", "01/09/2026"},
+          {"Exceção", "SOL-1038", "Fora da matriz, aguardando SESMT", "28/09/2026"}
         });
     return ReferenciaPage.scroll(page);
   }
@@ -452,7 +478,7 @@ public final class TelasReferencia {
     page.section(
         panel(
             "Unidade local",
-            campo("Nome da unidade", "Itupeva"),
+            campo("Nome da unidade", "Itupeva · 22.755.266/0002-68"),
             campo("Modo de implantação", "Cliente-servidor"),
             botao("Salvar parâmetros", true)));
     return ReferenciaPage.scroll(page);

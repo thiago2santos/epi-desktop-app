@@ -1,9 +1,11 @@
 package br.com.easynr6.gestaoepi.ui.shell;
 
 import atlantafx.base.theme.Styles;
+import br.com.easynr6.gestaoepi.modules.employee.application.EmployeeManagementService;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
 import br.com.easynr6.gestaoepi.ui.Enr6Styles;
+import br.com.easynr6.gestaoepi.ui.cadastro.EmployeeManagementView;
 import java.util.EnumMap;
 import java.util.Map;
 import javafx.geometry.Insets;
@@ -24,14 +26,20 @@ public class MainShellView extends BorderPane {
 
   private final UsuarioAutenticado usuario;
   private final AuditTrail auditTrail;
+  private final EmployeeManagementService empregados;
   private final Map<Destino, Button> navButtons = new EnumMap<>(Destino.class);
   private final Map<Destino.Grupo, VBox> grupoItens = new EnumMap<>(Destino.Grupo.class);
   private final Map<Destino.Grupo, Label> grupoSetas = new EnumMap<>(Destino.Grupo.class);
   private Destino destinoAtual;
 
-  public MainShellView(UsuarioAutenticado usuario, AuditTrail auditTrail, Runnable onLogout) {
+  public MainShellView(
+      UsuarioAutenticado usuario,
+      AuditTrail auditTrail,
+      EmployeeManagementService empregados,
+      Runnable onLogout) {
     this.usuario = usuario;
     this.auditTrail = auditTrail;
+    this.empregados = empregados;
     setTop(buildHeader(onLogout));
     setLeft(buildSidebar());
     abrir(Destino.DASHBOARD, false);
@@ -164,6 +172,9 @@ public class MainShellView extends BorderPane {
   }
 
   private Node conteudo(Destino destino) {
+    if (destino == Destino.TRABALHADORES) {
+      return new EmployeeManagementView(usuario, empregados, alvo -> abrir(alvo, true)).root();
+    }
     return TelasReferencia.criar(destino, alvo -> abrir(alvo, true));
   }
 }
