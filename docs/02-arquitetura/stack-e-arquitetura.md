@@ -68,18 +68,25 @@ Em outras palavras: a entrega e o evento juridico principal, mas depende de uma 
 
 ## 4) SQLite (relacional/transacional local)
 
-**Por que faz sentido na fase inicial:**
-- Simples de operar (arquivo unico), sem servidor dedicado.
-- ACID suficiente para POC e operacao local por unidade.
-- Bom encaixe com controle juridico imutavel e trilha auditavel.
+**Papel no produto:**
+- Usado no modo demonstracao/teste/freemium local para um tecnico/operador trabalhando sozinho.
+- Simples de instalar e operar (arquivo unico), sem servidor dedicado.
+- ACID suficiente para validacao individual e demonstracao; nao representa a operacao oficial multiusuario.
 
 **Risco principal:**
-- Escalabilidade de concorrencia e governanca multiunidade centralizada.
+- SQLite nao oferece uma fila compartilhada segura entre instalacoes de diferentes gestores/almoxarifes.
 
 **Mitigacao:**
-- Assumir claramente o limite: 1 instancia de escrita por base.
-- Se cada unidade tiver seu proprio banco local, consolidar via exportacao/sincronizacao.
-- Planejar migracao para Postgres quando houver necessidade de operacao central em tempo real.
+- Explicitar a limitacao do modo local e nao compartilhar o arquivo por pasta de rede.
+- Nao anunciar solicitacoes entre usuarios, sincronizacao em tempo real ou fila central no modo SQLite.
+
+## 4.1) Operacao oficial cliente-servidor
+
+- Toda implantacao comercial/oficial multiusuario utiliza banco remoto centralizado, on-premises ou cloud.
+- Alvo proposto: cliente JavaFX -> API/servico central da aplicacao -> PostgreSQL remoto.
+- Autorizacao por papel e escopo, regras de dominio, auditoria, idempotencia e concorrencia devem ser executadas no servico central; nao confiar em validacao apenas no desktop.
+- Conectividade, autenticacao, backup, atualizacao e disponibilidade do servico fazem parte do produto oficial.
+- O backend/API e a topologia de implantacao precisam de ADR e refinamento antes do desenvolvimento das features que dependem de fila compartilhada.
 
 ## 5) JasperReports (relatorios operacionais e legais)
 
@@ -151,11 +158,29 @@ Com essas bases, da para migrar o armazenamento ou expandir modulos sem quebrar 
 1. Manter stack proposta para iniciar rapido com seguranca juridica.
 2. Tratar entrega como evento imutavel e audivel.
 3. Incluir desde o inicio os dados minimos de custo/lote para suportar budget.
-4. Definir gatilho objetivo para migracao de SQLite para banco cliente-servidor.
+4. Definir contrato de dados/adaptadores e plano para operar o modo demo SQLite e o produto oficial cliente-servidor.
 
-## Gatilhos de migracao (SQLite -> Postgres, por exemplo)
+## Separacao de modos de operacao
 
-Considerar migracao quando houver um ou mais cenarios:
+SQLite nao e mais a arquitetura-alvo condicionada a um gatilho comercial; permanece como modo individual de demonstracao/freemium. O modo oficial multiusuario deve nascer cliente-servidor, com banco remoto on-premises ou cloud.
+
+### Modo local demonstracao/freemium
+
+- uma instalacao local e um operador por base;
+- banco SQLite local;
+- sem fila de solicitacao compartilhada ou sincronizacao garantida entre computadores;
+- dados locais nao devem ser confundidos com a base oficial central.
+
+### Modo oficial
+
+- cliente desktop conectado ao servico central;
+- PostgreSQL remoto hospedado on-premises ou cloud;
+- multiplos usuarios e unidades conforme escopo autorizado;
+- transacoes, auditoria e concorrencia centralizadas.
+
+## Gatilhos para escalar o modo oficial
+
+O modo oficial cliente-servidor e requisito de produto. Evolucoes do servico central devem ser avaliadas quando houver:
 
 - Necessidade de operacao simultanea intensa entre usuarios/unidades.
 - Consolidacao central em tempo real (sem lote/exportacao).
@@ -164,10 +189,9 @@ Considerar migracao quando houver um ou mais cenarios:
 
 ## Conclusao
 
-Seu raciocinio esta correto: o core e a entrega, mas ela nao se sustenta isolada.  
+Seu raciocinio esta correto: o core e a entrega, mas ela nao se sustenta isolada.
 A stack proposta e coerente para iniciar com velocidade e controle de risco, desde que o desenho ja prepare:
 
 - rastreabilidade juridica (NR-6),
 - base analitica minima para budget,
 - e caminho de evolucao sem reescrever o sistema.
-

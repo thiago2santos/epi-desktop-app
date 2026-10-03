@@ -311,14 +311,16 @@ cadastros ----> matriz -------\
 ## Evolucao tecnica planejada
 
 ## Fase A — Piloto local (Itupeva)
-- JavaFX + Spring sem web + SQLite.
-- Um banco por unidade piloto.
+- JavaFX + SQLite local como modo individual de demonstracao/teste/freemium.
+- Uma instalacao e um operador por base local; sem fila compartilhada entre computadores.
 - Relatorios locais exportaveis.
 
 ## Fase B — Multiusuario controlado
 - Backend Spring Boot com API.
 - Cliente JavaFX consumindo API.
 - Banco Postgres central por ambiente.
+- Esta arquitetura cliente-servidor e obrigatoria para qualquer operacao oficial/comercial multiusuario, on-premises ou cloud.
+- Autorizacao, escopo organizacional, auditoria, idempotencia e concorrencia sao garantidos no backend central; clientes nao conectam diretamente ao banco remoto.
 
 ## Fase C — 8 unidades (distribuido)
 - Operacao concorrente multiunidade.
