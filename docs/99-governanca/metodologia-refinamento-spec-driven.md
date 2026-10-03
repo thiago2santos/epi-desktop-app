@@ -115,6 +115,10 @@ A metodologia foi aplicada de ponta a ponta em:
 - `UC-CAD-04/05` (EPI + CA baseado na NR-6);
 - `UC-AUD-01` (consulta de auditoria baseline).
 
+Registrado para refinamento (DoR aberto, sem implementacao):
+
+- `FE-CAD-01` / `UC-CAD-IMP-01` (importacao CSV de cadastros com validacao previa).
+
 ## Relacao com documentos existentes
 
 - `docs/99-governanca/modelo-jira-spec-driven-e-rastreabilidade.md`
