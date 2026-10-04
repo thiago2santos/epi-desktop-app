@@ -47,14 +47,14 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 ## Status consolidado da retomada (checkpoint tecnico)
 
 - `R0`: concluido (workflow release, hooks de qualidade, templates de governanca).
-- `M0`: concluido (shell desktop, autenticacao com resultado tipado, RBAC, auditoria append-only, politica de credenciais em runtime).
+- `M0`: concluido (shell desktop, autenticacao, RBAC, auditoria append-only, politica de credenciais). A tela de usuarios e papeis voltou a gravar em `UserAdministrationService`: criar, editar, papel, reset de senha, bloquear e reativar.
 - `M0` hardening arquitetural: concluido (identidade desacoplada por `ports + use cases + adapters`, com fachadas compativeis para UI).
-- `M1`: em andamento (UC-CAD-03 concluida e UC-CAD-04/05 implementada no baseline: cadastro EPI/CA com regras `CAD-03x`, RBAC, auditoria, migration e cobertura inicial de testes).
-- `M1` inclui agora `UC-CAE-01` (importacao diaria da base oficial CAEPI); caso de uso registrado, refinamento e decisoes operacionais pendentes.
-- `M1` cadastros organizacionais: concluido para baseline (UC-CAD-02 com setores e funcoes, inativacao/reativacao controlada, validacoes de dependencia e auditoria).
+- `M1`: em andamento. Trabalhador (`UC-CAD-03`), setor e funcao (`UC-CAD-02`) e EPI/CA (`UC-CAD-04/05`) gravam pela tela. O nucleo de EPI/CA ja existia; a tela de referencia foi substituida.
+- `M1` `UC-CAD-01` unidade: spec e matriz prontas, implementacao nao iniciada. Uma empresa (seed Access); o caso de uso mantem nome, CNPJ e status. Endereco fica fora.
+- `M1` inclui `UC-CAE-01` (importacao diaria da base oficial CAEPI): registrado, sem codigo.
 - `M1` **FE-CAD-01 / UC-CAD-IMP-01** (importacao CSV de cadastros com staging): **registrado**, refinamento pendente — foco adocao; ver `docs/01-negocio/feature-cadastros-importacao-csv-lote.md`.
-- `M3` auditoria: baseline de consulta habilitado na UI (`UC-AUD-01`), pendente evolucao de filtros por periodo/exportacao.
-- `M2`: permanece bloqueado por DoR ate fechamento real de M1.
+- `M3` auditoria: consulta com filtro livre ligada de novo (`UC-AUD-01`). Filtro por periodo e exportacao continuam abertos.
+- `M2`: permanece bloqueado. Faltam lote, matriz e periodicidade.
 
 > **Footnote de governanca (obrigatorio antes de release):**
 > testes de usabilidade de campo ainda pendentes para os modulos `Cadastros` (abas `Empregados`, `Setores`, `Funcoes`, `EPI`, `CA por EPI`) e `Auditoria` (consulta), incluindo validacao de fluxo ponta a ponta por key user.
@@ -95,8 +95,9 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 
 ## M1 - Prontidao operacional para entrega real (Must)
 
-- **[UC]** `Trabalhadores` (minimo operacional: matricula, nome, funcao/setor, status).
-- **[UC]** `Funcoes/Setores/GHE` (minimo para vinculo com matriz).
+- **[UC]** `Trabalhadores` (minimo operacional: matricula, nome, funcao/setor, status). Tela ligada.
+- **[UC]** `Funcoes/Setores` (minimo para vinculo com matriz). Tela ligada.
+- **[UC]** `UC-CAD-01` Unidade da empresa ja semeada (nome, CNPJ, status). Spec e matriz prontas; codigo pendente. Ver `spec-uc-cad-01-unidade.md`.
 - **[FEAT]** `FE-CAD-01` Importacao em lote de cadastros via CSV (setor, funcao, trabalhador) com **tela de validacao previa** (verde/amarelo, filtros, deep link condicional para mestres ausentes). Spec: `spec-uc-cad-imp-01-importacao-csv-cadastros.md`. **Should para adocao** — DoR aberto.
 - **[UC]** `UC-CAD-IMP-01` Orquestra upload, staging, revalidacao e publicacao atomica do lote elegivel.
 - **[UC]** `EPI e CA` (minimo para itens entregaveis).
@@ -230,7 +231,7 @@ M2 (core operacional governado) so pode iniciar quando todos os itens abaixo est
 
 - [x] Cadastro de trabalhador ativo disponivel (matricula, nome, funcao/setor).
 - [x] Cadastro de setor e funcao disponivel (com status e validacoes de dependencia).
-- [x] Cadastro de EPI com CA valido disponivel para entrega (baseline UC-CAD-04/05).
+- [x] Cadastro de EPI com CA valido disponivel para entrega (baseline UC-CAD-04/05, tela ligada ao servico).
 - [ ] Lotes cadastrados com validade da peca e saldo disponivel.
 - [ ] Matriz funcao/GHE x EPI ativa para os perfis piloto.
 - [ ] Parametros minimos de periodicidade configurados.
@@ -429,12 +430,9 @@ Toda task deve conter:
 
 ## Proximo ataque recomendado (sequencia objetiva)
 
-> Roteiro UX já validável no mock: `docs/mock/LEIA-ME-APROVACAO.txt`.
-> Detalhamento sprint Java espelhando telas: `docs/03-operacao/paridade-mock-java-backlog.md` (Sprints J1–J5).
-
-1. Fechar usabilidade dos cadastros ja entregues (`Trabalhador`, `Setor/Funcao`, `EPI/CA`, `Auditoria`) — comparar com mock `06`–`09` e `18`.
-2. **Sprint J1:** `UC-LOT-01/02` (UI/regras ≈ mock `10`) + `UC-MAT-01` + periodicidade (mock `11`–`12`) + specs/cenarios antes do codigo.
-3. **Sprint J2:** core transacional M2 — refatorar `EntregaWizardView` para paridade mock `02`, persistir entrega, `03`/`04`/`05`.
-4. **Sprint J3:** relatorios M3 — mock `13`–`15` + PDF minimo.
-5. **Sprint J4:** `UC-CAE-01` (mock `21`) + `UC-SOL-01` (mock `16`–`17`, papel Gestor) + parametros (mock `20`).
-6. Reavaliar DoR de M2 apos J1 concluido (lote + matriz no SQLite).
+1. Implementar `UC-CAD-01` a partir de `spec-uc-cad-01-unidade.md` e `matriz-testes-uc-cad-01.md` (dominio, repositorio, tela). O seed da Access continua valendo ate la.
+2. **Sprint J1:** `UC-LOT-01/02` + `UC-MAT-01` + periodicidade. E o que destrava o DoR de M2.
+3. **Sprint J2:** core transacional M2 — wizard de fornecimento com persistencia, historico, devolucao e estorno.
+4. **Sprint J3:** relatorios M3 alem da auditoria — cobertura, pendencias e PDF minimo.
+5. **Sprint J4:** `UC-CAE-01` e `UC-SOL-01`.
+6. Filtro de periodo e exportacao de `UC-AUD-01` ficam no pacote de evidencia, nao na consulta que ja lista a trilha.

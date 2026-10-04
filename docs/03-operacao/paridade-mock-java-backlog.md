@@ -28,9 +28,9 @@ Documento de alinhamento entre **documentação/backlog**, **protótipo navegáv
 | `04-estorno` | pós-entrega | novo módulo `operacao/estorno` |
 | `05-historico` | consulta | `AuditQueryService` / novo `IssuanceQueryService` |
 | `06-trabalhadores` | UC-CAD-03 | `EmployeeManagementView` |
-| `07-setores-funcoes` | UC-CAD-02 | `DepartmentManagementView`, `JobRoleManagementView` |
+| `07-setores-funcoes` | UC-CAD-02 | `DepartmentManagementView`, `JobRoleManagementView` — no shell: `OrgStructureManagementView` |
 | `08-cad-epi` | UC-CAD-04 | `EpiManagementView` |
-| `09-cad-ca-epi` | UC-CAD-05 | `EpiCaBindingManagementView` |
+| `09-cad-ca-epi` | UC-CAD-05 | `CaBindingManagementView` |
 | `10-estoque-lotes` | UC-LOT-01/02 | `MainShellView.Modulo.ESTOQUE` (placeholder) → `LotManagementView` |
 | `11-matriz` | UC-MAT-01 | `MainShellView.Modulo.REGRAS` → `MatrixManagementView` |
 | `12-periodicidade` | UC-MAT ext. | mesma área Regras → `PeriodicityView` |
@@ -40,7 +40,7 @@ Documento de alinhamento entre **documentação/backlog**, **protótipo navegáv
 | `16-solicitar` | UC-SOL-01 | **não no shell Java** — papel `Gestor` ausente |
 | `17-fila` | UC-SOL-01 | idem — fila central (M2 estendido / modo servidor) |
 | `18-auditoria` | UC-AUD-01 | `AuditTrailView`, `AuditQueryService` |
-| `19-admin-usuarios` | UC-ADM-01/02 | `UserAdministrationView`, `identity/*` |
+| `19-admin-usuarios` | UC-ADM-01/02 | `UserAdministrationView`, `UserAdministrationService` |
 | `20-admin-parametros` | UC-ADM-03 | parcial via identidade; falta `SystemParams` persistido |
 | `21-caepi-import` | UC-CAE-01 | **mock** AUTO + manual + IndexedDB; Java **não iniciado** |
 | `22-cadastros-import-csv` (previsto) | UC-CAD-IMP-01 / FE-CAD-01 | **não iniciado** — spec registrada; staging verde/amarelo + deep link CAD-02 |
@@ -56,18 +56,20 @@ Referência mock: [`docs/mock/ROADMAP-SESSION-MOCK.md`](../mock/ROADMAP-SESSION-
 | Item | Mock | Java | Spec / testes | Notas |
 |------|------|------|---------------|-------|
 | Login + shell | ✅ shell + perfis | ✅ login + `MainShellView` | — | Mock: 5 perfis incl. **Gestor**; Java: `Papel` sem `GESTOR` |
-| RBAC menu | ✅ | 🟡 sidebar desabilita módulo | — | Java: DASHBOARD/ESTOQUE/REGRAS/RELATORIOS ainda placeholder |
-| Auditoria append-only | ✅ `auditLog` | ✅ `AuditTrail` + JDBC | `spec-uc-aud-01` | |
+| RBAC menu | ✅ | ✅ sidebar desabilita módulo | — | Operação, demanda, estoque, regras e relatórios ainda são tela de referência |
+| Auditoria append-only | ✅ `auditLog` | ✅ `AuditTrail` + JDBC | `spec-uc-aud-01` | Falha da ação também entra na trilha, fora da transação |
 | Credenciais | 🟡 simulado | ✅ Argon2, troca, bloqueio | — | Mock não valida senha real |
+| Usuários e papéis | ✅ 19 | ✅ `UserAdministrationView` | — | Criar, editar, papel, reset, bloquear e reativar. Excluir fica só no serviço |
 | Política multiusuário PG | — | 🔶 arquitetura doc | backlog M0 | Mock = demo local |
 
 ### M1 — Prontidão operacional
 
 | Item | Mock | Java | Spec / testes | Notas |
 |------|------|------|---------------|-------|
-| UC-CAD-02 Setor/função | ✅ | ✅ policies + UI | CAD-02x tests | Alinhar mensagens CAD com mock |
+| UC-CAD-01 Unidade | — | 🔶 spec + matriz; seed na `unit` | `spec-uc-cad-01-unidade`, `matriz-testes-uc-cad-01` | Sem tela. Empresa continua a do seed |
+| UC-CAD-02 Setor/função | ✅ | ✅ policies + UI | CAD-02x tests | |
 | UC-CAD-03 Trabalhador | ✅ | ✅ | employee tests | |
-| UC-CAD-04/05 EPI + CA | ✅ + CAEPI gate | ✅ `CaPolicy`, UI | `spec-uc-cad-04-05`, matriz testes | Java: evidência CAEPI; mock: CAD-037 texto fraco |
+| UC-CAD-04/05 EPI + CA | ✅ + CAEPI gate | ✅ serviço e tela | `spec-uc-cad-04-05`, matriz testes | Tela chama `EpiCatalogManagementService` |
 | UC-CAE-01 Import CAEPI | ✅ 21 AUTO sim + **manual real** (upload ZIP/txt) | ⬜ | `spec-uc-cae-01`, matriz | Java: `CaepiImportService` background + manual same pipeline |
 | UC-LOT lote/saldo | ✅ 10 | ⬜ sem tabela/migration | 🔶 spec a escrever | **Copiar regras** de `createLot` / `createIssuance` do mock |
 | UC-MAT-01 matriz | ✅ 11 | ⬜ | 🔶 spec a escrever | Mock: assignment, treinamento, CA esperado |
@@ -94,7 +96,7 @@ Referência mock: [`docs/mock/ROADMAP-SESSION-MOCK.md`](../mock/ROADMAP-SESSION-
 | Hub relatórios | ✅ 13 `runReport` | ⬜ placeholder | M3 backlog | PDF continua 🔶 Jasper |
 | Cobertura | ✅ 14 | ⬜ | — | Portar `getCoverageReport` |
 | Pendências | ✅ 15 | ⬜ | — | Portar `getPendencies` |
-| UC-AUD-01 consulta | ✅ 18 | ✅ baseline | spec + checklist usabilidade | Filtros período/export 🔶 |
+| UC-AUD-01 consulta | ✅ 18 | ✅ filtro livre | spec + checklist usabilidade | Período e exportação continuam abertos |
 
 ### M4 / M5
 
@@ -184,4 +186,4 @@ Itens DoR M1 ainda **não** espelhados no Java:
 2. Se o mock mudar (novo passo/regra), atualizar **Regras mock → Java** e o store.
 3. Toda PR `UC`/`FEAT` deve citar: mock page(s), spec, e linha desta paridade.
 
-**Última revisão:** protótipo HTML sessão completa; Java em M1 parcial (cadastros + wizard simulado + auditoria + admin usuários).
+**Última revisão:** telas de EPI, CA, auditoria e usuários ligadas ao serviço; UC-CAD-01 especificado e ainda sem código. Lotes, matriz, periodicidade, fornecimento, relatórios, CAEPI e parâmetros seguem tela de referência.
