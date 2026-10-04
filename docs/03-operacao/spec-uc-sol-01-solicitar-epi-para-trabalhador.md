@@ -6,7 +6,7 @@
 - Tipo: `UC`
 - Iniciativa/Epico: `INI-01` / `EP-CORE`
 - Responsavel: Time Easy NR6
-- Status: refinamento inicial; dependencias e decisoes operacionais pendentes
+- Status: especificado; decisoes da secao 15 fechadas; codigo depois de `UC-ENT-01` e do vinculo gestor no trabalhador
 
 ## 1) Contexto
 
@@ -56,12 +56,12 @@
 1. O gestor so pode pesquisar trabalhadores que estejam no seu escopo de gestao vigente. A verificacao e obrigatoria no servico a cada consulta e mutacao, mesmo que a UI filtre os resultados.
 2. A relacao trabalhador-gestor e setor/departamento deve ser mantida como dado organizacional rastreavel e com vigencia. A solicitacao preserva um snapshot de unidade, setor/departamento, funcao e gestor responsavel no instante do envio; mudancas futuras nao alteram o historico do pedido.
 3. O solicitante, o trabalhador destinatario, quem analisa e quem atende sao papeis/identidades distintos, ainda que em algum caso uma pessoa tenha mais de um papel. Cada acao registra o usuario autenticado que a executou.
-4. Uma solicitacao nao e entrega, reserva de estoque, autorizacao automatica, prova de fornecimento ou consumo realizado. Somente `UC-ENT-01` registra entrega, debita lote e grava evidencia de ciencia/aceite.
-5. Quantidade deve ser inteira e maior que zero. Limites maximos por solicitacao e por periodo ainda precisam ser definidos.
+4. Uma solicitacao nao e entrega, reserva de estoque, autorizacao automatica, prova de fornecimento ou consumo realizado. Somente `UC-ENT-01` registra entrega, debita lote e grava evidencia de ciencia/aceite. A reserva explicita de prateleira e o `UC-LOT-03`; este caso continua sem cria-la. Uma iteracao futura pode ligar o pedido aprovado a essa reserva.
+5. Quantidade deve ser inteira, maior que zero e no maximo 999. Nao ha teto por periodo. O controle de volume e a regra de um pedido em aberto por trabalhador e EPI.
 6. Item nao previsto na matriz vigente da funcao/GHE exige analise e decisao do SESMT antes de seguir para atendimento. Situacoes urgentes devem ter caminho de escalonamento, sem concessao automatica pelo papel Gestor.
 7. Falta de saldo valido nao converte a solicitacao em entrega, nao permite saldo negativo e nao cria reserva implicita. A solicitacao pode aguardar estoque e ser atendida parcialmente quando a regra operacional aprovada permitir.
 8. Substituicao de EPI nao e automatica. Qualquer alternativa exige decisao explicita de perfil autorizado, verificacao de adequacao ao risco e CA aplicavel, e registro da decisao.
-9. Solicitacoes duplicadas ou concorrentes do mesmo trabalhador/EPI devem ser detectadas e claramente apresentadas. O envio nao pode silenciosamente duplicar demanda; a regra final de idempotencia/confirmacao deve ser fechada no refinamento.
+9. Um trabalhador e um EPI so podem ter um pedido em aberto, nos estados `PENDENTE_ANALISE`, `APROVADA`, `AGUARDANDO_ESTOQUE` ou `PARCIALMENTE_ATENDIDA`. O segundo envio mostra o pedido existente e nao grava outro.
 10. Transicoes de estado sao controladas e auditadas. Solicitacoes rejeitadas/canceladas permanecem no historico e nao contam como consumo realizado.
 11. Historico de consumo exibe entregas efetivas, estornos e devolucoes de forma distinta. Solicitacoes pendentes/recusadas/canceladas nao podem aparecer como itens entregues.
 12. Forecast deve segregar pelo menos:
@@ -282,7 +282,7 @@ erDiagram
 
 ### Requisitos de conteudo ainda nao aprovados no prototipo
 
-- O prototipo sugere motivo obrigatorio, urgencia, data necessaria e quantidade maxima 10. Esses campos/valores continuam sujeitos as decisoes da secao 15; nao inferir limite ou regra de urgencia pelo exemplo visual.
+- Motivo obrigatorio, no mesmo dominio do fornecimento. Urgencia e data necessaria nao entram nesta versao. Quantidade maxima 999.
 - "Alta (Risco Imediato)" precisa apontar para o caminho de escalonamento aprovado e nao pode atrasar a entrega emergencial exigida pela politica da empresa.
 - O estado "Aprovado / Fila" nao deve ser o padrao implicito: cada pedido segue a regra de aprovacao aprovada, com analise SESMT quando requerida.
 - Alertas de matriz, duplicidade e escopo exibidos na tela sao feedback; autorizacao e validacao devem ser repetidas no backend/servico, nunca confiadas ao cliente.
@@ -321,7 +321,7 @@ Cada mudanca registra ator, instante, estado anterior/novo, motivo/justificativa
 - `SOL-007` EPI fora da matriz ou motivo de excecao: encaminhar ao SESMT; nao permitir que aprovacao do gestor substitua a tecnica.
 - `SOL-008` Estoque insuficiente/vencido: manter pedido em espera ou permitir atendimento parcial conforme politica; nunca baixar saldo invalido.
 - `SOL-009` Gestor tenta substituir EPI: negar; encaminhar a perfil autorizado para avaliacao documentada.
-- `SOL-010` Gestor tenta solicitar para si mesmo: aplicar regra explicita de conflito/autoaprovacao, ainda pendente; nao permitir autoaprovacao de excecao.
+- `SOL-010` Gestor tenta solicitar para si mesmo: recusar. O fornecimento do proprio gestor, quando for o caso, e ficha do `UC-ENT-01` feita por SESMT ou almoxarife.
 - `SOL-011` Trabalhador muda de gestor/setor/unidade depois do envio: preservar snapshot e decidir encaminhamento operacional sem reescrever o solicitante ou os dados historicos.
 - `SOL-012` Trabalhador e desligado/inativado enquanto pedido esta aberto: bloquear atendimento novo ou exigir decisao autorizada, preservando eventos existentes.
 - `SOL-013` Duas pessoas atendem simultaneamente o mesmo pedido: controle concorrente/idempotente impede exceder quantidade solicitada ou saldo de estoque.
@@ -397,7 +397,7 @@ Aplicar minimizacao de dados e segregacao por unidade/escopo. O resumo de histor
 
 ## 13) Cenarios de teste
 
-Plano pre-codigo e matriz de cenarios: `docs/03-operacao/matriz-testes-uc-sol-01.md`. O documento define as camadas de validacao, invariantes e gates; nenhum teste foi escrito ou executado. Os cenarios dependentes das decisoes da secao 15 nao podem receber resultado esperado definitivo ate essas regras serem aprovadas.
+Matriz executavel: `docs/03-operacao/matriz-testes-uc-sol-01.md`. Onde um texto anterior desta spec disser que a regra ainda sera aprovada, vale a secao 15.
 
 ## 14) Dependencias e recorte tecnico
 
@@ -409,35 +409,50 @@ Plano pre-codigo e matriz de cenarios: `docs/03-operacao/matriz-testes-uc-sol-01
 - estado confiavel do catalogo conforme `UC-CAE-01`.
 - visao de demanda separada de consumo efetivo para planejamento de compra.
 
-## 15) Decisoes pendentes antes do DoR
+## 15) Decisoes fechadas
 
-1. Nome definitivo do papel (`Gestor`, `Supervisor`) e se um usuario pode ter multiplos papeis.
-2. Escopo do gestor: unidade, setor, equipe explicita, arvore hierarquica, multiplos gestores, substitutos e delegacao temporaria.
-3. Vigencia/historico de gestor-setor-funcao-unidade no cadastro do trabalhador e tratamento de transferencias.
-4. Gestor pode solicitar para si? Quem decide pedidos do proprio gestor?
-5. Campos obrigatorios: motivo, urgencia, data necessaria, observacao; unidades permitidas e limite de quantidade.
-6. Idempotencia e politica de duplicidade (mesmo EPI/trabalhador; janela temporal; coexistencia de pedidos).
-7. Matriz: sempre exigir analise SESMT fora da matriz? Regra para emergencia, dano ou extravio.
-8. Estoque: quando permitir parcial, quem autoriza, como fica o saldo aberto e quando expira/escalona.
-9. Quem pode recusar/cancelar e ate qual ponto o solicitante pode cancelar.
-10. Se mudanca de setor/gestor/unidade ou desligamento transfere, bloqueia ou encerra pedidos abertos.
-11. Historico: quais periodos e campos o gestor pode ver, e como apresentar estorno/devolucao sem excesso de dados pessoais.
-12. Forecast: janela, agregacao, custo, lead time, estacionalidade e tratamento de pedidos pendentes, rejeitados e cancelados.
-13. Estado CAEPI desatualizado: permitir solicitacao com base na ultima carga completa ou bloquear ate atualizacao diaria.
-14. Topologia do servico central (API/backend) e implantacao on-premises/cloud, autenticacao, conectividade e disponibilidade.
-15. Escopo do produto SQLite demo/freemium: desabilitar solicitacao multiusuario, permitir somente uso local individual, ou simular fluxo sem fila compartilhada.
-16. Armazenar snapshots de identificadores e nomes somente no pedido, ou tambem versionar historico completo de funcao/setor/unidade do trabalhador; a proposta captura snapshots no pedido e mantem vigencia formal para atribuicao de gestor.
-17. Confirmar que aprovacao no MVP e integral ou rejeicao integral, mantendo parcialidade apenas no atendimento; decidir se aprovacao parcial sera necessaria.
+Onde o texto anterior disser que a regra ainda sera aprovada, vale esta secao.
 
-## 16) Criterio de saida do refinamento
+1. O papel e `GESTOR`, um papel novo ao lado de Admin, SESMT, Almoxarife e Consulta. Nesta versao o usuario tem um papel so.
+2. O usuario gestor aponta para um trabalhador. O escopo sao os trabalhadores ativos cujo gestor vigente e essa pessoa. Nao ha segundo gestor, substituto nem delegacao.
+3. Troca de gestor fica na auditoria do cadastro. O pedido guarda o snapshot e nao muda de dono. O gestor novo nao herda o pedido.
+4. O gestor nao solicita para si. Nao ha autoaprovacao.
+5. Obrigatorios: trabalhador do escopo, EPI ativo, quantidade e motivo (`PRIMEIRA_ENTREGA`, `TROCA_PERIODICA`, `DANO`, `EXTRAVIO`, `MUDANCA_FUNCAO`, `OUTRO` com texto). Sem urgencia e sem data necessaria.
+6. Duplicidade: um pedido em aberto por trabalhador e EPI. O envio mostra o existente e o botao fica desabilitado.
+7. EPI na matriz ativa da funcao nasce `APROVADA`. Fora da matriz nasce `PENDENTE_ANALISE`. Dano e extravio seguem a mesma regra. So SESMT ou Admin aprovam ou recusam a analise, com texto de pelo menos 10 caracteres na recusa.
+8. O pedido nao mexe no estoque. Atendimento parcial e total acontecem no `UC-ENT-01`, na mesma transacao da ficha: a quantidade atendida sobe e nao passa do saldo do pedido. Saldo zero vira `ATENDIDA`. Sobrou quantidade, vira `PARCIALMENTE_ATENDIDA`. Almoxarife pode marcar `AGUARDANDO_ESTOQUE` quando o disponivel nao cobre. Nao ha prazo automatico de expiracao.
+9. O gestor cancela o proprio pedido enquanto nao houve atendimento e o estado nao e terminal. Depois da primeira quantidade atendida, so SESMT ou Admin cancelam o restante, com texto. Almoxarife nao recusa pedido.
+10. Desligamento nao cancela o pedido. O `UC-ENT-01` recusa trabalhador inativo. SESMT ou o solicitante cancelam o que restar, se ainda nao houve atendimento; com atendimento, vale a regra 9.
+11. O gestor ve, dos trabalhadores do escopo atual, fornecimentos dos ultimos 12 meses: data, EPI, quantidade, CA, situacao (Vigente, Estornado, Devolvido). Nao ve custo, motivo interno do estorno nem aceite. Pedidos em aberto aparecem em lista separada.
+12. A demanda em aberto, para SESMT e Admin, e a soma do saldo nao atendido dos pedidos `APROVADA`, `AGUARDANDO_ESTOQUE` e `PARCIALMENTE_ATENDIDA`. `PENDENTE_ANALISE`, `REJEITADA` e `CANCELADA` ficam de fora dessa soma. Nao ha sazonalidade, lead time nem custo. O `UC-LOT-06` continua com a demanda digitada pelo operador; esta tela so mostra o numero.
+13. Sem nenhuma carga CAEPI completa, o envio recusa. Com ultima carga completa e o ciclo diario atrasado, o envio segue nos EPIs ativos e o banner do `UC-CAE-01` permanece.
+14. As regras valem no servico, no SQLite de demonstracao e no modo oficial. Esta spec nao desenha a API. Duas instalacoes SQLite nao compartilham pedido.
+15. O modo demonstracao liga a tela para um usuario gestor local. Nao e fila de rede.
+16. O pedido guarda identificadores e nomes de unidade, setor, funcao e gestor no envio. O historico completo de versoes do organograma continua na auditoria do cadastro.
+17. Aprovacao do SESMT e do pacote inteiro. Parcialidade so no atendimento.
 
-- regras de escopo do gestor e snapshot organizacional aprovadas;
-- transicoes, aprovacoes, duplicidade, cancelamento e atendimento parcial definidos;
-- politica de historico/privacidade e metricas de forecast aprovada;
-- dependencias de estoque, matriz, entrega e cliente-servidor implementadas ou planejadas;
-- matriz de testes aprovada e DoR liberado antes de iniciar codigo.
+## 16) Textos de tela dos erros
 
-## 17) Diagrama Mermaid do fluxo
+| Codigo | Texto |
+|---|---|
+| `SOL-001` | Voce nao tem permissao para solicitar EPI. |
+| `SOL-002` | Nenhum trabalhador no seu escopo com essa matricula ou nome. |
+| `SOL-003` | Este trabalhador nao esta ativo. |
+| `SOL-004` | Este EPI nao esta ativo para solicitacao. |
+| `SOL-005` | A quantidade precisa ser um numero inteiro de 1 a 999. |
+| `SOL-006` | Ja existe um pedido em aberto para este EPI. |
+| `SOL-007` | Este EPI nao esta na matriz da funcao. O pedido segue para o SESMT. |
+| `SOL-009` | Esta acao nao vale para o estado atual do pedido. |
+| `SOL-010` | O pedido foi atualizado por outra pessoa. Abra de novo. |
+| `SOL-011` | Nao foi possivel confirmar o envio. Consulte a lista antes de tentar outra vez. |
+
+## 17) Criterio de saida do refinamento
+
+- decisoes da secao 15 fechadas;
+- matriz executavel em `matriz-testes-uc-sol-01.md`;
+- codigo depois do fornecimento, porque o atendimento atualiza o pedido na mesma transacao da ficha.
+
+## 18) Diagrama Mermaid do fluxo
 
 ```mermaid
 flowchart TD
