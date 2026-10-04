@@ -31,7 +31,7 @@ Documento de alinhamento entre **documentação/backlog**, **protótipo navegáv
 | `07-setores-funcoes` | UC-CAD-02 | `DepartmentManagementView`, `JobRoleManagementView` — no shell: `OrgStructureManagementView` |
 | `08-cad-epi` | UC-CAD-04 | `EpiManagementView` |
 | `09-cad-ca-epi` | UC-CAD-05 | `CaBindingManagementView` |
-| `10-estoque-lotes` | UC-LOT-01/02 | `MainShellView.Modulo.ESTOQUE` (placeholder) → `LotManagementView` |
+| `10-estoque-lotes` | UC-LOT-01/02 | `LotManagementView` no destino Lotes e saldos. Recebimento real; consulta com filtro ainda pendente |
 | `11-matriz` | UC-MAT-01 | `MainShellView.Modulo.REGRAS` → `MatrixManagementView` |
 | `12-periodicidade` | UC-MAT ext. | mesma área Regras → `PeriodicityView` |
 | `13-relatorios-hub` | M3 FEAT | `MainShellView.Modulo.RELATORIOS` → `ReportsHubView` |
@@ -42,7 +42,7 @@ Documento de alinhamento entre **documentação/backlog**, **protótipo navegáv
 | `18-auditoria` | UC-AUD-01 | `AuditTrailView`, `AuditQueryService` |
 | `19-admin-usuarios` | UC-ADM-01/02 | `UserAdministrationView`, `UserAdministrationService` |
 | `20-admin-parametros` | UC-ADM-03 | parcial via identidade; falta `SystemParams` persistido |
-| `21-caepi-import` | UC-CAE-01 | **mock** AUTO + manual + IndexedDB; Java **não iniciado** |
+| `21-caepi-import` | UC-CAE-01 | Java: importação manual com auditoria. Ciclo automático diário ainda pendente |
 | `22-cadastros-import-csv` (previsto) | UC-CAD-IMP-01 / FE-CAD-01 | spec fechada; Java não iniciado |
 
 Referência mock: [`docs/mock/ROADMAP-SESSION-MOCK.md`](../mock/ROADMAP-SESSION-MOCK.md), [`docs/mock/mock-store.js`](../mock/mock-store.js).
@@ -69,9 +69,9 @@ Referência mock: [`docs/mock/ROADMAP-SESSION-MOCK.md`](../mock/ROADMAP-SESSION-
 | UC-CAD-01 Unidade | — | ✅ serviço e tela | `spec-uc-cad-01-unidade`, `matriz-testes-uc-cad-01` | Nome, CNPJ e status. Empresa continua a do seed |
 | UC-CAD-02 Setor/função | ✅ | ✅ policies + UI | CAD-02x tests | |
 | UC-CAD-03 Trabalhador | ✅ | ✅ | employee tests | |
-| UC-CAD-04/05 EPI + CA | ✅ + CAEPI gate | ✅ serviço e tela | `spec-uc-cad-04-05`, matriz testes | Tela chama `EpiCatalogManagementService` |
-| UC-CAE-01 Import CAEPI | ✅ 21 AUTO sim + **manual real** (upload ZIP/txt) | ⬜ | spec fechada + matriz | Catalogo separado; indice um CA; Java nao iniciado |
-| UC-LOT-01/02 Recebimento e saldo | ✅ 10 | ⬜ sem tabela | spec + matriz | Diario; tres leituras. Codigo pendente |
+| UC-CAD-04/05 EPI + CA | ✅ + CAEPI gate | ✅ serviço e tela | `spec-uc-cad-04-05`, matriz testes | Vínculo lê a última carga; print cobre número fora da base |
+| UC-CAE-01 Import CAEPI | ✅ 21 AUTO sim + **manual real** (upload ZIP/txt) | ✅ manual | spec fechada + matriz | Índice e variantes publicados. Download diário automático pendente |
+| UC-LOT-01/02 Recebimento e saldo | ✅ 10 | ✅ recebimento | spec + matriz | Diario `V8`. LOT-01 na tela. Filtros do LOT-02 pendentes |
 | UC-LOT-03 Reserva | — | ⬜ | spec + matriz | Solicitacao continua sem reservar |
 | UC-LOT-04 Baixa de prateleira | — | ⬜ | spec + matriz | Perda, fora do consumo |
 | UC-LOT-05 Inventario | — | ⬜ | spec + matriz | Ajuste da diferenca |
@@ -144,7 +144,7 @@ Ordem para maximizar reutilização do protótipo como **critério de aceite UX*
 
 ```text
 Sprint J1 — M1 estoque + regras (desbloqueia DoR M2)
-  • Implementar UC-LOT-01/02, depois UC-MAT-01/02, depois UC-ENT-01/02
+  • UC-LOT-01 implementado. Seguir com UC-LOT-02, depois UC-MAT-01/02, depois UC-ENT-01/02
   • UC-LOT-03 a 06 e UC-REL-04 já têm spec; código depois do recebimento e da baixa de fornecimento
 
 Sprint J2 — M2 entrega real
