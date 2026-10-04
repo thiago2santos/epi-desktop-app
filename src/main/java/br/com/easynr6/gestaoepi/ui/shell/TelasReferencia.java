@@ -49,7 +49,8 @@ public final class TelasReferencia {
       case USUARIOS ->
           throw new IllegalStateException("UC-ADM-01 abre pelo shell, com o cadastro real.");
       case PARAMETROS -> parametros();
-      case CAEPI -> caepi();
+      case CAEPI ->
+          throw new IllegalStateException("UC-CAE-01 abre pelo shell, com a importação real.");
     };
   }
 
@@ -286,27 +287,6 @@ public final class TelasReferencia {
           {"Troca", "Eduardo Gomes dos Santos", "Luva isolante classe 00 vencida", "01/09/2026"},
           {"Exceção", "SOL-1038", "Fora da matriz, aguardando SESMT", "28/09/2026"}
         });
-    return ReferenciaPage.scroll(page);
-  }
-
-  private static Node caepi() {
-    ReferenciaPage page =
-        ReferenciaPage.of(
-            "UC-CAE-01",
-            "Base oficial CAEPI",
-            "Carga em background, publicação atômica e barra de status.");
-    page.section(
-            panel(
-                "Última carga",
-                new Label("28/09/2026 · 03:12 · 184.320 registros · operação normal"),
-                botao("Nova tentativa", true)))
-        .table(
-            new String[] {"Fase", "Estado"},
-            new String[][] {
-              {"Download", "Concluída"},
-              {"Validação", "Concluída"},
-              {"Publicação", "Concluída"}
-            });
     return ReferenciaPage.scroll(page);
   }
 

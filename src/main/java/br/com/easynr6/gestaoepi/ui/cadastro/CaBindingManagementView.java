@@ -1,6 +1,8 @@
 package br.com.easynr6.gestaoepi.ui.cadastro;
 
 import atlantafx.base.theme.Styles;
+import br.com.easynr6.gestaoepi.modules.caepi.application.CaepiCatalogService;
+import br.com.easynr6.gestaoepi.modules.caepi.application.port.CaepiCatalog.Linha;
 import br.com.easynr6.gestaoepi.modules.epi.application.EpiCatalogManagementService;
 import br.com.easynr6.gestaoepi.modules.epi.application.port.EpiRepository.CaBindingSummary;
 import br.com.easynr6.gestaoepi.modules.epi.application.port.EpiRepository.EpiSummary;
@@ -10,6 +12,7 @@ import br.com.easynr6.gestaoepi.ui.Enr6Styles;
 import br.com.easynr6.gestaoepi.ui.MensagemTemporaria;
 import br.com.easynr6.gestaoepi.ui.shell.Destino;
 import br.com.easynr6.gestaoepi.ui.shell.ReferenciaPage;
+import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -34,6 +37,8 @@ import javafx.scene.control.TextInputControl;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
 import javafx.util.StringConverter;
 
 /** UC-CAD-05. Vincula CA ao EPI com a evidência que a política já exige. */
@@ -72,6 +77,7 @@ public final class CaBindingManagementView {
 
   private final UsuarioAutenticado usuario;
   private final EpiCatalogManagementService catalogo;
+  private final CaepiCatalogService caepi;
   private final ComboBox<EpiSummary> epi = new ComboBox<>();
   private final TextField numero = new TextField();
   private final ComboBox<CaStatus> situacao = new ComboBox<>();
@@ -87,6 +93,9 @@ public final class CaBindingManagementView {
   private final Label feedback = new Label();
   private final Label vazio = new Label("Nenhum CA vinculado.");
   private final Label aviso = new Label();
+  private final Label anexoRotulo = new Label("Nenhum print anexado.");
+  private byte[] anexo;
+  private String anexoNome;
   private final Node root;
   private CaBindingSummary editando;
   private boolean sincronizando;
@@ -94,9 +103,13 @@ public final class CaBindingManagementView {
   private final MensagemTemporaria mensagens = new MensagemTemporaria();
 
   public CaBindingManagementView(
-      UsuarioAutenticado usuario, EpiCatalogManagementService catalogo, Consumer<Destino> navegar) {
+      UsuarioAutenticado usuario,
+      EpiCatalogManagementService catalogo,
+      CaepiCatalogService caepi,
+      Consumer<Destino> navegar) {
     this.usuario = usuario;
     this.catalogo = catalogo;
+    this.caepi = caepi;
     ReferenciaPage page =
         ReferenciaPage.of(
             "UC-CAD-05",
@@ -196,6 +209,10 @@ public final class CaBindingManagementView {
               vigenciaAte.setValue(null);
               consulta.clear();
               evidencia.clear();
+              anexo = null;
+              anexoNome = null;
+              anexoRotulo.setText("Nenhum print anexado.");
+              travarConsulta(false);
               status.setValue(StatusOpcao.ATIVO);
               status.setDisable(false);
               tabela.getSelectionModel().clearSelection();
@@ -220,6 +237,12 @@ public final class CaBindingManagementView {
     reativar.setOnAction(event -> reativar());
     Button limpar = new Button("Limpar");
     limpar.setOnAction(event -> prepararNovo());
+    Button consultar = new Button("Consultar CAs");
+    consultar.setOnAction(event -> consultar());
+    Button anexar = new Button("Anexar print");
+    anexar.setOnAction(event -> anexar());
+    Button manual = new Button("Informar consulta online");
+    manual.setOnAction(event -> liberarConsultaManual());
     Button catalogo = new Button("Ver catálogo de EPI");
     catalogo.setOnAction(event -> navegar.accept(Destino.EPI));
     aviso.setWrapText(true);
@@ -237,11 +260,14 @@ public final class CaBindingManagementView {
             aviso,
             campo("EPI", epi),
             campo("Número do CA", numero),
+            consultar,
             campo("Situação", situacao),
             campo("Vigência de", vigenciaDe),
             campo("Vigência até", vigenciaAte),
             campo("Consulta oficial", consulta),
             campo("Evidência", evidencia),
+            anexoRotulo,
+            new HBox(8, anexar, manual),
             campo("Status inicial", status),
             feedback,
             new HBox(8, salvar, inativar, reativar, limpar),
@@ -285,6 +311,10 @@ public final class CaBindingManagementView {
       vigenciaAte.setValue(null);
       consulta.clear();
       evidencia.clear();
+      anexo = null;
+      anexoNome = null;
+      anexoRotulo.setText("Nenhum print anexado.");
+      travarConsulta(false);
       status.setValue(StatusOpcao.ATIVO);
       status.setDisable(false);
       limparMarcacao();
@@ -354,7 +384,9 @@ public final class CaBindingManagementView {
             vigenciaAte.getValue(),
             instante,
             evidencia.getText(),
-            statusEscolhido(status));
+            statusEscolhido(status),
+            anexoNome,
+            anexo);
       } else {
         catalogo.updateCaBinding(
             usuario.id(),
@@ -365,7 +397,9 @@ public final class CaBindingManagementView {
             vigenciaAte.getValue(),
             instante,
             evidencia.getText(),
-            atual.active());
+            atual.active(),
+            anexoNome,
+            anexo);
       }
       carregarVinculos();
       prepararNovo();
@@ -461,10 +495,84 @@ public final class CaBindingManagementView {
   }
 
   private void atualizarAviso() {
-    boolean semEpi = epi.getItems().isEmpty();
-    aviso.setVisible(semEpi);
-    aviso.setManaged(semEpi);
-    aviso.setText("Cadastre um EPI antes de vincular o CA.");
+    if (epi.getItems().isEmpty()) {
+      aviso.setVisible(true);
+      aviso.setManaged(true);
+      aviso.setText("Cadastre um EPI antes de vincular o CA.");
+      return;
+    }
+    boolean comCarga = caepi.ultimaSucesso().isPresent();
+    aviso.setVisible(true);
+    aviso.setManaged(true);
+    aviso.setText(
+        comCarga
+            ? "Escolha o CA na base importada. O print só é obrigatório se o número não estiver nela."
+            : "Sem carga CAEPI neste ciclo. Anexe o print da consulta online.");
+  }
+
+  private void consultar() {
+    if (epi.getValue() == null) {
+      mostrar("Selecione o EPI antes de consultar os CAs.", Tom.ERRO);
+      return;
+    }
+    String fabricante = epi.getValue().manufacturerName();
+    Optional<Linha> escolhida =
+        ConsultaCaDialog.escolher(
+            salvar.getScene() == null ? null : salvar.getScene().getWindow(),
+            fabricante,
+            termo -> caepi.buscar(usuario.id(), termo, fabricante));
+    escolhida.ifPresent(this::aplicarLinha);
+  }
+
+  private void aplicarLinha(Linha linha) {
+    CaStatus status;
+    try {
+      status = CaStatus.valueOf(linha.status());
+    } catch (IllegalArgumentException ex) {
+      mostrar("Este CA não tem situação utilizável na base.", Tom.ERRO);
+      return;
+    }
+    numero.setText(linha.caNumber());
+    situacao.setValue(status);
+    vigenciaAte.setValue(linha.validUntil());
+    caepi.ultimaSucesso().ifPresent(carga -> consulta.setText(carga.finishedAt().format(CONSULTA)));
+    evidencia.setText("A evidência é preenchida ao salvar, com o registro da carga.");
+    travarConsulta(true);
+    atualizarAcoes();
+  }
+
+  private void anexar() {
+    FileChooser chooser = new FileChooser();
+    chooser.setTitle("Print da consulta CAEPI");
+    chooser
+        .getExtensionFilters()
+        .add(new FileChooser.ExtensionFilter("PNG ou JPG", "*.png", "*.jpg", "*.jpeg"));
+    Window janela = salvar.getScene() == null ? null : salvar.getScene().getWindow();
+    java.io.File arquivo = chooser.showOpenDialog(janela);
+    if (arquivo == null) {
+      return;
+    }
+    try {
+      anexo = Files.readAllBytes(arquivo.toPath());
+      anexoNome = arquivo.getName();
+      anexoRotulo.setText(anexoNome);
+    } catch (java.io.IOException ex) {
+      mostrar("Não foi possível ler o print.", Tom.ERRO);
+    }
+  }
+
+  private void liberarConsultaManual() {
+    travarConsulta(false);
+    consulta.clear();
+    evidencia.clear();
+    mostrar("Informe a data da consulta e anexe o print.", Tom.AVISO);
+  }
+
+  private void travarConsulta(boolean travado) {
+    situacao.setDisable(travado);
+    vigenciaAte.setDisable(travado);
+    consulta.setDisable(travado);
+    evidencia.setDisable(travado);
   }
 
   private void atualizarAcoes() {

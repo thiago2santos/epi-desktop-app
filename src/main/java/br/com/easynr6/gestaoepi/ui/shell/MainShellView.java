@@ -1,6 +1,7 @@
 package br.com.easynr6.gestaoepi.ui.shell;
 
 import atlantafx.base.theme.Styles;
+import br.com.easynr6.gestaoepi.modules.caepi.application.CaepiCatalogService;
 import br.com.easynr6.gestaoepi.modules.employee.application.EmployeeManagementService;
 import br.com.easynr6.gestaoepi.modules.epi.application.EpiCatalogManagementService;
 import br.com.easynr6.gestaoepi.modules.stock.application.StockManagementService;
@@ -16,6 +17,7 @@ import br.com.easynr6.gestaoepi.ui.cadastro.EmployeeManagementView;
 import br.com.easynr6.gestaoepi.ui.cadastro.EpiManagementView;
 import br.com.easynr6.gestaoepi.ui.cadastro.OrgStructureManagementView;
 import br.com.easynr6.gestaoepi.ui.cadastro.UnitManagementView;
+import br.com.easynr6.gestaoepi.ui.caepi.CaepiImportView;
 import br.com.easynr6.gestaoepi.ui.estoque.LotManagementView;
 import java.util.EnumMap;
 import java.util.Map;
@@ -42,6 +44,7 @@ public class MainShellView extends BorderPane {
   private final AuditQueryService auditoria;
   private final UserAdministrationService usuarios;
   private final StockManagementService estoque;
+  private final CaepiCatalogService caepi;
   private final Map<Destino, Button> navButtons = new EnumMap<>(Destino.class);
   private final Map<Destino.Grupo, VBox> grupoItens = new EnumMap<>(Destino.Grupo.class);
   private final Map<Destino.Grupo, Label> grupoSetas = new EnumMap<>(Destino.Grupo.class);
@@ -55,6 +58,7 @@ public class MainShellView extends BorderPane {
       AuditQueryService auditoria,
       UserAdministrationService usuarios,
       StockManagementService estoque,
+      CaepiCatalogService caepi,
       Runnable onLogout) {
     this.usuario = usuario;
     this.auditTrail = auditTrail;
@@ -63,6 +67,7 @@ public class MainShellView extends BorderPane {
     this.auditoria = auditoria;
     this.usuarios = usuarios;
     this.estoque = estoque;
+    this.caepi = caepi;
     setTop(buildHeader(onLogout));
     setLeft(buildSidebar());
     abrir(Destino.DASHBOARD, false);
@@ -110,7 +115,7 @@ public class MainShellView extends BorderPane {
     topLine.setRight(usuarioInfo);
     header.getChildren().addAll(menuBar, topLine);
 
-    Label status = new Label("CAEPI: carga válida 28/09/2026 · operação normal · Unidade: Itupeva");
+    Label status = new Label(caepi.faixaStatus());
     status.getStyleClass().add(Enr6Styles.STATUS_STRIP);
     status.setMaxWidth(Double.MAX_VALUE);
     VBox chrome = new VBox(header, status);
@@ -208,7 +213,8 @@ public class MainShellView extends BorderPane {
       return new EpiManagementView(usuario, catalogo, alvo -> abrir(alvo, true)).root();
     }
     if (destino == Destino.CA) {
-      return new CaBindingManagementView(usuario, catalogo, alvo -> abrir(alvo, true)).root();
+      return new CaBindingManagementView(usuario, catalogo, caepi, alvo -> abrir(alvo, true))
+          .root();
     }
     if (destino == Destino.AUDITORIA) {
       return new AuditTrailView(auditoria).root();
@@ -218,6 +224,9 @@ public class MainShellView extends BorderPane {
     }
     if (destino == Destino.LOTES) {
       return new LotManagementView(usuario, estoque).root();
+    }
+    if (destino == Destino.CAEPI) {
+      return new CaepiImportView(usuario, caepi).root();
     }
     return TelasReferencia.criar(destino, alvo -> abrir(alvo, true));
   }
