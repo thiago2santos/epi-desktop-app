@@ -3,9 +3,11 @@ package br.com.easynr6.gestaoepi.ui.shell;
 import atlantafx.base.theme.Styles;
 import br.com.easynr6.gestaoepi.modules.employee.application.EmployeeManagementService;
 import br.com.easynr6.gestaoepi.modules.epi.application.EpiCatalogManagementService;
+import br.com.easynr6.gestaoepi.shared.audit.AuditQueryService;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
 import br.com.easynr6.gestaoepi.ui.Enr6Styles;
+import br.com.easynr6.gestaoepi.ui.auditoria.AuditTrailView;
 import br.com.easynr6.gestaoepi.ui.cadastro.CaBindingManagementView;
 import br.com.easynr6.gestaoepi.ui.cadastro.EmployeeManagementView;
 import br.com.easynr6.gestaoepi.ui.cadastro.EpiManagementView;
@@ -32,6 +34,7 @@ public class MainShellView extends BorderPane {
   private final AuditTrail auditTrail;
   private final EmployeeManagementService empregados;
   private final EpiCatalogManagementService catalogo;
+  private final AuditQueryService auditoria;
   private final Map<Destino, Button> navButtons = new EnumMap<>(Destino.class);
   private final Map<Destino.Grupo, VBox> grupoItens = new EnumMap<>(Destino.Grupo.class);
   private final Map<Destino.Grupo, Label> grupoSetas = new EnumMap<>(Destino.Grupo.class);
@@ -42,11 +45,13 @@ public class MainShellView extends BorderPane {
       AuditTrail auditTrail,
       EmployeeManagementService empregados,
       EpiCatalogManagementService catalogo,
+      AuditQueryService auditoria,
       Runnable onLogout) {
     this.usuario = usuario;
     this.auditTrail = auditTrail;
     this.empregados = empregados;
     this.catalogo = catalogo;
+    this.auditoria = auditoria;
     setTop(buildHeader(onLogout));
     setLeft(buildSidebar());
     abrir(Destino.DASHBOARD, false);
@@ -190,6 +195,9 @@ public class MainShellView extends BorderPane {
     }
     if (destino == Destino.CA) {
       return new CaBindingManagementView(usuario, catalogo, alvo -> abrir(alvo, true)).root();
+    }
+    if (destino == Destino.AUDITORIA) {
+      return new AuditTrailView(auditoria).root();
     }
     return TelasReferencia.criar(destino, alvo -> abrir(alvo, true));
   }

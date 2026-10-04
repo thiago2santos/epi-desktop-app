@@ -44,7 +44,8 @@ public final class TelasReferencia {
       case RELATORIOS -> relatorios(navegar);
       case COBERTURA -> cobertura();
       case PENDENCIAS -> pendencias();
-      case AUDITORIA -> auditoria();
+      case AUDITORIA ->
+          throw new IllegalStateException("UC-AUD-01 abre pelo shell, com a consulta real.");
       case USUARIOS -> usuarios();
       case PARAMETROS -> parametros();
       case CAEPI -> caepi();
@@ -97,41 +98,6 @@ public final class TelasReferencia {
                     new Label("Busque um trabalhador para ver EPI exigido e situação."))))
         .legal(
             "Registro legal: ao confirmar, grava fornecimento imutável. Correções apenas por estorno.");
-    return ReferenciaPage.scroll(page);
-  }
-
-  private static Node auditoria() {
-    ReferenciaPage page =
-        ReferenciaPage.of(
-            "Append-only", "Trilha de auditoria", "Eventos sensíveis — somente consulta");
-    page.section(
-            new HBox(
-                8,
-                campo("De", ""),
-                campo("Até", ""),
-                campo("Ação", "Todas"),
-                botao("Filtrar", true),
-                botao("Exportar", false)))
-        .table(
-            new String[] {"Instante", "Usuário", "Ação", "Entidade", "ID", "Detalhes"},
-            new String[][] {
-              {
-                "03/10/2026 08:14",
-                "juliana.andrade",
-                "LOGIN",
-                "USUARIO",
-                "juliana.andrade",
-                "Login realizado"
-              },
-              {
-                "03/10/2026 08:22",
-                "paulo.lima",
-                "ACESSO_MODULO",
-                "MODULO",
-                "LOTES",
-                "Lotes e saldos"
-              }
-            });
     return ReferenciaPage.scroll(page);
   }
 
