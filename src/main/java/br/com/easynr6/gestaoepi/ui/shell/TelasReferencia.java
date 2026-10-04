@@ -35,8 +35,9 @@ public final class TelasReferencia {
           throw new IllegalStateException("UC-CAD-03 abre pelo shell, com o cadastro real.");
       case SETORES ->
           throw new IllegalStateException("UC-CAD-02 abre pelo shell, com o cadastro real.");
-      case EPI -> catalogoEpi(navegar);
-      case CA -> caPorEpi(navegar);
+      case EPI ->
+          throw new IllegalStateException("UC-CAD-04 abre pelo shell, com o cadastro real.");
+      case CA -> throw new IllegalStateException("UC-CAD-05 abre pelo shell, com o cadastro real.");
       case LOTES -> lotes();
       case MATRIZ -> matriz();
       case PERIODICIDADE -> periodicidade();
@@ -96,63 +97,6 @@ public final class TelasReferencia {
                     new Label("Busque um trabalhador para ver EPI exigido e situação."))))
         .legal(
             "Registro legal: ao confirmar, grava fornecimento imutável. Correções apenas por estorno.");
-    return ReferenciaPage.scroll(page);
-  }
-
-  private static Node catalogoEpi(Consumer<Destino> navegar) {
-    ReferenciaPage page =
-        ReferenciaPage.of(
-            "UC-CAD-04 · Anexo I",
-            "Catálogo de EPI",
-            "Classificação Anexo I, fabricante e status operacional. Ativar exige CA ativo.");
-    page.section(
-            split(
-                panel("Lista", campo("Buscar", ""), botao("Novo EPI", true)),
-                panel(
-                    "Novo EPI",
-                    campo("Código", ""),
-                    campo("Descrição", "Luva de vaqueta"),
-                    campo("Grupo Anexo I", "Mãos"),
-                    campo("Fabricante", ""),
-                    botao("Salvar", true),
-                    link("Gerenciar CA", Destino.CA, navegar))))
-        .table(
-            new String[] {"Código", "Descrição", "Anexo", "CA ativo", "Status"},
-            new String[][] {
-              {"LUV-VAQ", "Luva de vaqueta", "Mãos", "28941", "Ativo"},
-              {"BOT-BIQ", "Bota de segurança com biqueira", "Pés", "35602", "Ativo"},
-              {"AUR-CON", "Protetor auricular tipo concha", "Audição", "41287", "Ativo"},
-              {"CAP-JUG", "Capacete com jugular", "Cabeça", "19844", "Ativo"}
-            });
-    return ReferenciaPage.scroll(page);
-  }
-
-  private static Node caPorEpi(Consumer<Destino> navegar) {
-    ReferenciaPage page =
-        ReferenciaPage.of(
-            "UC-CAD-05",
-            "Vínculo de CA por EPI",
-            "Situação, vigência e evidência da consulta oficial (CAEPI).");
-    Label hint =
-        new Label(
-            "Selecione o EPI, informe o CA, a situação, a vigência e a evidência da consulta. Vincular não apaga o histórico.");
-    hint.setWrapText(true);
-    hint.getStyleClass().add(Enr6Styles.BANNER_INFO);
-    page.section(hint)
-        .section(link("Ver importação CAEPI", Destino.CAEPI, navegar))
-        .section(
-            panel(
-                "Vínculo",
-                campo("EPI", "LUV-VAQ — Luva de vaqueta"),
-                campo("Número do CA", "28941"),
-                campo("Situação", "Válido"),
-                campo("Evidência", "Carga CAEPI 28/09/2026 · CA válido"),
-                botao("Vincular", true)))
-        .table(
-            new String[] {"CA", "Situação", "Vigência", "Evidência"},
-            new String[][] {
-              {"28941", "Válido", "12/03/2025 — 12/03/2030", "Carga CAEPI 28/09/2026"}
-            });
     return ReferenciaPage.scroll(page);
   }
 

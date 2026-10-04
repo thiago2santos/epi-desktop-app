@@ -2,10 +2,13 @@ package br.com.easynr6.gestaoepi.ui.shell;
 
 import atlantafx.base.theme.Styles;
 import br.com.easynr6.gestaoepi.modules.employee.application.EmployeeManagementService;
+import br.com.easynr6.gestaoepi.modules.epi.application.EpiCatalogManagementService;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
 import br.com.easynr6.gestaoepi.ui.Enr6Styles;
+import br.com.easynr6.gestaoepi.ui.cadastro.CaBindingManagementView;
 import br.com.easynr6.gestaoepi.ui.cadastro.EmployeeManagementView;
+import br.com.easynr6.gestaoepi.ui.cadastro.EpiManagementView;
 import br.com.easynr6.gestaoepi.ui.cadastro.OrgStructureManagementView;
 import java.util.EnumMap;
 import java.util.Map;
@@ -28,6 +31,7 @@ public class MainShellView extends BorderPane {
   private final UsuarioAutenticado usuario;
   private final AuditTrail auditTrail;
   private final EmployeeManagementService empregados;
+  private final EpiCatalogManagementService catalogo;
   private final Map<Destino, Button> navButtons = new EnumMap<>(Destino.class);
   private final Map<Destino.Grupo, VBox> grupoItens = new EnumMap<>(Destino.Grupo.class);
   private final Map<Destino.Grupo, Label> grupoSetas = new EnumMap<>(Destino.Grupo.class);
@@ -37,10 +41,12 @@ public class MainShellView extends BorderPane {
       UsuarioAutenticado usuario,
       AuditTrail auditTrail,
       EmployeeManagementService empregados,
+      EpiCatalogManagementService catalogo,
       Runnable onLogout) {
     this.usuario = usuario;
     this.auditTrail = auditTrail;
     this.empregados = empregados;
+    this.catalogo = catalogo;
     setTop(buildHeader(onLogout));
     setLeft(buildSidebar());
     abrir(Destino.DASHBOARD, false);
@@ -178,6 +184,12 @@ public class MainShellView extends BorderPane {
     }
     if (destino == Destino.SETORES) {
       return new OrgStructureManagementView(usuario, empregados).root();
+    }
+    if (destino == Destino.EPI) {
+      return new EpiManagementView(usuario, catalogo, alvo -> abrir(alvo, true)).root();
+    }
+    if (destino == Destino.CA) {
+      return new CaBindingManagementView(usuario, catalogo, alvo -> abrir(alvo, true)).root();
     }
     return TelasReferencia.criar(destino, alvo -> abrir(alvo, true));
   }
