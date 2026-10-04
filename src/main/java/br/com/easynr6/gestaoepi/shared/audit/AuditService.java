@@ -14,9 +14,9 @@ public class AuditService implements AuditTrail {
   private static final String INSERT_AUDITORIA_SQL =
       """
       INSERT INTO auditoria (
-        usuario_id, acao, entidade, entidade_id, detalhes, resultado, codigo, correlacao
+        instante, usuario_id, acao, entidade, entidade_id, detalhes, resultado, codigo, correlacao
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       """;
 
   private final JdbcTemplate jdbcTemplate;
@@ -49,6 +49,7 @@ public class AuditService implements AuditTrail {
     String texto = abreviar(detalhes);
     jdbcTemplate.update(
         INSERT_AUDITORIA_SQL,
+        InstanteAuditoria.agora(),
         usuarioId,
         acao,
         entidade,
