@@ -1,12 +1,17 @@
 ### UC-LOT-02 — Consultar saldo e validade de lotes
-- **Atores**: Almoxarife, SESMT, Consulta
-- **Descricao**: Exibe disponibilidade de lotes para entrega.
-- **Pre-condicoes**: Lotes cadastrados.
-- **Gatilho**: Preparacao para entrega ou controle de estoque.
+
+- **Atores**: Almoxarife, SESMT, Consulta, Admin
+- **Descricao**: Mostra fisica, reservada, disponivel e a situacao do lote.
+- **Pre-condicoes**: Diario de estoque existente. Pode estar vazio.
+- **Gatilho**: Preparar fornecimento, reserva ou compra.
 - **Fluxo principal**:
-  1. Operador filtra por EPI/unidade.
-  2. Sistema exibe saldo, validade e status.
+  1. Operador filtra por EPI, codigo, tamanho ou situacao.
+  2. Sistema lista validade mais proxima primeiro.
+  3. Lote vencido aparece com disponivel zero.
 - **Fluxos alternativos/excecoes**:
-  - Sem lote disponivel: sistema retorna lista vazia.
-- **Pos-condicoes**: Operador identifica lote apto para entrega.
-- **Regras relacionadas**: bloqueio de lote vencido na entrega.
+  - Filtro sem resultado: lista vazia, sem erro.
+- **Pos-condicoes**: Operador distingue peca livre, reservada, vencida e esgotada.
+- **Regras relacionadas**: leitura derivada dos movimentos; situacao em texto.
+- **Spec**: `docs/03-operacao/spec-uc-lot-02-consulta-saldo.md`
+- **Testes**: `docs/03-operacao/matriz-testes-uc-lot-02.md`
+- **Status**: especificado; implementacao pendente.
