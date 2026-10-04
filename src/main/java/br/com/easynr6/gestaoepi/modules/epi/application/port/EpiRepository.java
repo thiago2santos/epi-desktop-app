@@ -74,6 +74,10 @@ public interface EpiRepository {
 
   List<CaBindingSummary> listCaByEpi(Long epiId);
 
+  void saveCaEvidence(Long bindingId, String fileName, byte[] content);
+
+  boolean hasCaEvidence(Long bindingId);
+
   record EpiSummary(
       Long id,
       String epiCode,

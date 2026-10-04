@@ -44,7 +44,9 @@ class CaPolicyTest {
 
   @Test
   void shouldNormalizeNumberAndNote() {
-    assertEquals("CA1234", policy.normalizeCaNumber("  ca 1234  "));
+    assertEquals("1234", policy.normalizeCaNumber("  ca 1234  "));
+    assertThrows(IllegalArgumentException.class, () -> policy.normalizeCaNumber("ABC"));
+    assertThrows(IllegalArgumentException.class, () -> policy.rejeitarNotaVaga("ok"));
     assertEquals(
         "Conferencia realizada", policy.normalizeOfficialNote("  Conferencia realizada  "));
   }

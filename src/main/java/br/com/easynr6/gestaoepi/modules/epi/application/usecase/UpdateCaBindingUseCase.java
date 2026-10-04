@@ -1,7 +1,8 @@
 package br.com.easynr6.gestaoepi.modules.epi.application.usecase;
 
+import br.com.easynr6.gestaoepi.modules.epi.application.VinculoCaResolver;
+import br.com.easynr6.gestaoepi.modules.epi.application.VinculoCaResolver.Resolvido;
 import br.com.easynr6.gestaoepi.modules.epi.application.port.EpiRepository;
-import br.com.easynr6.gestaoepi.modules.epi.domain.CaPolicy;
 import br.com.easynr6.gestaoepi.modules.epi.domain.CaStatus;
 import br.com.easynr6.gestaoepi.shared.audit.AcaoAuditada;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
@@ -16,15 +17,17 @@ public class UpdateCaBindingUseCase {
   private final EpiRepository epiRepository;
   private final EpiCatalogAccessAuthorizer accessAuthorizer;
   private final AuditTrail auditTrail;
-  private final CaPolicy caPolicy = new CaPolicy();
+  private final VinculoCaResolver vinculoCaResolver;
 
   public UpdateCaBindingUseCase(
       EpiRepository epiRepository,
       EpiCatalogAccessAuthorizer accessAuthorizer,
-      AuditTrail auditTrail) {
+      AuditTrail auditTrail,
+      VinculoCaResolver vinculoCaResolver) {
     this.epiRepository = epiRepository;
     this.accessAuthorizer = accessAuthorizer;
     this.auditTrail = auditTrail;
+    this.vinculoCaResolver = vinculoCaResolver;
   }
 
   @AcaoAuditada(acao = "EPI_CA_UPDATED", entidade = "EPI_CA", alvo = 1)
@@ -38,15 +41,13 @@ public class UpdateCaBindingUseCase {
       LocalDate validUntil,
       LocalDateTime officialCheckAt,
       String officialCheckNote,
-      boolean active) {
+      boolean active,
+      String evidenceFileName,
+      byte[] evidence) {
     accessAuthorizer.assertCanManageCatalog(actorId);
     if (bindingId == null || !epiRepository.existsCaBindingById(bindingId)) {
       throw new IllegalArgumentException("CAD-039 Alvo de edicao/inativacao nao encontrado.");
     }
-
-    caPolicy.validateRequiredFields(caNumber, caStatus, officialCheckAt, officialCheckNote);
-    caPolicy.validateStatusForActivation(caStatus, active);
-    caPolicy.validateValidityWindow(validFrom, validUntil);
 
     var details =
         epiRepository
@@ -55,22 +56,39 @@ public class UpdateCaBindingUseCase {
                 () ->
                     new IllegalArgumentException(
                         "CAD-039 Alvo de edicao/inativacao nao encontrado."));
-    String normalizedNumber = caPolicy.normalizeCaNumber(caNumber);
-    String normalizedNote = caPolicy.normalizeOfficialNote(officialCheckNote);
+    Resolvido resolvido =
+        vinculoCaResolver.resolver(
+            caNumber,
+            caStatus,
+            validFrom,
+            validUntil,
+            officialCheckAt,
+            officialCheckNote,
+            active,
+            evidenceFileName,
+            evidence,
+            epiRepository.hasCaEvidence(bindingId));
     if (epiRepository.existsCaValidityConflict(
-        details.epiId(), normalizedNumber, validFrom, validUntil, bindingId)) {
+        details.epiId(),
+        resolvido.caNumber(),
+        resolvido.validFrom(),
+        resolvido.validUntil(),
+        bindingId)) {
       throw new IllegalArgumentException("CAD-035 CA com conflito de vigencia para o mesmo EPI.");
     }
 
     epiRepository.updateCaBinding(
         bindingId,
-        normalizedNumber,
-        caStatus,
-        validFrom,
-        validUntil,
-        officialCheckAt,
-        normalizedNote,
+        resolvido.caNumber(),
+        resolvido.caStatus(),
+        resolvido.validFrom(),
+        resolvido.validUntil(),
+        resolvido.officialCheckAt(),
+        resolvido.officialCheckNote(),
         active);
+    if (resolvido.temAnexoNovo()) {
+      epiRepository.saveCaEvidence(bindingId, resolvido.evidenceFileName(), resolvido.evidence());
+    }
     auditTrail.registrarEventoCritico(
         actorId, "EPI_CA_UPDATED", "EPI_CA", String.valueOf(bindingId), "CA binding updated.");
   }

@@ -237,3 +237,13 @@ Destino ja previsto: "Importacao CAEPI". Titulo sem codigo de caso de uso.
 - decisoes da secao 12 fechadas;
 - matriz `matriz-testes-uc-cae-01.md` com o resultado da deduplicacao definido;
 - pronto para implementacao sem alterar a disponibilidade dos modulos que nao dependem do catalogo CAEPI.
+
+## 15) Uso no vinculo de CA
+
+Decisao aplicada no cadastro de vinculo (`UC-CAD-05`):
+
+1. A data e hora do vinculo, no caminho da base, e o instante da ultima carga com auditoria `SUCESSO`. A evidencia nasce preenchida com o id da carga, esse instante, o numero, a situacao e a validade.
+2. O numero do CA e obrigatorio, tem de 1 a 6 digitos e precisa existir no indice publicado. Situacao e validade copiadas do indice. O operador nao promove um CA vencido, suspenso ou cancelado a ativo.
+3. A consulta para escolha lista variantes com razao social. O fabricante do EPI filtra a lista no inicio. A busca por numero, equipamento ou razao social abre o restante. O filtro ajuda a achar; a validacao e o numero existir no indice.
+4. Sem carga com sucesso, ou com o numero fora da base, o vinculo so grava com print PNG ou JPG da consulta online, data e hora informadas e nota que nao seja vaga (`ok`, `consultei`). O formato do numero continua obrigatorio. Nesse caminho o numero nao precisa estar na tabela.
+5. Cada tentativa manual grava auditoria terminal. Sucesso publica o indice e as variantes na mesma transacao. Falha preserva a base anterior.

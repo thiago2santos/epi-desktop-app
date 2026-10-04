@@ -72,7 +72,7 @@ class CadastroEpiUxTest {
         MensagensCadastroEpi.erro(
             new IllegalArgumentException("CAD-033 EPI duplicado no escopo definido.")));
     assertEquals(
-        "Informe a data e a evidência da consulta oficial.",
+        "Sem a base, anexe o print da consulta online e informe data e evidência.",
         MensagensCadastroEpi.erro(
             new IllegalArgumentException("CAD-037 Evidencia de consulta oficial do CA ausente.")));
     assertEquals(

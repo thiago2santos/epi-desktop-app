@@ -397,4 +397,30 @@ public class JdbcEpiRepository implements EpiRepository {
                 rs.getInt("active") == 1,
                 rs.getString("updated_at")));
   }
+
+  @Override
+  public void saveCaEvidence(Long bindingId, String fileName, byte[] content) {
+    MapSqlParameterSource params =
+        new MapSqlParameterSource()
+            .addValue("bindingId", bindingId)
+            .addValue("fileName", fileName)
+            .addValue("content", content);
+    jdbcTemplate.update("DELETE FROM epi_ca_evidence WHERE binding_id = :bindingId", params);
+    jdbcTemplate.update(
+        """
+        INSERT INTO epi_ca_evidence (binding_id, file_name, content)
+        VALUES (:bindingId, :fileName, :content)
+        """,
+        params);
+  }
+
+  @Override
+  public boolean hasCaEvidence(Long bindingId) {
+    Integer count =
+        jdbcTemplate.queryForObject(
+            "SELECT COUNT(1) FROM epi_ca_evidence WHERE binding_id = :bindingId",
+            new MapSqlParameterSource("bindingId", bindingId),
+            Integer.class);
+    return count != null && count > 0;
+  }
 }

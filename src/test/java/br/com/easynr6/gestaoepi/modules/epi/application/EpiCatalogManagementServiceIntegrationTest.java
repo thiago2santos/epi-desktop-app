@@ -3,6 +3,7 @@ package br.com.easynr6.gestaoepi.modules.epi.application;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import br.com.easynr6.gestaoepi.modules.epi.PrintConsulta;
 import br.com.easynr6.gestaoepi.modules.epi.domain.AnnexGroup;
 import br.com.easynr6.gestaoepi.modules.epi.domain.CaStatus;
 import br.com.easynr6.gestaoepi.shared.auth.AuthorizationDeniedException;
@@ -43,7 +44,9 @@ class EpiCatalogManagementServiceIntegrationTest {
             LocalDate.of(2028, 1, 1),
             LocalDateTime.of(2026, 9, 29, 22, 45),
             "Consulta oficial no CAEPI",
-            true);
+            true,
+            PrintConsulta.nome(),
+            PrintConsulta.png());
 
     Integer epiCount =
         jdbcTemplate.queryForObject(
@@ -120,7 +123,9 @@ class EpiCatalogManagementServiceIntegrationTest {
         LocalDate.of(2026, 12, 31),
         LocalDateTime.of(2026, 9, 29, 22, 50),
         "Primeira consulta",
-        true);
+        true,
+        PrintConsulta.nome(),
+        PrintConsulta.png());
 
     IllegalArgumentException ex =
         assertThrows(
@@ -135,7 +140,9 @@ class EpiCatalogManagementServiceIntegrationTest {
                     LocalDate.of(2027, 1, 1),
                     LocalDateTime.of(2026, 9, 29, 22, 55),
                     "Segunda consulta sobreposta",
-                    true));
+                    true,
+                    PrintConsulta.nome(),
+                    PrintConsulta.png()));
     assertEquals("CAD-035 CA com conflito de vigencia para o mesmo EPI.", ex.getMessage());
   }
 
@@ -161,7 +168,9 @@ class EpiCatalogManagementServiceIntegrationTest {
         LocalDate.of(2028, 1, 1),
         LocalDateTime.of(2026, 9, 29, 23, 0),
         "Consulta para ativacao",
-        true);
+        true,
+        PrintConsulta.nome(),
+        PrintConsulta.png());
     epiCatalogService.setEpiStatus(adminId, epiId, true);
 
     Integer active =

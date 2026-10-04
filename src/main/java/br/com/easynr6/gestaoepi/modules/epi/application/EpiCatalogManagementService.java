@@ -89,6 +89,32 @@ public class EpiCatalogManagementService {
       LocalDateTime officialCheckAt,
       String officialCheckNote,
       boolean active) {
+    return bindCaToEpi(
+        actorId,
+        epiId,
+        caNumber,
+        caStatus,
+        validFrom,
+        validUntil,
+        officialCheckAt,
+        officialCheckNote,
+        active,
+        null,
+        null);
+  }
+
+  public Long bindCaToEpi(
+      Long actorId,
+      Long epiId,
+      String caNumber,
+      CaStatus caStatus,
+      LocalDate validFrom,
+      LocalDate validUntil,
+      LocalDateTime officialCheckAt,
+      String officialCheckNote,
+      boolean active,
+      String evidenceFileName,
+      byte[] evidence) {
     return bindCaToEpiUseCase.execute(
         actorId,
         epiId,
@@ -98,7 +124,9 @@ public class EpiCatalogManagementService {
         validUntil,
         officialCheckAt,
         officialCheckNote,
-        active);
+        active,
+        evidenceFileName,
+        evidence);
   }
 
   public void updateCaBinding(
@@ -111,6 +139,32 @@ public class EpiCatalogManagementService {
       LocalDateTime officialCheckAt,
       String officialCheckNote,
       boolean active) {
+    updateCaBinding(
+        actorId,
+        bindingId,
+        caNumber,
+        caStatus,
+        validFrom,
+        validUntil,
+        officialCheckAt,
+        officialCheckNote,
+        active,
+        null,
+        null);
+  }
+
+  public void updateCaBinding(
+      Long actorId,
+      Long bindingId,
+      String caNumber,
+      CaStatus caStatus,
+      LocalDate validFrom,
+      LocalDate validUntil,
+      LocalDateTime officialCheckAt,
+      String officialCheckNote,
+      boolean active,
+      String evidenceFileName,
+      byte[] evidence) {
     updateCaBindingUseCase.execute(
         actorId,
         bindingId,
@@ -120,7 +174,9 @@ public class EpiCatalogManagementService {
         validUntil,
         officialCheckAt,
         officialCheckNote,
-        active);
+        active,
+        evidenceFileName,
+        evidence);
   }
 
   public void setCaBindingStatus(Long actorId, Long bindingId, boolean active) {

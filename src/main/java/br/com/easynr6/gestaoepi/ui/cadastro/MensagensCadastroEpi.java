@@ -17,7 +17,7 @@ public final class MensagensCadastroEpi {
       return "Já existe um EPI com essa descrição, grupo e fabricante.";
     }
     if (mensagem.startsWith("CAD-034")) {
-      return "Informe o número e a situação do CA.";
+      return "Informe um CA de 1 a 6 dígitos, como na base oficial, e a situação.";
     }
     if (mensagem.startsWith("CAD-035")) {
       return "A vigência deste CA conflita com outro vínculo do mesmo EPI.";
@@ -25,8 +25,11 @@ public final class MensagensCadastroEpi {
     if (mensagem.startsWith("CAD-036")) {
       return "Esta situação do CA não permite deixar o vínculo ativo.";
     }
+    if (mensagem.startsWith("CAD-037") && mensagem.contains("PNG")) {
+      return "O print da consulta precisa ser PNG ou JPG.";
+    }
     if (mensagem.startsWith("CAD-037")) {
-      return "Informe a data e a evidência da consulta oficial.";
+      return "Sem a base, anexe o print da consulta online e informe data e evidência.";
     }
     if (mensagem.startsWith("CAD-038")) {
       return "Não é possível alterar o status: confira o CA ativo e os vínculos deste EPI.";

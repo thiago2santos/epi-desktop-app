@@ -144,8 +144,9 @@ Wireframe textual (macro):
   - `DatePicker` para `valid_from` e `valid_until`;
   - `DateTime` (via `DatePicker` + `TextField` de hora) para `official_check_at`;
   - `TextArea` para `official_check_note`;
-  - `Button` **Preencher da ultima carga CAEPI** (gera texto auditavel a partir de `UC-CAE-01`: id da carga, data/hora, CA e situacao);
-  - anexo opcional de evidencia visual (print PNG/JPG da consulta CAEPI), armazenado como artefato vinculado ao vinculo (`CAD-037` complementar);
+  - `Button` **Consultar CAs** abre a lista da ultima carga com sucesso, filtrada no inicio pelo fabricante do EPI e com busca livre;
+  - no caminho da base, data/hora, situacao, validade e evidencia vem da carga (`UC-CAE-01`, secao 15) e a tela nao deixa editar esses campos;
+  - anexo de print PNG/JPG da consulta online, obrigatorio quando nao ha carga com sucesso ou o numero nao esta na base; opcional quando o CA veio da base;
   - `CheckBox` para `active`;
   - `Button` de `Vincular`, `Atualizar`, `Inativar/Reativar`, `Limpar`;
   - `TableView<EpiCaRow>` para historico/lista de vinculos do EPI.
