@@ -1,0 +1,15 @@
+---
+description: Usabilidade da landing HTML estática em site/
+globs: site/**/*.html
+alwaysApply: false
+---
+
+# Landing
+
+`site/` é HTML estático. Não tratar como Next.js, Tailwind ou app JavaFX.
+
+- Reusar as variáveis já definidas em `site/index.html` (`--bg`, `--text`, `--primary`, `--muted`). Sem cor nova fora desse bloco.
+- Uma ação primária por seção. Texto em português, sem nome de tabela, classe Java ou código de erro.
+- Contraste de texto e fundo no par já usado. Status ou destaque não depende só da cor.
+- Formulário com falha mostra a mensagem na página. Sem `alert()` nativo.
+- Contato visível. Não prometer chat, central de status ou função do desktop que a página não entrega.

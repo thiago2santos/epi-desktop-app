@@ -20,6 +20,8 @@ Este documento foi construído com base nos artefatos já existentes:
 4. **Tom visual**: corporativo sóbrio, foco em clareza; paleta e padrões assinatura em **`easy-nr6-ux-identity.md`** + **`design-tokens.css`**.
 
 > **Identidade de experiência (v0.1):** `docs/02-arquitetura/easy-nr6-ux-identity.md` — marca perceptível, três padrões Easy NR6, tokens, processo mock → tela ouro → campo. Este blueprint continua sendo o mapa de telas e matriz de componentes JavaFX.
+>
+> **Heurísticas de uso:** `docs/02-arquitetura/usabilidade/README.md`. O Cursor aplica o recorte curto em `.cursor/rules/` quando a tela JavaFX ou a landing está aberta.
 
 ## Princípios de design (regras do produto)
 

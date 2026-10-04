@@ -1,0 +1,27 @@
+---
+description: Heurísticas de Nielsen ao criar ou alterar tela JavaFX
+globs: src/main/java/**/ui/**/*.java
+alwaysApply: false
+---
+
+# Tela JavaFX
+
+Referência: `docs/02-arquitetura/usabilidade/heuristicas-nielsen.md`. Marca e tokens: `easy-nr6-ux-identity.md`.
+
+- Feedback com `MensagemTemporaria` e `Enr6Styles`. Sucesso não abre `Alert`.
+- Rede, arquivo e importação em `javafx.concurrent.Task`. Não bloquear a thread do JavaFX.
+- Português do operador. Código `CAD-` / `AUTH-` não aparece na tela; a frase fica em `Mensagens*`.
+- Inativar pede confirmação. Cancelar não chama o serviço.
+- Salvar começa desabilitado e só liga com os obrigatórios preenchidos.
+- Lista vazia tem placeholder que diz o que falta.
+- Campo inválido usa `Enr6Styles.markFieldInvalid`. A mensagem diz o que fazer.
+- Visual só por `Enr6Styles` e AtlantaFX (`Styles.ACCENT`, `Styles.DANGER`). Sem `setStyle` e sem hexadecimal na tela.
+- Esc fecha o diálogo. Enter confirma o formulário em foco.
+
+```java
+// ruim: alerta nativo e código de regra na tela
+alert.setContentText("CAD-045 Inativacao recusada");
+
+// certo: faixa na tela, frase de MensagensCadastroUnidade
+mostrar(MensagensCadastroUnidade.erro(ex), Tom.ERRO);
+```

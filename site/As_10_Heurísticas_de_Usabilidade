@@ -1,0 +1,7 @@
+Este rascunho foi separado. O conteúdo vale como referência de usabilidade, não como regra solta.
+
+- Índice: `docs/02-arquitetura/usabilidade/README.md`
+- Heurísticas: `docs/02-arquitetura/usabilidade/heuristicas-nielsen.md`
+- Padrão de tela: `docs/02-arquitetura/usabilidade/padrao-comercial.md`
+- Cursor, telas JavaFX: `.cursor/rules/usabilidade-javafx.mdc`
+- Cursor, landing: `.cursor/rules/usabilidade-site.mdc`
