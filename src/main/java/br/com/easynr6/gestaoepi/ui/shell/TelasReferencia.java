@@ -7,12 +7,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -40,7 +37,8 @@ public final class TelasReferencia {
       case EPI ->
           throw new IllegalStateException("UC-CAD-04 abre pelo shell, com o cadastro real.");
       case CA -> throw new IllegalStateException("UC-CAD-05 abre pelo shell, com o cadastro real.");
-      case LOTES -> lotes();
+      case LOTES ->
+          throw new IllegalStateException("UC-LOT-01 abre pelo shell, com o recebimento real.");
       case MATRIZ -> matriz();
       case PERIODICIDADE -> periodicidade();
       case RELATORIOS -> relatorios(navegar);
@@ -207,39 +205,6 @@ public final class TelasReferencia {
     return ReferenciaPage.scroll(page);
   }
 
-  private static Node lotes() {
-    ReferenciaPage page =
-        ReferenciaPage.of(
-            "UC-LOT-01/02 · Lotes", "Lotes e saldos", "CA na compra · validade da peça · saldo");
-    GridPane form = new GridPane();
-    form.setHgap(12);
-    form.setVgap(8);
-    form.add(new Label("EPI"), 0, 0);
-    ComboBox<String> epi = new ComboBox<>();
-    epi.getItems()
-        .addAll(
-            "LUV-VAQ — Luva de vaqueta",
-            "BOT-BIQ — Bota de segurança com biqueira",
-            "AUR-CON — Protetor auricular tipo concha",
-            "CAP-JUG — Capacete com jugular");
-    epi.getSelectionModel().selectFirst();
-    form.add(epi, 1, 0);
-    form.add(new Label("Nº CA"), 0, 1);
-    form.add(new TextField("28941"), 1, 1);
-    form.add(new Label("Validade da peça"), 0, 2);
-    form.add(new DatePicker(), 1, 2);
-    form.add(botao("Registrar lote", true), 1, 3);
-    page.section(panel("Registrar recebimento", form))
-        .table(
-            new String[] {"Lote", "EPI", "Saldo", "Validade da peça", "Alerta"},
-            new String[][] {
-              {"VG-26-0418", "Luva de vaqueta", "40", "15/03/2027", "OK"},
-              {"BT-25-1102", "Bota de segurança com biqueira", "18", "20/11/2027", "OK"},
-              {"CP-24-0088", "Capacete com jugular", "6", "20/10/2026", "30 dias"}
-            });
-    return ReferenciaPage.scroll(page);
-  }
-
   private static Node matriz() {
     ReferenciaPage page =
         ReferenciaPage.of(
@@ -324,19 +289,6 @@ public final class TelasReferencia {
     return ReferenciaPage.scroll(page);
   }
 
-  private static Node parametros() {
-    ReferenciaPage page =
-        ReferenciaPage.of(
-            "UC-ADM-03", "Parâmetros do sistema", "Unidade, política de senha e modo de operação.");
-    page.section(
-        panel(
-            "Unidade local",
-            campo("Nome da unidade", "Itupeva · 22.755.266/0002-68"),
-            campo("Modo de implantação", "Cliente-servidor"),
-            botao("Salvar parâmetros", true)));
-    return ReferenciaPage.scroll(page);
-  }
-
   private static Node caepi() {
     ReferenciaPage page =
         ReferenciaPage.of(
@@ -355,6 +307,19 @@ public final class TelasReferencia {
               {"Validação", "Concluída"},
               {"Publicação", "Concluída"}
             });
+    return ReferenciaPage.scroll(page);
+  }
+
+  private static Node parametros() {
+    ReferenciaPage page =
+        ReferenciaPage.of(
+            "UC-ADM-03", "Parâmetros do sistema", "Unidade, política de senha e modo de operação.");
+    page.section(
+        panel(
+            "Unidade local",
+            campo("Nome da unidade", "Itupeva · 22.755.266/0002-68"),
+            campo("Modo de implantação", "Cliente-servidor"),
+            botao("Salvar parâmetros", true)));
     return ReferenciaPage.scroll(page);
   }
 

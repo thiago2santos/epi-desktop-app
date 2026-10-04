@@ -281,7 +281,7 @@ Cada caso de uso segue o formato:
 - **Fluxos alternativos/excecoes**:
   - `LOT-001` a `LOT-005` e `LOT-007`.
 - **Pos-condicoes**: Fisica igual a quantidade. Reservada zero.
-- **Status**: especificado em `docs/03-operacao/spec-uc-lot-01-recebimento.md`.
+- **Status**: implementado. Spec em `docs/03-operacao/spec-uc-lot-01-recebimento.md`.
 
 ### UC-LOT-02 — Consultar saldo e validade de lotes
 - **Atores**: Almoxarife, SESMT, Consulta, Admin

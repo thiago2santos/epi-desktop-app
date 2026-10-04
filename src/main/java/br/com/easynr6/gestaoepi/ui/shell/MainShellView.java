@@ -3,6 +3,7 @@ package br.com.easynr6.gestaoepi.ui.shell;
 import atlantafx.base.theme.Styles;
 import br.com.easynr6.gestaoepi.modules.employee.application.EmployeeManagementService;
 import br.com.easynr6.gestaoepi.modules.epi.application.EpiCatalogManagementService;
+import br.com.easynr6.gestaoepi.modules.stock.application.StockManagementService;
 import br.com.easynr6.gestaoepi.shared.audit.AuditQueryService;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import br.com.easynr6.gestaoepi.shared.auth.UserAdministrationService;
@@ -15,6 +16,7 @@ import br.com.easynr6.gestaoepi.ui.cadastro.EmployeeManagementView;
 import br.com.easynr6.gestaoepi.ui.cadastro.EpiManagementView;
 import br.com.easynr6.gestaoepi.ui.cadastro.OrgStructureManagementView;
 import br.com.easynr6.gestaoepi.ui.cadastro.UnitManagementView;
+import br.com.easynr6.gestaoepi.ui.estoque.LotManagementView;
 import java.util.EnumMap;
 import java.util.Map;
 import javafx.geometry.Insets;
@@ -39,6 +41,7 @@ public class MainShellView extends BorderPane {
   private final EpiCatalogManagementService catalogo;
   private final AuditQueryService auditoria;
   private final UserAdministrationService usuarios;
+  private final StockManagementService estoque;
   private final Map<Destino, Button> navButtons = new EnumMap<>(Destino.class);
   private final Map<Destino.Grupo, VBox> grupoItens = new EnumMap<>(Destino.Grupo.class);
   private final Map<Destino.Grupo, Label> grupoSetas = new EnumMap<>(Destino.Grupo.class);
@@ -51,6 +54,7 @@ public class MainShellView extends BorderPane {
       EpiCatalogManagementService catalogo,
       AuditQueryService auditoria,
       UserAdministrationService usuarios,
+      StockManagementService estoque,
       Runnable onLogout) {
     this.usuario = usuario;
     this.auditTrail = auditTrail;
@@ -58,6 +62,7 @@ public class MainShellView extends BorderPane {
     this.catalogo = catalogo;
     this.auditoria = auditoria;
     this.usuarios = usuarios;
+    this.estoque = estoque;
     setTop(buildHeader(onLogout));
     setLeft(buildSidebar());
     abrir(Destino.DASHBOARD, false);
@@ -210,6 +215,9 @@ public class MainShellView extends BorderPane {
     }
     if (destino == Destino.USUARIOS) {
       return new UserAdministrationView(usuario, usuarios).root();
+    }
+    if (destino == Destino.LOTES) {
+      return new LotManagementView(usuario, estoque).root();
     }
     return TelasReferencia.criar(destino, alvo -> abrir(alvo, true));
   }

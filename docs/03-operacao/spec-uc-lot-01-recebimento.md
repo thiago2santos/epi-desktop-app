@@ -6,7 +6,7 @@
 - Tipo: `UC`
 - Iniciativa/Epico: `INI-01` / `EP-EST`
 - Responsavel: Time Easy NR6
-- Status: especificado; implementacao nao iniciada
+- Status: implementado na tela Lotes e saldos (`LotManagementView`)
 - Modelo: `docs/03-operacao/modelo-diario-estoque.md`
 
 ## 1) Contexto

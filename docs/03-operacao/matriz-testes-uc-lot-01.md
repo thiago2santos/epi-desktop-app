@@ -1,6 +1,6 @@
 # Matriz executavel de testes - UC-LOT-01 (Recebimento)
 
-Spec: `docs/03-operacao/spec-uc-lot-01-recebimento.md`. Nenhum teste existe em codigo ainda.
+Spec: `docs/03-operacao/spec-uc-lot-01-recebimento.md`. Testes: `LotPolicyTest`, `StockManagementServiceIntegrationTest`, `RecebimentoLoteUxTest`.
 
 | ID | Tipo | Referencia | Pre-condicoes | Passos | Resultado esperado |
 |---|---|---|---|---|---|

@@ -21,4 +21,4 @@
 - **Fora deste caso**: reserva, inventario, compra, budget, nota fiscal.
 - **Spec**: `docs/03-operacao/spec-uc-lot-01-recebimento.md`
 - **Testes**: `docs/03-operacao/matriz-testes-uc-lot-01.md`
-- **Status**: especificado; implementacao pendente.
+- **Status**: implementado. Tela `LotManagementView`. Testes na matriz.
