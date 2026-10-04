@@ -6,7 +6,7 @@
 - Tipo: `UC`
 - Iniciativa/Epico: `INI-01` / `EP-CAD`
 - Responsavel: Time Easy NR6
-- Status: refinamento inicial registrado; decisoes abertas impedem inicio da implementacao
+- Status: especificado; decisoes da secao 12 fechadas; implementacao nao iniciada
 
 ## 1) Contexto
 
@@ -210,21 +210,30 @@ Matriz inicial: `docs/03-operacao/matriz-testes-uc-cae-01.md`.
 - Banner global e feedback nos cadastros EPI/CA.
 - Barra de status global para progresso dos trabalhos CAEPI em background; atualizacoes de UI sincronizadas com JavaFX.
 
-Nao iniciar implementacao ate fechar as decisoes operacionais listadas abaixo e aprovar a matriz de testes.
+As decisoes operacionais estao na secao 12. A matriz de testes ja tem resultado esperado.
 
-## 12) Decisoes pendentes antes do DoR
+## 12) Decisoes fechadas
 
-1. Horario, fuso e politica de execucao quando a aplicacao estiver fechada; definir se a tentativa roda em servico externo ou na inicializacao/execucao do desktop.
-2. Como identificar o ciclo diario esperado e a data de referencia do arquivo. O formato observado nao confirma por si so a data de extracao.
-3. Regra de conciliacao: importar catalogo CAEPI integral separado, atualizar os CAs locais automaticamente ou oferecer os CAs oficiais como referencia para vinculacao manual.
-4. Semantica das multiplas linhas por CA e chave de deduplicacao. **Proposta registrada (§2):** indice unico por CA com prioridade de situacao + validade; catalogo completo de variantes (marca/referencia) fica fora do MVP de consulta rapida em CAD-037 — confirmar com negocio.
-5. Permissoes e UX detalhada para tentativa manual, consulta de historico e eventual nova tentativa.
-6. Politica de retencao do arquivo bruto e das versoes importadas.
-7. Contingencia para impossibilidade de persistir o evento de auditoria.
+1. Fuso `America/Sao_Paulo`. No desktop de demonstracao, a tentativa roda ao abrir o aplicativo se a ultima carga completa for de um dia anterior, e as 06:00 se o aplicativo seguir aberto. Aplicativo fechado nao tem servico externo: a tentativa acontece na proxima abertura. No modo oficial, o servico central roda o ciclo; o cliente so mostra o estado.
+2. O ciclo e a data local da tentativa. O arquivo nao traz data de extracao. A integridade exigida e o ZIP conter `tgg_export_caepi.txt`, ou o CSV da Fonte B no caminho manual. A tentativa guarda o tamanho e o SHA-256 dos bytes lidos. Nao ha assinatura do orgao para conferir.
+3. A carga publica um catalogo CAEPI separado. Nao cria EPI e nao reescreve o vinculo `epi_ca`. O operador continua escolhendo o CA na hora de vincular. A consulta por numero usa o indice deduplicado.
+4. Um registro por numero de CA. Prioridade `ACTIVE`, depois `SUSPENDED`, `CANCELED`, `EXPIRED`. Empate fica com a maior data de validade. Variantes de marca nao entram neste indice.
+5. Carga manual: `Admin` e `SESMT`, na tela "Importacao CAEPI". A mesma tela lista as ultimas 30 tentativas: data, modo, resultado, ator e motivo. `Almoxarife` e `Consulta` veem o banner e nao enviam arquivo.
+6. Fica a ultima base completa publicada e a trilha de auditoria das tentativas. O arquivo bruto e descartado depois do parse. Sucesso substitui a base publicada inteira.
+7. Se a auditoria de sucesso nao gravar, a publicacao desfaz. A tentativa e falha. Sem sucesso no ciclo, mutacao de EPI e CA continua bloqueada.
 
-## 13) Criterio de saida do refinamento
+## 13) Tela
 
-- decisoes pendentes aprovadas;
-- matriz de testes revisada e executavel;
-- estrategia de carga atomica, disponibilidade EPI/CA e auditoria aprovada;
-- pronto para implementacao incremental sem alterar a disponibilidade dos demais modulos.
+Destino ja previsto: "Importacao CAEPI". Titulo sem codigo de caso de uso.
+
+- Banner persistente no shell enquanto o ciclo vigente nao tiver sucesso: estado em texto, instante da ultima carga completa e a acao ("Aguarde a tentativa" ou "Envie o arquivo oficial").
+- Barra de fase: aguardando, baixando, validando, importando, concluida ou falha. Percentual so quando a leitura do arquivo informar tamanho. Sem percentual inventado.
+- Sucesso: "Base CAEPI atualizada." e o banner some.
+- Falha: a frase do codigo `CAE-`, sem mostrar o codigo.
+- Segunda tentativa enquanto a primeira corre: "A atualizacao ja esta em andamento."
+
+## 14) Criterio de saida do refinamento
+
+- decisoes da secao 12 fechadas;
+- matriz `matriz-testes-uc-cae-01.md` com o resultado da deduplicacao definido;
+- pronto para implementacao sem alterar a disponibilidade dos modulos que nao dependem do catalogo CAEPI.

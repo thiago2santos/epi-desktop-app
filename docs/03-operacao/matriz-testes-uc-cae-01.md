@@ -4,7 +4,7 @@
 
 - Documento base: `docs/03-operacao/spec-uc-cae-01-importar-base-caepi.md`
 - Esta matriz inicial transforma os criterios da secao 8 em cenarios verificaveis.
-- A execucao fica pendente ate as decisoes de operacao e dados da secao 12 da spec serem fechadas.
+- As decisoes da secao 12 da spec estao fechadas. Os cenarios abaixo sao executaveis.
 
 ## Legenda
 
@@ -27,7 +27,7 @@
 | CAE01-008 | RBAC | `CAE-006`, CA-CAE-08 | Usuario `Consulta` ou `Almoxarife` autenticado | Tentar disparar importacao manual | Operacao negada; nenhuma carga iniciada; evento de seguranca conforme politica geral |
 | CAE01-009 | UI | Regras 6-8, CA-CAE-05/06/07 | Carga diaria ausente ou falha; usuario autenticado | Navegar para Cadastros, EPI/CA e modulos sem dependencia CAEPI | Banner persistente; mutacoes apenas EPI/CA bloqueadas; consultas EPI/CA em somente leitura; demais modulos acessiveis |
 | CAE01-010 | INT/AUDIT/UI | Regras 4/8, CA-CAE-02/04/06/07 | Falha anterior registrada; fonte volta a responder com arquivo valido | Executar nova tentativa autorizada ate o fim | Evento de sucesso e novo snapshot confirmados no mesmo commit; mutacoes EPI/CA liberadas e banner removido |
-| CAE01-011 | INT | Secao 2, decisao pendente 4 | Arquivo valido contem multiplas linhas para o mesmo numero de CA | Importar os registros representativos | Variantes relevantes preservadas conforme regra de conciliacao aprovada; sem sobrescrita silenciosa |
+| CAE01-011 | INT | Secao 12 item 4 | Mesmo numero de CA em duas linhas, uma `EXPIRED` e outra `ACTIVE` | Importar | O indice fica com a linha `ACTIVE`; a variante expirada nao substitui |
 | CAE01-012 | UI/INT | Regra 6, CA-CAE-05 | Falha CAEPI; app aberto e operacao em modulo nao relacionado | Usar autenticacao, auditoria e cadastro nao EPI/CA | App permanece funcional sem fechamento ou bloqueio geral |
 | CAE01-013 | UI/INT | Regras 11-14, CA-CAE-10 | Importacao com etapas de rede e processamento demoradas | Iniciar importacao e interagir com janela, menu e tela nao relacionada durante download/parse/persistencia | Thread principal permanece responsiva; nenhuma etapa bloqueante executada na thread JavaFX; interacao permitida |
 | CAE01-014 | UI | Regra 12, CA-CAE-11 | Importacao em andamento com eventos de progresso controlados | Observar barra de status durante download, validacao e importacao; completar ou falhar a tarefa | Fases e resultado apresentados; indicador indeterminado quando nao houver medida; percentual somente quando mensuravel; mensagem final de falha inclui motivo operacional |
