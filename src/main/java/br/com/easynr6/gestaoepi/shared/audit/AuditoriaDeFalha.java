@@ -3,6 +3,7 @@ package br.com.easynr6.gestaoepi.shared.audit;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
@@ -28,8 +29,9 @@ public class AuditoriaDeFalha {
     this.auditTrail = auditTrail;
   }
 
-  @Around("@annotation(acao)")
-  public Object aoRedor(ProceedingJoinPoint ponto, AcaoAuditada acao) throws Throwable {
+  @Around("@annotation(br.com.easynr6.gestaoepi.shared.audit.AcaoAuditada)")
+  public Object aoRedor(ProceedingJoinPoint ponto) throws Throwable {
+    AcaoAuditada acao = acao(ponto);
     boolean abertaAqui = Correlacao.abrir();
     try {
       return ponto.proceed();
@@ -39,6 +41,10 @@ public class AuditoriaDeFalha {
     } finally {
       Correlacao.fechar(abertaAqui);
     }
+  }
+
+  private static AcaoAuditada acao(ProceedingJoinPoint ponto) {
+    return ((MethodSignature) ponto.getSignature()).getMethod().getAnnotation(AcaoAuditada.class);
   }
 
   private void registrarFalha(ProceedingJoinPoint ponto, AcaoAuditada acao, RuntimeException ex) {

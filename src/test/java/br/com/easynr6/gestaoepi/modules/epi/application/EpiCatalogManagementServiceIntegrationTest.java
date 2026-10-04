@@ -56,8 +56,9 @@ class EpiCatalogManagementServiceIntegrationTest {
             """
             SELECT COUNT(1)
             FROM auditoria
-            WHERE (acao = 'EPI_CREATED' AND entidade_id = ?)
-               OR (acao = 'EPI_CA_BOUND' AND entidade_id = ?)
+            WHERE resultado = 'SUCESSO'
+              AND ((acao = 'EPI_CREATED' AND entidade_id = ?)
+                OR (acao = 'EPI_CA_BOUND' AND entidade_id = ?))
             """,
             Integer.class,
             String.valueOf(epiId),
