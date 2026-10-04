@@ -6,7 +6,7 @@
 - Tipo: `UC`
 - Iniciativa/Epico: `INI-01` / `EP-CAD`
 - Responsavel: Time Easy NR6
-- Status: refinamento concluido; implementacao ainda nao iniciada
+- Status: implementado (dominio, repositorio, tela e testes da matriz)
 
 ## 1) Contexto
 

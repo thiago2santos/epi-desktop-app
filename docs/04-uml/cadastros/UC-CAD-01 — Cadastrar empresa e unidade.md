@@ -20,4 +20,4 @@
 - **Fora deste caso de uso**: endereco, consulta de CNPJ na Receita, segunda empresa, importacao CSV.
 - **Spec**: `docs/03-operacao/spec-uc-cad-01-unidade.md`
 - **Testes**: `docs/03-operacao/matriz-testes-uc-cad-01.md`
-- **Status**: especificado; implementacao pendente.
+- **Status**: implementado. Tela `UnitManagementView` grava pelo `EmployeeManagementService`.

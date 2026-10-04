@@ -46,11 +46,27 @@ public interface OrgStructureRepository {
 
   List<UnitOption> listActiveUnits();
 
+  Optional<UnitSummary> findUnitById(Long unitId);
+
+  boolean existsUnitByCnpj(String cnpj);
+
+  boolean hasActiveDepartments(Long unitId);
+
+  Long createUnit(String name, String cnpj, boolean active);
+
+  void updateUnitName(Long unitId, String name);
+
+  void setUnitActive(Long unitId, boolean active);
+
+  List<UnitSummary> listUnitsByTerm(String term);
+
   List<DepartmentOption> listActiveDepartments();
 
   List<JobRoleOption> listActiveJobRolesByDepartment(Long departmentId);
 
   record UnitOption(Long id, String name, String cnpj) {}
+
+  record UnitSummary(Long id, String name, String cnpj, boolean active) {}
 
   record DepartmentOption(Long id, String name, Long unitId, String unitName, boolean active) {}
 

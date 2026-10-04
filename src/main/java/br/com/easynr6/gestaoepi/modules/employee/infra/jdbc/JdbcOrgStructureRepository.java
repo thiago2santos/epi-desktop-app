@@ -1,8 +1,11 @@
 package br.com.easynr6.gestaoepi.modules.employee.infra.jdbc;
 
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -143,6 +146,36 @@ public class JdbcOrgStructureRepository implements OrgStructureRepository {
       SELECT id, name, cnpj
       FROM unit
       WHERE active = 1
+      ORDER BY name, cnpj
+      """;
+  private static final String SELECT_UNIT_BY_ID_SQL =
+      """
+      SELECT id, name, cnpj, active
+      FROM unit
+      WHERE id = :unitId
+      """;
+  private static final String COUNT_UNIT_BY_CNPJ_SQL =
+      "SELECT COUNT(1) FROM unit WHERE cnpj = :cnpj";
+  private static final String COUNT_ACTIVE_DEPARTMENTS_BY_UNIT_SQL =
+      "SELECT COUNT(1) FROM department WHERE unit_id = :unitId AND active = 1";
+  private static final String SELECT_COMPANY_ID_SQL = "SELECT id FROM company ORDER BY id LIMIT 1";
+  private static final String INSERT_UNIT_SQL =
+      """
+      INSERT INTO unit (company_id, name, cnpj, active)
+      VALUES (:companyId, :name, :cnpj, :active)
+      """;
+  private static final String SELECT_UNIT_ID_BY_CNPJ_SQL = "SELECT id FROM unit WHERE cnpj = :cnpj";
+  private static final String UPDATE_UNIT_NAME_SQL =
+      "UPDATE unit SET name = :name WHERE id = :unitId";
+  private static final String SET_UNIT_STATUS_SQL =
+      "UPDATE unit SET active = :active WHERE id = :unitId";
+  private static final String LIST_UNITS_BY_TERM_SQL =
+      """
+      SELECT id, name, cnpj, active
+      FROM unit
+      WHERE (:term = ''
+         OR name LIKE :termLike
+         OR (:digits <> '' AND cnpj LIKE :digitsLike))
       ORDER BY name, cnpj
       """;
   private static final String LIST_JOB_ROLES_BY_TERM_SQL =
@@ -408,6 +441,94 @@ public class JdbcOrgStructureRepository implements OrgStructureRepository {
         LIST_ACTIVE_UNITS_SQL,
         (rs, rowNum) ->
             new UnitOption(rs.getLong("id"), rs.getString("name"), rs.getString("cnpj")));
+  }
+
+  @Override
+  public Optional<UnitSummary> findUnitById(Long unitId) {
+    if (unitId == null) {
+      return Optional.empty();
+    }
+    List<UnitSummary> rows =
+        jdbcTemplate.query(
+            SELECT_UNIT_BY_ID_SQL,
+            new MapSqlParameterSource().addValue("unitId", unitId),
+            (rs, rowNum) -> unitSummary(rs));
+    return rows.stream().findFirst();
+  }
+
+  @Override
+  public boolean existsUnitByCnpj(String cnpj) {
+    Integer count =
+        jdbcTemplate.queryForObject(
+            COUNT_UNIT_BY_CNPJ_SQL,
+            new MapSqlParameterSource().addValue("cnpj", cnpj),
+            Integer.class);
+    return count != null && count > 0;
+  }
+
+  @Override
+  public boolean hasActiveDepartments(Long unitId) {
+    Integer count =
+        jdbcTemplate.queryForObject(
+            COUNT_ACTIVE_DEPARTMENTS_BY_UNIT_SQL,
+            new MapSqlParameterSource().addValue("unitId", unitId),
+            Integer.class);
+    return count != null && count > 0;
+  }
+
+  @Override
+  public Long createUnit(String name, String cnpj, boolean active) {
+    Long companyId =
+        jdbcTemplate.queryForObject(SELECT_COMPANY_ID_SQL, new MapSqlParameterSource(), Long.class);
+    if (companyId == null) {
+      throw new IllegalStateException("Empresa nao encontrada.");
+    }
+    try {
+      jdbcTemplate.update(
+          INSERT_UNIT_SQL,
+          new MapSqlParameterSource()
+              .addValue("companyId", companyId)
+              .addValue("name", name)
+              .addValue("cnpj", cnpj)
+              .addValue("active", active ? 1 : 0));
+    } catch (DuplicateKeyException ex) {
+      throw new IllegalArgumentException("CAD-043 CNPJ ja cadastrado.");
+    }
+    return jdbcTemplate.queryForObject(
+        SELECT_UNIT_ID_BY_CNPJ_SQL, new MapSqlParameterSource().addValue("cnpj", cnpj), Long.class);
+  }
+
+  @Override
+  public void updateUnitName(Long unitId, String name) {
+    jdbcTemplate.update(
+        UPDATE_UNIT_NAME_SQL,
+        new MapSqlParameterSource().addValue("unitId", unitId).addValue("name", name));
+  }
+
+  @Override
+  public void setUnitActive(Long unitId, boolean active) {
+    jdbcTemplate.update(
+        SET_UNIT_STATUS_SQL,
+        new MapSqlParameterSource().addValue("unitId", unitId).addValue("active", active ? 1 : 0));
+  }
+
+  @Override
+  public List<UnitSummary> listUnitsByTerm(String term) {
+    String cleanTerm = term == null ? "" : term.trim();
+    String digits = cleanTerm.replaceAll("\\D", "");
+    return jdbcTemplate.query(
+        LIST_UNITS_BY_TERM_SQL,
+        new MapSqlParameterSource()
+            .addValue("term", cleanTerm)
+            .addValue("termLike", "%" + cleanTerm + "%")
+            .addValue("digits", digits)
+            .addValue("digitsLike", "%" + digits + "%"),
+        (rs, rowNum) -> unitSummary(rs));
+  }
+
+  private static UnitSummary unitSummary(ResultSet rs) throws SQLException {
+    return new UnitSummary(
+        rs.getLong("id"), rs.getString("name"), rs.getString("cnpj"), rs.getInt("active") == 1);
   }
 
   @Override

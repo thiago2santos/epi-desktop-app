@@ -8,18 +8,23 @@ import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRe
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.JobRoleOption;
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.JobRoleSummary;
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.UnitOption;
+import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.UnitSummary;
 import br.com.easynr6.gestaoepi.modules.employee.application.usecase.CreateDepartmentUseCase;
 import br.com.easynr6.gestaoepi.modules.employee.application.usecase.CreateEmployeeUseCase;
 import br.com.easynr6.gestaoepi.modules.employee.application.usecase.CreateJobRoleUseCase;
+import br.com.easynr6.gestaoepi.modules.employee.application.usecase.CreateUnitUseCase;
 import br.com.easynr6.gestaoepi.modules.employee.application.usecase.ListDepartmentsUseCase;
 import br.com.easynr6.gestaoepi.modules.employee.application.usecase.ListEmployeesUseCase;
 import br.com.easynr6.gestaoepi.modules.employee.application.usecase.ListJobRolesUseCase;
+import br.com.easynr6.gestaoepi.modules.employee.application.usecase.ListUnitsUseCase;
 import br.com.easynr6.gestaoepi.modules.employee.application.usecase.SetDepartmentStatusUseCase;
 import br.com.easynr6.gestaoepi.modules.employee.application.usecase.SetEmployeeStatusUseCase;
 import br.com.easynr6.gestaoepi.modules.employee.application.usecase.SetJobRoleStatusUseCase;
+import br.com.easynr6.gestaoepi.modules.employee.application.usecase.SetUnitStatusUseCase;
 import br.com.easynr6.gestaoepi.modules.employee.application.usecase.UpdateDepartmentUseCase;
 import br.com.easynr6.gestaoepi.modules.employee.application.usecase.UpdateEmployeeUseCase;
 import br.com.easynr6.gestaoepi.modules.employee.application.usecase.UpdateJobRoleUseCase;
+import br.com.easynr6.gestaoepi.modules.employee.application.usecase.UpdateUnitUseCase;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +43,10 @@ public class EmployeeManagementService {
   private final UpdateJobRoleUseCase updateJobRoleUseCase;
   private final SetJobRoleStatusUseCase setJobRoleStatusUseCase;
   private final ListJobRolesUseCase listJobRolesUseCase;
+  private final CreateUnitUseCase createUnitUseCase;
+  private final UpdateUnitUseCase updateUnitUseCase;
+  private final SetUnitStatusUseCase setUnitStatusUseCase;
+  private final ListUnitsUseCase listUnitsUseCase;
   private final OrgStructureRepository orgStructureRepository;
 
   public EmployeeManagementService(
@@ -53,6 +62,10 @@ public class EmployeeManagementService {
       UpdateJobRoleUseCase updateJobRoleUseCase,
       SetJobRoleStatusUseCase setJobRoleStatusUseCase,
       ListJobRolesUseCase listJobRolesUseCase,
+      CreateUnitUseCase createUnitUseCase,
+      UpdateUnitUseCase updateUnitUseCase,
+      SetUnitStatusUseCase setUnitStatusUseCase,
+      ListUnitsUseCase listUnitsUseCase,
       OrgStructureRepository orgStructureRepository) {
     this.createEmployeeUseCase = createEmployeeUseCase;
     this.updateEmployeeUseCase = updateEmployeeUseCase;
@@ -66,6 +79,10 @@ public class EmployeeManagementService {
     this.updateJobRoleUseCase = updateJobRoleUseCase;
     this.setJobRoleStatusUseCase = setJobRoleStatusUseCase;
     this.listJobRolesUseCase = listJobRolesUseCase;
+    this.createUnitUseCase = createUnitUseCase;
+    this.updateUnitUseCase = updateUnitUseCase;
+    this.setUnitStatusUseCase = setUnitStatusUseCase;
+    this.listUnitsUseCase = listUnitsUseCase;
     this.orgStructureRepository = orgStructureRepository;
   }
 
@@ -136,6 +153,22 @@ public class EmployeeManagementService {
 
   public List<JobRoleSummary> listJobRoles(Long actorId, String term) {
     return listJobRolesUseCase.execute(actorId, term);
+  }
+
+  public Long createUnit(Long actorId, String name, String cnpj, boolean active) {
+    return createUnitUseCase.execute(actorId, name, cnpj, active);
+  }
+
+  public void updateUnit(Long actorId, Long unitId, String name) {
+    updateUnitUseCase.execute(actorId, unitId, name);
+  }
+
+  public void setUnitStatus(Long actorId, Long unitId, boolean active) {
+    setUnitStatusUseCase.execute(actorId, unitId, active);
+  }
+
+  public List<UnitSummary> listUnits(Long actorId, String term) {
+    return listUnitsUseCase.execute(actorId, term);
   }
 
   public List<UnitOption> listActiveUnits() {

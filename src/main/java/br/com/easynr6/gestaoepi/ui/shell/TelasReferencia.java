@@ -33,6 +33,8 @@ public final class TelasReferencia {
       case FILA -> fila();
       case TRABALHADORES ->
           throw new IllegalStateException("UC-CAD-03 abre pelo shell, com o cadastro real.");
+      case UNIDADES ->
+          throw new IllegalStateException("UC-CAD-01 abre pelo shell, com o cadastro real.");
       case SETORES ->
           throw new IllegalStateException("UC-CAD-02 abre pelo shell, com o cadastro real.");
       case EPI ->

@@ -6,6 +6,7 @@ import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRe
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.DepartmentSummary;
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.JobRoleSummary;
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.UnitOption;
+import br.com.easynr6.gestaoepi.modules.employee.domain.UnitPolicy;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
 import br.com.easynr6.gestaoepi.ui.Enr6Styles;
 import br.com.easynr6.gestaoepi.ui.MensagemTemporaria;
@@ -150,18 +151,7 @@ public final class OrgStructureManagementView {
   }
 
   static String formatarCnpj(String cnpj) {
-    if (cnpj == null || cnpj.length() != 14) {
-      return "";
-    }
-    return cnpj.substring(0, 2)
-        + "."
-        + cnpj.substring(2, 5)
-        + "."
-        + cnpj.substring(5, 8)
-        + "/"
-        + cnpj.substring(8, 12)
-        + "-"
-        + cnpj.substring(12);
+    return UnitPolicy.formatarCnpj(cnpj);
   }
 
   private Node montarSetores() {

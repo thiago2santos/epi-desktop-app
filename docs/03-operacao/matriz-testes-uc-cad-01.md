@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Cenarios para validar o cadastro de unidade antes e durante a implementacao. Nenhum destes testes existe em codigo ainda: a matriz e o criterio de aceite do corte seguinte.
+Cenarios do cadastro de unidade. A cobertura esta em `UnitPolicyTest`, `UnitManagementServiceIntegrationTest` e `CadastroUnidadeUxTest`.
 
 ## Vinculo com a especificacao
 

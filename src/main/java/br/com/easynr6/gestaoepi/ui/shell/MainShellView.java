@@ -14,6 +14,7 @@ import br.com.easynr6.gestaoepi.ui.cadastro.CaBindingManagementView;
 import br.com.easynr6.gestaoepi.ui.cadastro.EmployeeManagementView;
 import br.com.easynr6.gestaoepi.ui.cadastro.EpiManagementView;
 import br.com.easynr6.gestaoepi.ui.cadastro.OrgStructureManagementView;
+import br.com.easynr6.gestaoepi.ui.cadastro.UnitManagementView;
 import java.util.EnumMap;
 import java.util.Map;
 import javafx.geometry.Insets;
@@ -191,6 +192,9 @@ public class MainShellView extends BorderPane {
   private Node conteudo(Destino destino) {
     if (destino == Destino.TRABALHADORES) {
       return new EmployeeManagementView(usuario, empregados, alvo -> abrir(alvo, true)).root();
+    }
+    if (destino == Destino.UNIDADES) {
+      return new UnitManagementView(usuario, empregados).root();
     }
     if (destino == Destino.SETORES) {
       return new OrgStructureManagementView(usuario, empregados).root();
