@@ -81,8 +81,8 @@ Referencia da especificacao curta normativa:
 - `funcao`: funcao/cargo e setor.
 - `epi`: catalogo de EPIs.
 - `epi_ca`: historico de CAs do EPI.
-- `lote_epi`: lote fisico recebido (fabricante, lote, validade da peca, saldo).
-- `matriz_funcao_epi`: define obrigatoriedade por funcao/GHE.
+- `lote_epi`: identidade do lote (fabricante, codigo, validade da peca, CA da compra, tamanho, custo). Quantidades saem do diario em `docs/03-operacao/modelo-diario-estoque.md`.
+- `matriz_funcao_epi`: obrigatoriedade por funcao. Regras em `docs/03-operacao/spec-uc-mat-01-matriz.md` e periodicidade em `spec-uc-mat-02-periodicidade.md`. A ficha esta em `spec-uc-ent-01-fornecimento.md`.
 - `entrega_epi`: cabecalho da entrega.
 - `entrega_epi_item`: itens entregues (quantidade, motivo, lote, ciencia).
 - `entrega_item_ca`: CAs efetivamente vinculados ao item entregue.

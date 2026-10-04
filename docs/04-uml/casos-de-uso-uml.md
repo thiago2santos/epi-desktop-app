@@ -74,19 +74,18 @@ Cada caso de uso segue o formato:
 - **Pos-condicoes**: Usuario passa a operar no escopo permitido.
 - **Regras relacionadas**: RBAC; auditoria append-only.
 
-### UC-ADM-03 — Configurar parametros do sistema
+### UC-ADM-03 — Parametros da instalacao
 - **Atores**: Admin
-- **Descricao**: Define parametros globais da operacao.
-- **Pre-condicoes**: Admin autenticado.
-- **Gatilho**: Inicio de implantacao ou ajuste de politica.
+- **Descricao**: Grava a unidade padrao da instalacao. Empresa, CNPJ, horario CAEPI, motivos e termo ficam so leitura.
+- **Pre-condicoes**: Ao menos uma unidade ativa.
+- **Gatilho**: Apontar a barra e os filtros para a planta desta instalacao.
 - **Fluxo principal**:
-  1. Admin acessa parametros.
-  2. Ajusta dominios (motivos, metodos de validacao etc.).
-  3. Salva configuracoes.
+  1. Admin escolhe a unidade ativa.
+  2. Salva.
 - **Fluxos alternativos/excecoes**:
-  - Parametro invalido: sistema bloqueia salvamento.
-- **Pos-condicoes**: Parametros vigentes para os modulos operacionais.
-- **Regras relacionadas**: validacao de dominio; versionamento de parametro.
+  - `ADM-001` Unidade inativa.
+- **Pos-condicoes**: A barra mostra o nome. Lote, ficha e matriz nao mudam.
+- **Status**: especificado em `docs/03-operacao/spec-uc-adm-03-parametros.md`.
 
 ### UC-ADM-04 — Resetar credencial de usuario
 - **Atores**: Admin
@@ -127,10 +126,11 @@ Cada caso de uso segue o formato:
   - `CAD-041` Nome ou CNPJ ausente.
   - `CAD-042` CNPJ invalido.
   - `CAD-043` CNPJ ja cadastrado.
+  - `CAD-044` Unidade alvo nao encontrada.
   - `CAD-045` Unidade com setor ativo nao inativa.
 - **Pos-condicoes**: Unidades ativas disponiveis no cadastro de setor.
 - **Regras relacionadas**: uma empresa; CNPJ unico; nome pode repetir; auditoria append-only.
-- **Status**: especificado em `docs/03-operacao/spec-uc-cad-01-unidade.md`; implementacao pendente.
+- **Status**: implementado em `docs/03-operacao/spec-uc-cad-01-unidade.md`.
 
 ### UC-CAD-02 — Cadastrar setor e funcao
 - **Atores**: SESMT, Admin
@@ -270,65 +270,123 @@ Cada caso de uso segue o formato:
 ## Modulo: Lotes e estoque
 
 ### UC-LOT-01 — Registrar recebimento de lote
-- **Atores**: Almoxarife
-- **Descricao**: Registra entrada de lote com dados de validade, quantidade e custo.
-- **Pre-condicoes**: EPI e CA cadastrados.
+- **Atores**: Almoxarife, Admin
+- **Descricao**: Grava o movimento `RECEBIMENTO` com CA da compra, validade da peca, tamanho e custo.
+- **Pre-condicoes**: Unidade ativa. EPI com CA ativo.
 - **Gatilho**: Recebimento de material.
 - **Fluxo principal**:
-  1. Almoxarife seleciona unidade e EPI.
-  2. Informa lote, validade da peca, quantidade e custo unitario.
-  3. Confirma recebimento.
+  1. Operador escolhe unidade, EPI e o CA da peca.
+  2. Informa lote, validade, quantidade e custo, se souber.
+  3. Confirma. Peca ja vencida pede confirmacao e entra com disponivel zero.
 - **Fluxos alternativos/excecoes**:
-  - Quantidade menor ou igual a zero: sistema recusa.
-  - Lote duplicado para EPI/unidade: sistema recusa.
-- **Pos-condicoes**: Lote criado com saldo inicial disponivel.
-- **Regras relacionadas**: saldo inicial positivo; unicidade de lote por escopo.
+  - `LOT-001` a `LOT-005` e `LOT-007`.
+- **Pos-condicoes**: Fisica igual a quantidade. Reservada zero.
+- **Status**: especificado em `docs/03-operacao/spec-uc-lot-01-recebimento.md`.
 
 ### UC-LOT-02 — Consultar saldo e validade de lotes
-- **Atores**: Almoxarife, SESMT, Consulta
-- **Descricao**: Exibe disponibilidade de lotes para entrega.
-- **Pre-condicoes**: Lotes cadastrados.
-- **Gatilho**: Preparacao para entrega ou controle de estoque.
+- **Atores**: Almoxarife, SESMT, Consulta, Admin
+- **Descricao**: Lista fisica, reservada, disponivel e situacao (Vigente, Vencido, Esgotado).
+- **Pre-condicoes**: Diario de estoque.
+- **Gatilho**: Preparar fornecimento, reserva ou compra.
 - **Fluxo principal**:
-  1. Operador filtra por EPI/unidade.
-  2. Sistema exibe saldo, validade e status.
+  1. Operador filtra.
+  2. Sistema ordena pela validade mais proxima.
+  3. Lote vencido mostra disponivel zero.
 - **Fluxos alternativos/excecoes**:
-  - Sem lote disponivel: sistema retorna lista vazia.
-- **Pos-condicoes**: Operador identifica lote apto para entrega.
-- **Regras relacionadas**: bloqueio de lote vencido na entrega.
+  - Filtro sem resultado: lista vazia.
+- **Pos-condicoes**: Operador distingue peca livre, reservada e vencida.
+- **Status**: especificado em `docs/03-operacao/spec-uc-lot-02-consulta-saldo.md`.
+
+### UC-LOT-03 — Reservar e liberar
+- **Atores**: Almoxarife, Admin
+- **Descricao**: Separa disponivel vigente e libera a reserva sem fornecimento.
+- **Pre-condicoes**: Lote vigente com disponivel.
+- **Gatilho**: Separacao para atendimento.
+- **Fluxo principal**:
+  1. Operador reserva uma quantidade.
+  2. Pode liberar no todo ou em parte, com confirmacao.
+- **Fluxos alternativos/excecoes**:
+  - `LOT-008` Acima do disponivel.
+  - `LOT-009` Lote vencido.
+  - `LOT-010` Liberacao acima do restante.
+- **Pos-condicoes**: Compra nao conta essa quantidade de novo. `UC-SOL-01` nao cria a reserva.
+- **Status**: especificado em `docs/03-operacao/spec-uc-lot-03-reserva.md`.
+
+### UC-LOT-04 — Baixa de prateleira
+- **Atores**: Almoxarife, Admin
+- **Descricao**: Baixa vencimento, perda ou descarte do que nao foi fornecido.
+- **Pre-condicoes**: Fisica maior que a reservada.
+- **Gatilho**: Peca imprestavel na prateleira.
+- **Fluxo principal**:
+  1. Operador escolhe motivo e quantidade.
+  2. Confirma.
+- **Fluxos alternativos/excecoes**:
+  - `LOT-011` A quantidade entra na reserva.
+  - `LOT-012` Motivo ausente.
+- **Pos-condicoes**: Perda a parte do consumo.
+- **Status**: especificado em `docs/03-operacao/spec-uc-lot-04-baixa-prateleira.md`.
+
+### UC-LOT-05 — Inventariar estoque
+- **Atores**: Almoxarife, Admin; leitura para SESMT e Consulta
+- **Descricao**: Conta a unidade e grava ajuste so da diferenca.
+- **Pre-condicoes**: Nenhum inventario aberto na unidade.
+- **Gatilho**: Contagem fisica.
+- **Fluxo principal**:
+  1. Operador informa a quantidade contada.
+  2. Confirma o resumo.
+  3. Sistema grava `AJUSTE_INVENTARIO` onde houve diferenca.
+- **Fluxos alternativos/excecoes**:
+  - `LOT-013` Linha em branco.
+  - `LOT-014` Contagem abaixo do reservado.
+  - `LOT-015` Inventario aberto ou encerrado.
+- **Pos-condicoes**: Fisico reconciliado. Ajuste fora do consumo.
+- **Status**: especificado em `docs/03-operacao/spec-uc-lot-05-inventario.md`.
+
+### UC-LOT-06 — Necessidade de compra
+- **Atores**: SESMT, Admin; leitura para Almoxarife e Consulta
+- **Descricao**: A comprar = demanda informada menos disponivel vigente.
+- **Pre-condicoes**: Saldos do diario.
+- **Gatilho**: Planejar reposicao.
+- **Fluxo principal**:
+  1. Operador informa a demanda do periodo.
+  2. Sistema desconta reserva e ignora peca vencida.
+  3. Sugere valor pelo ultimo custo, ou marca custo incompleto.
+- **Fluxos alternativos/excecoes**:
+  - Demanda coberta: a comprar zero.
+- **Pos-condicoes**: Nenhum movimento de estoque.
+- **Status**: especificado em `docs/03-operacao/spec-uc-lot-06-necessidade-compra.md`.
 
 ---
 
 ## Modulo: Matriz
 
-### UC-MAT-01 — Definir matriz funcao/GHE x EPI
-- **Atores**: SESMT
-- **Descricao**: Define quais EPIs sao obrigatorios por funcao/GHE.
-- **Pre-condicoes**: Funcao/GHE e EPI cadastrados.
-- **Gatilho**: Implantacao ou revisao de programa de EPI.
+### UC-MAT-01 — Definir matriz funcao x EPI
+- **Atores**: SESMT, Admin
+- **Descricao**: EPIs exigidos por funcao, com CA esperado, Individual ou Posto, e flag de treinamento.
+- **Pre-condicoes**: Funcao ativa. EPI ativo com CA ativo.
+- **Gatilho**: Implantacao ou revisao do que a funcao usa.
 - **Fluxo principal**:
-  1. SESMT seleciona funcao/GHE.
-  2. Seleciona EPIs obrigatorios.
-  3. Define modo de fornecimento e vigencia.
-  4. Salva matriz.
+  1. SESMT escolhe a funcao.
+  2. Inclui o EPI.
+  3. Ajusta modo e treinamento, ou inativa a linha com confirmacao.
 - **Fluxos alternativos/excecoes**:
-  - Duplicidade de regra ativa: sistema recusa.
-- **Pos-condicoes**: Matriz ativa para orientar entrega.
-- **Regras relacionadas**: unicidade de regra ativa por perfil + EPI.
+  - `MAT-001` a `MAT-004` e `MAT-007`.
+- **Pos-condicoes**: Lista ativa para o fornecimento e a cobertura. GHE separado fica fora.
+- **Status**: especificado em `docs/03-operacao/spec-uc-mat-01-matriz.md`.
 
-### UC-MAT-02 — Definir periodicidade de reposicao
-- **Atores**: SESMT
-- **Descricao**: Define parametros de periodicidade por item/perfil.
-- **Pre-condicoes**: Regra de matriz existente.
-- **Gatilho**: Parametrizacao inicial ou ajuste tecnico.
+### UC-MAT-02 — Definir periodicidade de troca
+- **Atores**: SESMT, Admin
+- **Descricao**: Dias de troca e aviso por EPI, e o texto da cobertura.
+- **Pre-condicoes**: EPI em linha ativa da matriz.
+- **Gatilho**: Parametrizar a troca.
 - **Fluxo principal**:
-  1. SESMT seleciona item da matriz.
-  2. Informa periodicidade e vigencia.
-  3. Confirma configuracao.
+  1. SESMT informa dias e aviso.
+  2. Salva. Nao ha prazo implicito de 180 dias.
 - **Fluxos alternativos/excecoes**:
-  - Sobreposicao de vigencia: sistema bloqueia.
-- **Pos-condicoes**: Regra de reposicao aplicavel ao calculo de cobertura.
-- **Regras relacionadas**: versionamento por vigencia.
+  - `MAT-005` e `MAT-006`.
+  - Sem valor: cobertura "Sem prazo".
+- **Pos-condicoes**: Situacao em texto: Vigente, Troca em N dias, Prazo vencido, Pendente, Sem prazo ou Posto.
+- **Status**: especificado em `docs/03-operacao/spec-uc-mat-02-periodicidade.md`.
 
 ---
 
@@ -360,114 +418,98 @@ Cada caso de uso segue o formato:
   - Mudanca de gestor/setor/unidade, desligamento, cancelamento ou atendimento concorrente: preservar snapshot e aplicar transicao atomica/auditada.
 - **Pos-condicoes**: Pedido e decisao ficam rastreaveis. Somente atendimento via UC-ENT-01 cria entrega, baixa estoque e entra no consumo realizado.
 - **Regras relacionadas**: escopo organizacional validado no backend; pedido != entrega/reserva/consumo; historico limitado; forecast separa demanda solicitada/aprovada de fornecimento realizado.
-- **Especificacao**: `docs/03-operacao/spec-uc-sol-01-solicitar-epi-para-trabalhador.md`.
+- **Especificacao**: `docs/03-operacao/spec-uc-sol-01-solicitar-epi-para-trabalhador.md`, secao 15 fechada.
 - **Matriz de testes**: `docs/03-operacao/matriz-testes-uc-sol-01.md`.
+- **Status**: especificado; codigo depois do fornecimento.
 - **Persistencia e UX propostas**: modelo logico e mock textual nas secoes 6.1/6.2 da especificacao.
 
-### UC-ENT-01 — Registrar entrega de EPI
-- **Atores**: Almoxarife, SESMT; Trabalhador (participante)
-- **Descricao**: Registra formalmente a entrega de EPI ao trabalhador.
-- **Pre-condicoes**:
-  - Trabalhador ativo;
-  - lote disponivel e valido;
-  - operador autenticado.
-- **Gatilho**: Admissao, troca periodica, dano, extravio ou mudanca de funcao.
+### UC-ENT-01 — Registrar fornecimento de EPI
+- **Atores**: Almoxarife, SESMT, Admin. Trabalhador no balcao, sem login.
+- **Descricao**: Ficha imutavel e `BAIXA_FORNECIMENTO` na mesma transacao.
+- **Pre-condicoes**: Trabalhador ativo. Lote vigente com disponivel.
+- **Gatilho**: Admissao, troca, dano, extravio ou mudanca de funcao.
 - **Fluxo principal**:
-  1. Operador localiza trabalhador.
-  2. Sistema carrega itens esperados pela matriz.
-  3. Operador seleciona lote e quantidade por item.
-  4. Sistema valida saldo e validade.
-  5. Trabalhador realiza validacao/ciencia por item.
-  6. Operador confirma entrega.
-  7. Sistema grava entrega imutavel, baixa lote e registra auditoria.
+  1. Operador localiza o trabalhador e ve a cobertura em texto.
+  2. Escolhe item, lote e quantidade.
+  3. Registra orientacao e o termo.
+  4. Confirma.
 - **Fluxos alternativos/excecoes**:
-  - Lote vencido: bloquear item.
-  - Saldo insuficiente: bloquear confirmacao.
-  - Item fora da matriz: exigir justificativa e autorizacao.
-  - Falha de validacao: abortar confirmacao.
-- **Pos-condicoes**:
-  - Entrega registrada de forma imutavel;
-  - saldo atualizado;
-  - trilha de auditoria persistida.
-- **Regras relacionadas**:
-  - imutabilidade da entrega;
-  - transacao unica (entrega + saldo + auditoria).
+  - `ENT-001` a `ENT-012`.
+  - Fora da matriz: so SESMT ou Admin.
+  - Cancelar o dialogo nao grava.
+- **Pos-condicoes**: Disponivel diminui. Ficha nao se edita.
+- **Status**: especificado em `docs/03-operacao/spec-uc-ent-01-fornecimento.md`.
 
 ### UC-ENT-02 — Registrar aceite do termo de responsabilidade
-- **Atores**: Almoxarife, SESMT; Trabalhador (participante)
-- **Descricao**: Registra aceite do termo legal associado ao evento de entrega.
-- **Pre-condicoes**: Entrega em processo de confirmacao.
-- **Gatilho**: Finalizacao da entrega.
+- **Atores**: Almoxarife, SESMT, Admin
+- **Descricao**: Termo `TERMO-NR6-01` na mesma confirmacao do fornecimento. Metodo `ASSINATURA_MANUAL`.
+- **Pre-condicoes**: Ficha em revisao.
+- **Gatilho**: Passo Ciencia e termo.
 - **Fluxo principal**:
-  1. Sistema apresenta texto do termo.
-  2. Trabalhador valida aceite conforme metodo definido.
-  3. Operador confirma.
-  4. Sistema vincula aceite a entrega.
+  1. Sistema mostra o texto com o nome do trabalhador.
+  2. Operador marca o aceite no balcao.
+  3. A confirmacao grava o termo junto da ficha.
 - **Fluxos alternativos/excecoes**:
-  - Trabalhador nao aceita: entrega nao e concluida.
-- **Pos-condicoes**: Termo aceito e anexado ao evento.
-- **Regras relacionadas**: termo obrigatorio para conclusao.
+  - `ENT-009` Sem aceite. Nada gravado.
+- **Pos-condicoes**: Ficha sem termo nao existe.
+- **Status**: especificado em `docs/03-operacao/spec-uc-ent-02-termo.md`.
 
-### UC-ENT-03 — Consultar historico de entrega por trabalhador
-- **Atores**: SESMT, Almoxarife, Consulta
-- **Descricao**: Consulta historico de entregas de um trabalhador.
+### UC-ENT-03 — Consultar historico por trabalhador
+- **Atores**: SESMT, Almoxarife, Consulta, Admin
+- **Descricao**: Lista fornecimento, devolucao e estorno do periodo. Pedido nao entra.
 - **Pre-condicoes**: Trabalhador cadastrado.
-- **Gatilho**: Auditoria, atendimento operacional ou geracao de relatorio.
+- **Gatilho**: Consulta operacional ou fiscalizacao.
 - **Fluxo principal**:
-  1. Operador informa matricula e periodo.
-  2. Sistema retorna entregas, itens, CAs e status.
+  1. Operador busca matricula ou nome e informa o periodo.
+  2. Sistema lista data, EPI, CA, lote, quantidade, motivo e situacao em texto.
 - **Fluxos alternativos/excecoes**:
-  - Sem dados no periodo: retorno vazio.
-- **Pos-condicoes**: Historico disponibilizado para decisao/relatorio.
-- **Regras relacionadas**: filtros por unidade e periodo.
+  - Periodo vazio: "Nenhum fornecimento no periodo."
+- **Pos-condicoes**: Nenhuma gravacao.
+- **Status**: especificado em `docs/03-operacao/spec-uc-ent-03-historico.md`.
 
 ---
 
 ## Modulo: Pos-entrega
 
-### UC-POS-01 — Registrar devolucao/descarte
-- **Atores**: Almoxarife, SESMT
-- **Descricao**: Registra devolucao ou descarte de item entregue.
-- **Pre-condicoes**: Item entregue existente.
-- **Gatilho**: Desgaste, dano, extravio, desligamento ou outro motivo.
+### UC-POS-01 — Registrar devolucao ou descarte
+- **Atores**: Almoxarife, SESMT, Admin
+- **Descricao**: Registra a saida do item da guarda do trabalhador. Nao devolve quantidade ao disponivel.
+- **Pre-condicoes**: Item que ainda conta.
+- **Gatilho**: Desgaste, dano, descarte, desligamento ou extravio.
 - **Fluxo principal**:
-  1. Operador localiza item entregue.
-  2. Informa data e motivo da devolucao/descarte.
-  3. Confirma operacao.
-  4. Sistema registra evento e auditoria.
+  1. Operador escolhe o item, a data e o motivo.
+  2. Confirma.
 - **Fluxos alternativos/excecoes**:
-  - Data anterior a entrega: sistema recusa.
-  - Ja existe devolucao para item: sistema recusa.
-- **Pos-condicoes**: Devolucao/descarte registrada.
-- **Regras relacionadas**: maximo uma devolucao por item.
+  - `POS-001` a `POS-003`.
+- **Pos-condicoes**: Item sai da cobertura. Saldo da prateleira intacto.
+- **Status**: especificado em `docs/03-operacao/spec-uc-pos-01-devolucao.md`.
 
-### UC-POS-02 — Registrar estorno de entrega
+### UC-POS-02 — Registrar estorno de fornecimento
 - **Atores**: SESMT, Admin
-- **Descricao**: Corrige erro de lancamento por estorno formal.
-- **Pre-condicoes**: Item de entrega existente e autorizado para estorno.
-- **Gatilho**: Identificacao de erro operacional.
+- **Descricao**: Corrige lancamento com movimento `ESTORNO_FORNECIMENTO`. A ficha original permanece.
+- **Pre-condicoes**: Item que ainda conta. Motivo com 10 caracteres.
+- **Gatilho**: Erro de lancamento.
 - **Fluxo principal**:
-  1. Operador seleciona item de entrega incorreto.
-  2. Informa motivo do estorno.
-  3. Confirma estorno.
-  4. Sistema grava evento de estorno e auditoria.
+  1. Operador descreve o motivo e confirma.
+  2. Sistema soma a fisica e nao recria reserva.
 - **Fluxos alternativos/excecoes**:
-  - Motivo vazio: sistema recusa.
-- **Pos-condicoes**: Item fica estornado sem apagar historico original.
-- **Regras relacionadas**: proibicao de update/delete em prova legal.
+  - `POS-004` e `POS-005`.
+- **Pos-condicoes**: Item estornado. Consumo do periodo do estorno diminui.
+- **Status**: especificado em `docs/03-operacao/spec-uc-pos-02-estorno.md`.
 
 ### UC-POS-03 — Consultar pendencias de devolucao
-- **Atores**: SESMT, Almoxarife, Consulta
-- **Descricao**: Lista itens que exigem devolucao/regularizacao.
-- **Pre-condicoes**: Entregas existentes.
-- **Gatilho**: Rotina de controle, desligamento ou auditoria.
+- **Atores**: Almoxarife, SESMT, Admin
+- **Descricao**: Lista item individual de trabalhador inativo que ainda nao voltou.
+- **Pre-condicoes**: Fornecimentos registrados.
+- **Gatilho**: Desligamento.
 - **Fluxo principal**:
-  1. Operador aplica filtros (unidade, periodo, trabalhador).
-  2. Sistema retorna pendencias abertas.
+  1. Operador filtra.
+  2. Abre a devolucao da linha.
 - **Fluxos alternativos/excecoes**:
-  - Nenhuma pendencia: retorno vazio.
-- **Pos-condicoes**: Lista pronta para acao operacional.
-- **Regras relacionadas**: consistencia com status de entrega/devolucao/estorno.
+  - Posto, estorno e item ja devolvido ficam de fora.
+  - Lista vazia: "Nenhuma pendencia de devolucao."
+- **Pos-condicoes**: Nenhuma gravacao na consulta.
+- **Status**: especificado em `docs/03-operacao/spec-uc-pos-03-pendencias.md`.
 
 ---
 
@@ -475,60 +517,62 @@ Cada caso de uso segue o formato:
 
 ### UC-REL-01 — Gerar ficha por trabalhador e periodo
 - **Atores**: SESMT, Consulta, Admin
-- **Descricao**: Gera ficha formal com entregas/devolucoes/estornos no periodo.
-- **Pre-condicoes**: Dados operacionais registrados.
-- **Gatilho**: Auditoria, fiscalizacao, suporte juridico ou operacao.
+- **Descricao**: PDF do periodo com fornecimento, devolucao, estorno, CA, lote e termo. E o item `6.5.1.1`.
+- **Pre-condicoes**: Fichas registradas. O periodo pode estar vazio.
+- **Gatilho**: Fiscalizacao ou arquivo.
 - **Fluxo principal**:
-  1. Operador informa trabalhador e periodo.
-  2. Sistema monta dataset.
-  3. JasperReports gera relatorio.
-  4. Operador exporta/imprime PDF.
+  1. Operador escolhe o trabalhador e o periodo.
+  2. Ve a mesma lista do historico.
+  3. Gera o PDF pelo `UC-TRV-03`.
 - **Fluxos alternativos/excecoes**:
-  - Sem registros: gerar relatorio vazio com aviso.
-- **Pos-condicoes**: Evidencia formal emitida.
-- **Regras relacionadas**: reprodutibilidade do recorte.
+  - Sem fatos: PDF com a frase de vazio.
+  - Almoxarife: `AUTH-004`.
+- **Pos-condicoes**: Arquivo com o snapshot da epoca, nao o organograma de hoje.
+- **Status**: especificado em `docs/03-operacao/spec-uc-rel-01-ficha.md`.
 
-### UC-REL-02 — Gerar historico por EPI/CA/lote
-- **Atores**: SESMT, Consulta
-- **Descricao**: Rastreia movimentacao por item, CA e lote.
-- **Pre-condicoes**: Entregas registradas.
-- **Gatilho**: Investigacao tecnica ou auditoria.
+### UC-REL-02 — Historico por EPI, CA e lote
+- **Atores**: SESMT, Consulta, Admin, Almoxarife
+- **Descricao**: Quem recebeu a peca, mais recebimento, baixa de prateleira, ajuste e estorno.
+- **Pre-condicoes**: Movimentos do diario ou fichas.
+- **Gatilho**: Defeito de lote ou fiscalizacao do CA.
 - **Fluxo principal**:
-  1. Operador filtra EPI/CA/lote e periodo.
-  2. Sistema consolida eventos.
-  3. Relatorio e exibido/exportado.
+  1. Operador informa EPI, CA ou lote, e o periodo.
+  2. Sistema lista os fatos.
+  3. O PDF repete a consulta.
 - **Fluxos alternativos/excecoes**:
-  - Filtro sem resultado: relatorio sem linhas.
-- **Pos-condicoes**: Rastreabilidade documental disponivel.
-- **Regras relacionadas**: integridade de vinculo item-lote-CA.
+  - Sem EPI, CA e lote: nao consulta.
+  - Reserva nao entra.
+- **Pos-condicoes**: Nenhuma gravacao na consulta.
+- **Status**: especificado em `docs/03-operacao/spec-uc-rel-02-historico-epi.md`.
 
-### UC-REL-03 — Gerar relatorio de cobertura por trabalhador ativo
-- **Atores**: SESMT, Consulta
-- **Descricao**: Compara exigencia da matriz com situacao vigente por trabalhador.
-- **Pre-condicoes**: Matriz e entregas registradas.
-- **Gatilho**: Rotina de conformidade operacional.
+### UC-REL-03 — Cobertura dos trabalhadores ativos
+- **Atores**: SESMT, Admin, Almoxarife, Consulta
+- **Descricao**: Lista a planta com a mesma situacao do `UC-MAT-02`.
+- **Pre-condicoes**: Unidade escolhida.
+- **Gatilho**: Rotina do dia.
 - **Fluxo principal**:
-  1. Operador seleciona unidade e periodo de referencia.
-  2. Sistema cruza matriz x entregas vigentes.
-  3. Exibe cobertura e lacunas.
+  1. Operador escolhe a unidade.
+  2. Sistema resume cada trabalhador ativo: Sem matriz, pendente, em troca ou vencido, Sem prazo, ou OK.
+  3. A linha abre os itens. O PDF repete o recorte.
 - **Fluxos alternativos/excecoes**:
-  - Falta de matriz ativa: sistema alerta inconsistencia.
-- **Pos-condicoes**: Plano de regularizacao operacional.
-- **Regras relacionadas**: definicao de vigencia e periodicidade.
+  - Trabalhador inativo fica na pendencia de devolucao, nao aqui.
+- **Pos-condicoes**: Nenhuma gravacao na consulta.
+- **Status**: especificado em `docs/03-operacao/spec-uc-rel-03-cobertura.md`.
 
 ### UC-REL-04 — Gerar relatorio de consumo para budget
 - **Atores**: SESMT, Consulta, Admin
-- **Descricao**: Consolida consumo/custo por unidade, setor e funcao.
-- **Pre-condicoes**: Lotes com custo e entregas registradas.
-- **Gatilho**: Fechamento mensal e planejamento orcamentario.
+- **Descricao**: Soma o fornecimento do periodo, com perdas e ajustes em blocos separados.
+- **Pre-condicoes**: Movimentos `BAIXA_FORNECIMENTO` com custo e snapshot de unidade, setor e funcao.
+- **Gatilho**: Estimar o budget da seguranca do trabalho.
 - **Fluxo principal**:
-  1. Operador define recorte temporal e organizacional.
-  2. Sistema calcula consumo e custo.
-  3. Relatorio e gerado para analise.
+  1. Operador define periodo e recorte.
+  2. Sistema soma baixas de fornecimento menos estornos.
+  3. Mostra consumo por item e o total. Perdas e ajustes ficam em blocos separados.
 - **Fluxos alternativos/excecoes**:
-  - Custo ausente em lote: sistema sinaliza dados incompletos.
-- **Pos-condicoes**: Base quantitativa para tomada de decisao de budget.
-- **Regras relacionadas**: rastreabilidade custo-lote-entrega.
+  - Custo ausente na baixa: quantidade entra, valor fica incompleto.
+  - Periodo sem movimento: totais zero.
+- **Pos-condicoes**: Nenhuma movimentacao. Almoxarife nao abre esta tela.
+- **Status**: especificado em `docs/03-operacao/spec-uc-rel-04-consumo-budget.md`.
 
 ---
 
@@ -569,19 +613,19 @@ Cada caso de uso segue o formato:
 - **Regras relacionadas**: auditoria sem edicao/exclusao.
 
 ### UC-TRV-03 — Exportar relatorio em PDF
-- **Atores**: SESMT, Consulta, Admin
-- **Descricao**: Exporta resultado de relatorio para PDF.
-- **Pre-condicoes**: Relatorio gerado.
-- **Gatilho**: Necessidade de compartilhamento, impressao ou arquivo.
+- **Atores**: Quem pode abrir o relatorio de origem
+- **Descricao**: JasperReports grava o PDF das linhas que a tela ja mostrou. Sem tela propria.
+- **Pre-condicoes**: Consulta feita em `UC-REL-01`, `UC-REL-02`, `UC-REL-03` ou `UC-REL-04`.
+- **Gatilho**: Botao Gerar PDF.
 - **Fluxo principal**:
-  1. Operador aciona exportacao.
-  2. Sistema gera PDF via motor de relatorio.
-  3. (Opcional) PDFBox aplica pos-processamento.
-  4. Arquivo e disponibilizado.
+  1. Operador escolhe o caminho.
+  2. A geracao corre fora da thread da janela.
+  3. O arquivo leva filtros, instante e operador.
 - **Fluxos alternativos/excecoes**:
-  - Falha na geracao: sistema apresenta erro e registra log.
-- **Pos-condicoes**: PDF emitido com sucesso.
-- **Regras relacionadas**: padrao de layout e rastreabilidade de versao.
+  - Cancelar o arquivo: nada gravado.
+  - `REL-001` Falha apaga o parcial.
+- **Pos-condicoes**: Auditoria `RELATORIO_EXPORTADO`. PDFBox fica fora.
+- **Status**: especificado em `docs/03-operacao/spec-uc-trv-03-pdf.md`.
 
 ---
 

@@ -50,14 +50,14 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 - `M0`: concluido (shell desktop, autenticacao, RBAC, auditoria append-only, politica de credenciais). A tela de usuarios e papeis voltou a gravar em `UserAdministrationService`: criar, editar, papel, reset de senha, bloquear e reativar.
 - `M0` hardening arquitetural: concluido (identidade desacoplada por `ports + use cases + adapters`, com fachadas compativeis para UI).
 - `M1`: em andamento. Trabalhador (`UC-CAD-03`), setor e funcao (`UC-CAD-02`) e EPI/CA (`UC-CAD-04/05`) gravam pela tela. O nucleo de EPI/CA ja existia; a tela de referencia foi substituida.
-- `M1` `UC-CAD-01` unidade: spec e matriz prontas, implementacao nao iniciada. Uma empresa (seed Access); o caso de uso mantem nome, CNPJ e status. Endereco fica fora.
-- `M1` inclui `UC-CAE-01` (importacao diaria da base oficial CAEPI): registrado, sem codigo.
-- `M1` **FE-CAD-01 / UC-CAD-IMP-01** (importacao CSV de cadastros com staging): **registrado**, refinamento pendente — foco adocao; ver `docs/01-negocio/feature-cadastros-importacao-csv-lote.md`.
+- `M1` `UC-CAD-01` unidade: tela ligada. Uma empresa (seed Access); o caso de uso mantem nome, CNPJ e status. Endereco fica fora.
+- `M1` inclui `UC-CAE-01` (importacao diaria da base oficial CAEPI): spec fechada, sem codigo.
+- `M1` **FE-CAD-01 / UC-CAD-IMP-01** (importacao CSV de cadastros com staging): spec fechada, sem codigo. Layouts em `layouts-csv-cadastros.md`.
 - `M3` auditoria: consulta com filtro livre ligada de novo (`UC-AUD-01`). Filtro por periodo e exportacao continuam abertos.
-- `M2`: permanece bloqueado. Faltam lote, matriz e periodicidade.
+- `M2`: spec de matriz, periodicidade e fornecimento pronta. O codigo segue bloqueado ate lote, matriz e periodicidade existirem no banco.
 
 > **Footnote de governanca (obrigatorio antes de release):**
-> testes de usabilidade de campo ainda pendentes para os modulos `Cadastros` (abas `Empregados`, `Setores`, `Funcoes`, `EPI`, `CA por EPI`) e `Auditoria` (consulta), incluindo validacao de fluxo ponta a ponta por key user.
+> testes de usabilidade de campo ainda pendentes para os modulos `Cadastros` (abas `Empregados`, `Unidades`, `Setores`, `Funcoes`, `EPI`, `CA por EPI`) e `Auditoria` (consulta), incluindo validacao de fluxo ponta a ponta por key user.
 
 ## Priorizacao por modulo (ordem de implementacao)
 
@@ -97,14 +97,19 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 
 - **[UC]** `Trabalhadores` (minimo operacional: matricula, nome, funcao/setor, status). Tela ligada.
 - **[UC]** `Funcoes/Setores` (minimo para vinculo com matriz). Tela ligada.
-- **[UC]** `UC-CAD-01` Unidade da empresa ja semeada (nome, CNPJ, status). Spec e matriz prontas; codigo pendente. Ver `spec-uc-cad-01-unidade.md`.
-- **[FEAT]** `FE-CAD-01` Importacao em lote de cadastros via CSV (setor, funcao, trabalhador) com **tela de validacao previa** (verde/amarelo, filtros, deep link condicional para mestres ausentes). Spec: `spec-uc-cad-imp-01-importacao-csv-cadastros.md`. **Should para adocao** — DoR aberto.
+- **[UC]** `UC-CAD-01` Unidade da empresa ja semeada (nome, CNPJ, status). Tela ligada. Ver `spec-uc-cad-01-unidade.md`.
+- **[FEAT]** `FE-CAD-01` Importacao em lote de cadastros via CSV (setor, funcao, trabalhador) com tela de revisao. Spec fechada: `spec-uc-cad-imp-01-importacao-csv-cadastros.md`. Should para adocao.
 - **[UC]** `UC-CAD-IMP-01` Orquestra upload, staging, revalidacao e publicacao atomica do lote elegivel.
 - **[UC]** `EPI e CA` (minimo para itens entregaveis).
 - **[UC]** `UC-CAE-01 Importar base oficial CAEPI` diariamente em background, com UI responsiva e barra de status, carga atomica, auditoria de cada tentativa, banner de estado e bloqueio apenas das mutacoes EPI/CA quando a carga vigente nao estiver confirmada.
-- **[UC]** `Lotes` (entrada, validade da peca e saldo).
-- **[UC]** `Matriz Funcao/GHE x EPI` (minimo para orientar/bloquear entrega).
-- **[UC]** `Periodicidade` (parametro minimo para cobertura/reposicao).
+- **[UC]** `UC-LOT-01` Recebimento de lote e `UC-LOT-02` consulta de saldo. Spec e matriz prontas. Codigo e o proximo ataque de estoque. Ver `spec-uc-lot-01-recebimento.md` e `modelo-diario-estoque.md`.
+- **[UC]** `UC-LOT-03` Reservar e liberar. Spec pronta. Codigo depois do recebimento. `UC-SOL-01` continua sem reservar.
+- **[UC]** `UC-LOT-04` Baixa de prateleira (vencimento, perda, descarte). Spec pronta. Perda, nao consumo.
+- **[UC]** `UC-LOT-05` Inventario da unidade. Spec pronta. Feature propria: a contagem explica a diferenca, nao edita o recebimento.
+- **[UC]** `UC-LOT-06` Necessidade de compra: demanda menos disponivel vigente. Spec pronta. Sem ordem de compra.
+- **[UC]** `UC-REL-04` Consumo para budget da seguranca do trabalho. Spec pronta. Codigo depois da baixa de fornecimento.
+- **[UC]** `UC-MAT-01` Matriz funcao x EPI. Spec e matriz prontas. Perfil desta versao e a funcao; GHE separado fica fora. Ver `spec-uc-mat-01-matriz.md`.
+- **[UC]** `UC-MAT-02` Periodicidade de troca por EPI, e a leitura de cobertura em texto. Spec e matriz prontas. Sem prazo implicito. Ver `spec-uc-mat-02-periodicidade.md`.
 - **[TECH]** Dominios minimos de validacao (motivos, metodo de validacao, status).
 
 **Criterio de pronto**
@@ -114,14 +119,13 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 
 ## M2 - Core operacional governado (Must)
 
-- **[UC]** `Registrar entrega de EPI` com commit transacional:
-  `entrega + baixa de lote + auditoria`.
-- **[UC]** `Registrar aceite do termo de responsabilidade`.
-- **[UC]** Tela wizard de `Entrega de EPI` (5 passos) integrada ao caso de uso real.
-- **[UC]** Tela `Historico por trabalhador`.
-- **[UC]** Tela `Devolucao/Descarte`.
-- **[UC]** Tela `Estorno`.
-- **[UC]** `UC-SOL-01 Solicitar EPI para trabalhador` no produto oficial cliente-servidor, condicionado a cadastro organizacional com escopo de gestor, histórico de entrega e fila central.
+- **[UC]** `UC-ENT-01` Registrar fornecimento, com a tela de cinco passos. Spec e matriz prontas. Commit unico: ficha, termo, `BAIXA_FORNECIMENTO` e auditoria. Ver `spec-uc-ent-01-fornecimento.md`.
+- **[UC]** `UC-ENT-02` Aceite do termo `TERMO-NR6-01`, dentro da mesma confirmacao. Spec e matriz prontas. Ver `spec-uc-ent-02-termo.md`.
+- **[UC]** `UC-ENT-03` Historico por trabalhador. Spec e matriz prontas. Ver `spec-uc-ent-03-historico.md`.
+- **[UC]** `UC-POS-01` Devolucao ou descarte. Spec e matriz prontas. Nao devolve peca ao disponivel.
+- **[UC]** `UC-POS-02` Estorno. Spec e matriz prontas. Grava `ESTORNO_FORNECIMENTO`.
+- **[UC]** `UC-POS-03` Pendencias de devolucao no desligamento. Spec e matriz prontas.
+- **[UC]** `UC-SOL-01` Solicitar EPI para trabalhador. Spec fechada na secao 15. Papel `GESTOR`, um gestor vigente por trabalhador, pedido nao reserva estoque, atendimento parcial na mesma transacao do `UC-ENT-01`. Vale no SQLite local e no modo oficial.
 
 **Justificativa do wizard (5 passos)**
 - reduz erro operacional em fluxo juridicamente sensivel;
@@ -149,13 +153,15 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
   - camada 1 (essenciais): unidade e periodo;
   - camada 2 (operacionais): trabalhador, setor, funcao, GHE, EPI, CA, lote;
   - camada 3 (analiticos): status de vigencia, pendencia, excecao de matriz, estornado.
-- **[UC]** Relatorios:
-  - ficha por trabalhador;
-  - historico por EPI/CA/lote;
-  - cobertura (matriz x vigente);
-  - pendencias de devolucao.
+- **[UC]** Relatorios, specs prontas:
+  - `UC-REL-01` ficha PDF por trabalhador e periodo (item `6.5.1.1`);
+  - `UC-REL-02` historico por EPI, CA e lote;
+  - `UC-REL-03` cobertura da planta, mesma leitura do `UC-MAT-02`;
+  - `UC-POS-03` pendencias de devolucao;
+  - `UC-REL-04` consumo para budget.
 - **[UC]** `UC-AUD-01 Consultar auditoria` (listagem e filtro livre para validacao operacional de trilha critica).
-- **[FEAT]** Exportacao PDF padronizada.
+- **[UC]** `UC-TRV-03` Exportacao PDF por JasperReports, sem tela propria. Usado por `UC-REL-01` a `UC-REL-04`.
+- **[UC]** `UC-ADM-03` Unidade padrao da instalacao. Motivos, termo e horario CAEPI nao se editam aqui.
 - **[FEAT]** Visao de demanda para planejamento de compra, separando solicitacoes abertas/aprovadas/parcialmente atendidas de entregas efetivas.
 - Rejeitados/cancelados nao contam como demanda em aberto; solicitacao nao equivale a ordem de compra nem a consumo realizado.
 
@@ -238,10 +244,10 @@ M2 (core operacional governado) so pode iniciar quando todos os itens abaixo est
 
 ### 2) Regras e dominios minimos definidos
 
-- [ ] Dominio de motivos de entrega definido.
-- [ ] Dominio de metodos de validacao do trabalhador definido.
-- [ ] Politica de excecao fora da matriz definida (justificativa + autorizacao).
-- [ ] Politica de estorno formal definida (sem update/delete de prova legal).
+- [x] Dominio de motivos de entrega definido em `spec-uc-ent-01-fornecimento.md`.
+- [x] Dominio de metodos de validacao definido: `ASSINATURA_MANUAL` em `spec-uc-ent-02-termo.md`.
+- [x] Politica de excecao fora da matriz definida (texto e autorizacao SESMT ou Admin).
+- [x] Politica de estorno formal definida em `spec-uc-pos-02-estorno.md`. Devolucao em `spec-uc-pos-01-devolucao.md` nao mexe no saldo.
 
 ### 3) Fundacao tecnica e seguranca validada
 
@@ -252,9 +258,9 @@ M2 (core operacional governado) so pode iniciar quando todos os itens abaixo est
 
 ### 4) Prontidao de implementacao do caso de uso
 
-- [ ] Spec curta de `UC-ENT-01` aprovada.
-- [ ] Spec curta de `UC-ENT-02` aprovada.
-- [ ] Cenarios de teste definidos antes do codigo (feliz, bloqueio, borda).
+- [ ] Spec curta de `UC-ENT-01` lida e aceita pelo responsavel. Texto em `spec-uc-ent-01-fornecimento.md`.
+- [ ] Spec curta de `UC-ENT-02` lida e aceita pelo responsavel. Texto em `spec-uc-ent-02-termo.md`.
+- [x] Cenarios de teste definidos antes do codigo (feliz, bloqueio, borda) em `matriz-testes-uc-ent-01.md` e `matriz-testes-uc-ent-02.md`.
 - [ ] Criterios de aceite mensuraveis aprovados pelo responsavel funcional.
 
 ### Gate especifico para UC-CAD-04/05 (EPI + CA) - critico
@@ -430,8 +436,8 @@ Toda task deve conter:
 
 ## Proximo ataque recomendado (sequencia objetiva)
 
-1. Implementar `UC-CAD-01` a partir de `spec-uc-cad-01-unidade.md` e `matriz-testes-uc-cad-01.md` (dominio, repositorio, tela). O seed da Access continua valendo ate la.
-2. **Sprint J1:** `UC-LOT-01/02` + `UC-MAT-01` + periodicidade. E o que destrava o DoR de M2.
+1. `UC-CAD-01` implementado: nome, CNPJ e status da empresa do seed, com a tela no shell.
+2. **Sprint J1:** implementar `UC-LOT-01/02`, depois `UC-MAT-01/02`, depois `UC-ENT-01/02`, depois devolucao, estorno, historico e pendencias. Reserva, baixa de prateleira, inventario, compra e budget entram na mesma cadeia. Solicitacao, CAEPI e CSV de cadastros ja tem spec e entram em seguida.
 3. **Sprint J2:** core transacional M2 — wizard de fornecimento com persistencia, historico, devolucao e estorno.
 4. **Sprint J3:** relatorios M3 alem da auditoria — cobertura, pendencias e PDF minimo.
 5. **Sprint J4:** `UC-CAE-01` e `UC-SOL-01`.

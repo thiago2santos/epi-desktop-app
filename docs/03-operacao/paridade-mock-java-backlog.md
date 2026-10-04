@@ -43,7 +43,7 @@ Documento de alinhamento entre **documentação/backlog**, **protótipo navegáv
 | `19-admin-usuarios` | UC-ADM-01/02 | `UserAdministrationView`, `UserAdministrationService` |
 | `20-admin-parametros` | UC-ADM-03 | parcial via identidade; falta `SystemParams` persistido |
 | `21-caepi-import` | UC-CAE-01 | **mock** AUTO + manual + IndexedDB; Java **não iniciado** |
-| `22-cadastros-import-csv` (previsto) | UC-CAD-IMP-01 / FE-CAD-01 | **não iniciado** — spec registrada; staging verde/amarelo + deep link CAD-02 |
+| `22-cadastros-import-csv` (previsto) | UC-CAD-IMP-01 / FE-CAD-01 | spec fechada; Java não iniciado |
 
 Referência mock: [`docs/mock/ROADMAP-SESSION-MOCK.md`](../mock/ROADMAP-SESSION-MOCK.md), [`docs/mock/mock-store.js`](../mock/mock-store.js).
 
@@ -66,27 +66,36 @@ Referência mock: [`docs/mock/ROADMAP-SESSION-MOCK.md`](../mock/ROADMAP-SESSION-
 
 | Item | Mock | Java | Spec / testes | Notas |
 |------|------|------|---------------|-------|
-| UC-CAD-01 Unidade | — | 🔶 spec + matriz; seed na `unit` | `spec-uc-cad-01-unidade`, `matriz-testes-uc-cad-01` | Sem tela. Empresa continua a do seed |
+| UC-CAD-01 Unidade | — | ✅ serviço e tela | `spec-uc-cad-01-unidade`, `matriz-testes-uc-cad-01` | Nome, CNPJ e status. Empresa continua a do seed |
 | UC-CAD-02 Setor/função | ✅ | ✅ policies + UI | CAD-02x tests | |
 | UC-CAD-03 Trabalhador | ✅ | ✅ | employee tests | |
 | UC-CAD-04/05 EPI + CA | ✅ + CAEPI gate | ✅ serviço e tela | `spec-uc-cad-04-05`, matriz testes | Tela chama `EpiCatalogManagementService` |
-| UC-CAE-01 Import CAEPI | ✅ 21 AUTO sim + **manual real** (upload ZIP/txt) | ⬜ | `spec-uc-cae-01`, matriz | Java: `CaepiImportService` background + manual same pipeline |
-| UC-LOT lote/saldo | ✅ 10 | ⬜ sem tabela/migration | 🔶 spec a escrever | **Copiar regras** de `createLot` / `createIssuance` do mock |
-| UC-MAT-01 matriz | ✅ 11 | ⬜ | 🔶 spec a escrever | Mock: assignment, treinamento, CA esperado |
-| UC-MAT periodicidade | ✅ 12 | ⬜ | 🔶 | Mock: `warnDays` → cobertura |
+| UC-CAE-01 Import CAEPI | ✅ 21 AUTO sim + **manual real** (upload ZIP/txt) | ⬜ | spec fechada + matriz | Catalogo separado; indice um CA; Java nao iniciado |
+| UC-LOT-01/02 Recebimento e saldo | ✅ 10 | ⬜ sem tabela | spec + matriz | Diario; tres leituras. Codigo pendente |
+| UC-LOT-03 Reserva | — | ⬜ | spec + matriz | Solicitacao continua sem reservar |
+| UC-LOT-04 Baixa de prateleira | — | ⬜ | spec + matriz | Perda, fora do consumo |
+| UC-LOT-05 Inventario | — | ⬜ | spec + matriz | Ajuste da diferenca |
+| UC-LOT-06 Necessidade de compra | — | ⬜ | spec + matriz | Demanda menos disponivel |
+| UC-REL-04 Consumo para budget | — | ⬜ | spec + matriz | Fornecimento, perdas e ajustes separados |
+| UC-MAT-01 matriz | ✅ 11 | ⬜ sem tabela | spec + matriz | Funcao x EPI. GHE fora |
+| UC-MAT-02 periodicidade | ✅ 12 | ⬜ sem tabela | spec + matriz | Dias e aviso por EPI. Sem prazo implicito |
 | Domínios motivos/validação | 🟡 selects fixos | ⬜ | DoR M2 | Extrair enums do mock p/ spec UC-ENT |
 
 ### M2 — Core operacional
 
 | Item | Mock | Java | Spec / testes | Notas |
 |------|------|------|---------------|-------|
-| UC-ENT-01 wizard 5 passos | ✅ 02 | 🟡 `EntregaWizardView` simulação | 🔶 UC-ENT spec | Java: passos diferentes; **sem persistência**; `EntregaRules` já espelha lote/devolução |
+| UC-ENT-01 fornecimento | ✅ 02 | 🟡 `EntregaWizardView` simulação | spec + matriz | Ficha e baixa na mesma transacao. Java ainda sem persistencia |
+| UC-ENT-02 termo | ✅ passo 4 do 02 | ⬜ | spec + matriz | `ASSINATURA_MANUAL` dentro do `UC-ENT-01` |
 | Commit entrega+lote+audit | ✅ store | ⬜ | DoR §5 transação | Mock: `createIssuance` |
 | Termo / ciência NR-6 | ✅ checkboxes | ⬜ | blueprint passo 4 | |
 | Histórico trabalhador | ✅ 05 | ⬜ | — | |
-| Devolução | ✅ 03 | ⬜ | `EntregaRules.devolucaoEmDataValida` | |
+| UC-POS-01 Devolucao | ✅ 03 | ⬜ | spec + matriz | Nao devolve quantidade ao disponivel |
+| UC-POS-02 Estorno | ✅ 04 | ⬜ | spec + matriz | `ESTORNO_FORNECIMENTO`; ficha permanece |
+| UC-POS-03 Pendencias | — | ⬜ | spec + matriz | Desligamento, item individual |
+| UC-ENT-03 Historico | ✅ 05 | ⬜ | spec + matriz | Fornecimento, devolucao e estorno |
 | Estorno | ✅ 04 | ⬜ | — | |
-| UC-SOL-01 gestor + fila | ✅ 16–17 | ⬜ | `spec-uc-sol-01`, matriz | Depende `Papel.GESTOR` + modelo fila |
+| UC-SOL-01 gestor + fila | ✅ 16–17 | ⬜ | spec fechada + matriz | Papel `GESTOR` ainda ausente no enum |
 | Exceção matriz na entrega | ✅ wizard | ⬜ | — | Mock: `matrixException` |
 
 ### M3 — Relatórios e evidência
@@ -135,9 +144,8 @@ Ordem para maximizar reutilização do protótipo como **critério de aceite UX*
 
 ```text
 Sprint J1 — M1 estoque + regras (desbloqueia DoR M2)
-  • Migration `lote` + módulo UC-LOT (UI ≈ mock 10)
-  • Migration `matriz` + `periodicidade` (UI ≈ mock 11–12)
-  • Spec curta UC-LOT + UC-MAT + cenários (copiar fluxos do mock)
+  • Implementar UC-LOT-01/02, depois UC-MAT-01/02, depois UC-ENT-01/02
+  • UC-LOT-03 a 06 e UC-REL-04 já têm spec; código depois do recebimento e da baixa de fornecimento
 
 Sprint J2 — M2 entrega real
   • Migration `fornecimento` (issuance) + baixa lote transacional
@@ -170,7 +178,7 @@ Itens do backlog que o **mock já demonstra** (aceite de product owner / key use
 - [x] Bloqueio lote vencido e saldo (comportamento esperado documentado).
 - [x] Cobertura matriz × vigente calculável (`14` + `coverageForEmployee`).
 - [ ] **Persistência JDBC** equivalente ao `createIssuance` (ainda pendente Java).
-- [ ] Spec formal UC-ENT-01 assinada (extrair do mock + blueprint).
+- [ ] Spec de UC-ENT-01 aceita pelo responsavel (texto em `spec-uc-ent-01-fornecimento.md`).
 
 Itens DoR M1 ainda **não** espelhados no Java:
 
@@ -186,4 +194,4 @@ Itens DoR M1 ainda **não** espelhados no Java:
 2. Se o mock mudar (novo passo/regra), atualizar **Regras mock → Java** e o store.
 3. Toda PR `UC`/`FEAT` deve citar: mock page(s), spec, e linha desta paridade.
 
-**Última revisão:** telas de EPI, CA, auditoria e usuários ligadas ao serviço; UC-CAD-01 especificado e ainda sem código. Lotes, matriz, periodicidade, fornecimento, relatórios, CAEPI e parâmetros seguem tela de referência.
+**Última revisão:** UC-CAD-01 grava unidade pela tela. Os casos do índice operacional têm spec curta, inclusive ficha PDF, histórico por EPI, cobertura, exportação e unidade padrão. Java de estoque em diante ainda sem tabela.
