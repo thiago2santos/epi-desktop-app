@@ -6,6 +6,7 @@ import br.com.easynr6.gestaoepi.shared.audit.AuditQueryService;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
 import br.com.easynr6.gestaoepi.shared.auth.AuthenticationProvider;
 import br.com.easynr6.gestaoepi.shared.auth.CredentialManager;
+import br.com.easynr6.gestaoepi.shared.auth.UserAdministrationService;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
 import br.com.easynr6.gestaoepi.ui.login.ChangePasswordView;
 import br.com.easynr6.gestaoepi.ui.login.LoginView;
@@ -83,6 +84,7 @@ public class EasyNr6DesktopApp extends Application {
             applicationContext.getBean(EmployeeManagementService.class),
             applicationContext.getBean(EpiCatalogManagementService.class),
             applicationContext.getBean(AuditQueryService.class),
+            applicationContext.getBean(UserAdministrationService.class),
             () -> {
               auditTrail.registrarEventoCritico(
                   usuario.id(),

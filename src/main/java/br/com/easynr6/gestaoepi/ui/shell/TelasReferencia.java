@@ -46,7 +46,8 @@ public final class TelasReferencia {
       case PENDENCIAS -> pendencias();
       case AUDITORIA ->
           throw new IllegalStateException("UC-AUD-01 abre pelo shell, com a consulta real.");
-      case USUARIOS -> usuarios();
+      case USUARIOS ->
+          throw new IllegalStateException("UC-ADM-01 abre pelo shell, com o cadastro real.");
       case PARAMETROS -> parametros();
       case CAEPI -> caepi();
     };
@@ -98,29 +99,6 @@ public final class TelasReferencia {
                     new Label("Busque um trabalhador para ver EPI exigido e situação."))))
         .legal(
             "Registro legal: ao confirmar, grava fornecimento imutável. Correções apenas por estorno.");
-    return ReferenciaPage.scroll(page);
-  }
-
-  private static Node usuarios() {
-    ReferenciaPage page =
-        ReferenciaPage.of(
-            "UC-ADM-01/02", "Usuários e papéis", "RBAC, credencial e troca obrigatória.");
-    page.section(
-            split(
-                panel("Lista", botao("Novo usuário", true)),
-                panel(
-                    "Selecione um usuário",
-                    campo("Nome exibido", "Juliana Cristina de Andrade de Oliveira"),
-                    campo("Papel", "SESMT"),
-                    botao("Salvar", true),
-                    botao("Reset senha", false))))
-        .table(
-            new String[] {"Login", "Nome", "Papel", "Status"},
-            new String[][] {
-              {"juliana.andrade", "Juliana Cristina de Andrade de Oliveira", "SESMT", "Ativo"},
-              {"paulo.lima", "Paulo Sergio Lima dos Santos", "Almoxarife", "Ativo"},
-              {"eduardo.regis", "Eduardo Regis Ferreira Teixeira", "Admin", "Ativo"}
-            });
     return ReferenciaPage.scroll(page);
   }
 
