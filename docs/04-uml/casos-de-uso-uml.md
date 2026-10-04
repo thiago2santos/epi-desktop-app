@@ -114,19 +114,23 @@ Cada caso de uso segue o formato:
 
 ## Modulo: Cadastros
 
-### UC-CAD-01 — Cadastrar empresa e unidade
+### UC-CAD-01 — Cadastrar unidade
 - **Atores**: Admin, SESMT
-- **Descricao**: Registra dados institucionais da empresa e unidade operacional.
-- **Pre-condicoes**: Permissao de cadastro.
-- **Gatilho**: Configuracao inicial da unidade.
+- **Descricao**: Mantem as unidades da empresa ja semeada. Nao cria outra sociedade.
+- **Pre-condicoes**: Empresa existente. Permissao de cadastro.
+- **Gatilho**: Nova planta, correcao de nome ou inativacao de unidade.
 - **Fluxo principal**:
-  1. Operador acessa cadastro institucional.
-  2. Informa razao social, CNPJ e unidade.
-  3. Confirma gravacao.
+  1. Operador informa nome e CNPJ.
+  2. Sistema normaliza o CNPJ para 14 digitos e grava a unidade.
+  3. Operador pode editar o nome e inativar ou reativar sem delete fisico.
 - **Fluxos alternativos/excecoes**:
-  - CNPJ duplicado/invalido: sistema recusa.
-- **Pos-condicoes**: Empresa/unidade disponiveis para uso nos demais modulos.
-- **Regras relacionadas**: CNPJ unico; escopo por unidade.
+  - `CAD-041` Nome ou CNPJ ausente.
+  - `CAD-042` CNPJ invalido.
+  - `CAD-043` CNPJ ja cadastrado.
+  - `CAD-045` Unidade com setor ativo nao inativa.
+- **Pos-condicoes**: Unidades ativas disponiveis no cadastro de setor.
+- **Regras relacionadas**: uma empresa; CNPJ unico; nome pode repetir; auditoria append-only.
+- **Status**: especificado em `docs/03-operacao/spec-uc-cad-01-unidade.md`; implementacao pendente.
 
 ### UC-CAD-02 — Cadastrar setor e funcao
 - **Atores**: SESMT, Admin
