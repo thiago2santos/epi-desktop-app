@@ -7,7 +7,7 @@
 - Tipo: `UC` (orquestracao) + padrao reutilizavel `FEAT`
 - Iniciativa/Epico: `INI-01` / `EP-CAD`
 - Responsavel: Time Easy NR6
-- Status: **registrado — refinamento pendente (DoR aberto)**
+- Status: especificado; decisoes da secao 10 fechadas; implementacao nao iniciada
 
 ## 1) Contexto
 
@@ -29,7 +29,7 @@
   - `setores.csv`
   - `funcoes.csv`
   - `trabalhadores.csv`
-- Delimitador, encoding e cabecalho: **definir na Etapa 2 de refinamento** (proposta inicial: `;`, UTF-8, cabecalho na 1a linha — alinhado ao RelatorioCA quando possivel).
+- Delimitador `;`, UTF-8 com ou sem BOM, cabecalho na primeira linha. Layouts em `docs/03-operacao/layouts-csv-cadastros.md`. A tela pede a unidade antes do arquivo.
 - Fluxo:
   1. Upload do arquivo.
   2. Parse em background (nao bloquear UI — mesmo principio de `UC-CAE-01`).
@@ -61,14 +61,14 @@
    - **somente** quando a resolucao exige acao humana no cadastro mestre;
    - ao voltar, usuario dispara **Revalidar** (linha ou arquivo).
 
-## 4) Regras de negocio (rascunho — confirmar)
+## 4) Regras de negocio
 
 1. Validacao usa **mesmas regras** do cadastro unitario (`CAD-02x`, `CAD-03x`) onde aplicavel.
 2. Matricula de trabalhador: unicidade global; normalizacao de espacos (trim).
 3. Funcao deve pertencer ao setor informado (ou regra de resolucao por nome composto — decisao §12).
 4. Linha valida no staging **nao garante** sucesso na publicacao se o estado mudar entre revisao e commit (conflito de concorrencia): tratar como falha de linha com auditoria.
 5. Tentativa de importacao registra **exatamente um** evento terminal de auditoria (`SUCESSO`, `SUCESSO_PARCIAL`, `FALHA` — nomenclatura a fechar).
-6. Usuario sem permissao: negar antes do parse (`CAD-IMP-006` provisorio).
+6. Usuario sem permissao: negar antes do parse (`CAD-IMP-006`). `Admin` e `SESMT` importam.
 
 ## 5) Fluxos
 
@@ -105,7 +105,7 @@
 | `CAD-IMP-003` | Nenhuma linha valida | Nao ha registros prontos para importacao. Revise as pendencias. |
 | `CAD-IMP-004` | Falha ao publicar lote | A importacao nao foi concluida. Nenhuma alteracao parcial foi aplicada. |
 | `CAD-IMP-005` | Matricula duplicada (arquivo ou base) | Matricula ja existente ou repetida no arquivo. |
-| `CAD-IMP-006` | Sem permissao | Seu perfil nao permite importacao em lote de cadastros. |
+| `CAD-IMP-006` | Sem permissao | Voce nao tem permissao para importar cadastros. |
 | `CAD-IMP-010` | Setor nao encontrado | Setor nao cadastrado — cadastre ou corrija o valor. |
 | `CAD-IMP-011` | Funcao nao encontrada | Funcao nao cadastrada para o setor informado. |
 
@@ -121,19 +121,32 @@
 - Paridade Java: `docs/03-operacao/paridade-mock-java-backlog.md`.
 - Layouts CSV versionados: `docs/03-operacao/layouts-csv-cadastros/` (criar na Etapa 2).
 
-## 10) Decisoes pendentes antes do DoR
+## 10) Decisoes fechadas
 
-1. **Layouts CSV** finais (colunas, obrigatoriedade, exemplos downloadable).
-2. Importar **somente linhas validas** com pendencias restantes vs **bloquear** ate zerar amarelas.
-3. Resolucao de setor/funcao: match **case-insensitive**? alias? codigo externo?
-4. Pacote unico (3 abas) vs tres uploads separados.
-5. Politica de **atualizacao** vs **somente insert** (trabalhador existente por matricula).
-6. Retencao do arquivo bruto e do snapshot de staging.
-7. Revalidacao automatica ao voltar do deep link vs botao explicito.
+1. Layouts publicados em `docs/03-operacao/layouts-csv-cadastros.md`. A tela oferece baixar o modelo vazio de cada tipo.
+2. O commit grava so as linhas prontas. Linha com pendencia fica na revisao e nao entra. O botao "Importar linhas prontas" so habilita se houver ao menos uma. Zero prontas: `CAD-IMP-003` e o botao desabilitado.
+3. Setor e funcao casam pelo nome, trim, sem diferenciar maiusculas, dentro da unidade escolhida. Sem apelido e sem codigo externo.
+4. Uma tela, um tipo por vez, um arquivo por tentativa.
+5. So inclusao. Matricula ou setor que ja existe vira pendencia `CAD-IMP-005` ou a pendencia de nome repetido. Nao atualiza cadastro existente.
+6. A revisao dura ate importar ou descartar. Descartar apaga a revisao. O arquivo bruto nao fica guardado. A auditoria guarda o nome do arquivo e as contagens.
+7. Revalidar e um botao explicito. Voltar do cadastro de setor ou funcao nao revalida sozinho.
 
-## 11) Criterio de saida do refinamento
+## 11) Tela
 
-- decisoes §10 fechadas;
+Destino no grupo Cadastros: "Importar cadastros". Titulo sem codigo de caso de uso.
+
+- Unidade, tipo de arquivo e escolher arquivo. O parse corre fora da thread da janela.
+- Grade com numero da linha, colunas do layout e a situacao em texto: "Pronta" ou "Com pendencia". Cor acompanha o texto e nao substitui.
+- Filtros: Todas, Prontas, Com pendencia. Contadores: total, prontas, com pendencia.
+- A frase da pendencia fica na linha, sem o codigo `CAD-IMP-`.
+- Setor ou funcao inexistente: a frase abre o cadastro com o nome preenchido. Ao voltar, o operador clica "Revalidar".
+- Vazio de arquivo: "Nenhum registro encontrado no arquivo."
+- Sucesso: "N linhas importadas. M ficaram de fora." Faixa na propria tela.
+- Dialogo antes do commit: "Importar so as linhas prontas? As pendencias continuam de fora." Confirmar / Voltar.
+
+## 12) Criterio de saida do refinamento
+
+- decisoes da secao 10 fechadas;
+- layouts publicados;
 - matriz `matriz-testes-uc-cad-imp-01.md` executavel;
-- layouts CSV publicados;
-- pronto para slice vertical (parser + dominio + UI staging) sem alterar modulos nao dependentes.
+- pronto para implementacao sem alterar o cadastro manual.
