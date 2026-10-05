@@ -15,6 +15,7 @@ import br.com.easynr6.gestaoepi.ui.auditoria.AuditTrailView;
 import br.com.easynr6.gestaoepi.ui.cadastro.CaBindingManagementView;
 import br.com.easynr6.gestaoepi.ui.cadastro.EmployeeManagementView;
 import br.com.easynr6.gestaoepi.ui.cadastro.EpiManagementView;
+import br.com.easynr6.gestaoepi.ui.cadastro.GheManagementView;
 import br.com.easynr6.gestaoepi.ui.cadastro.OrgStructureManagementView;
 import br.com.easynr6.gestaoepi.ui.cadastro.UnitManagementView;
 import br.com.easynr6.gestaoepi.ui.caepi.CaepiImportView;
@@ -208,6 +209,9 @@ public class MainShellView extends BorderPane {
     }
     if (destino == Destino.SETORES) {
       return new OrgStructureManagementView(usuario, empregados).root();
+    }
+    if (destino == Destino.GHE) {
+      return new GheManagementView(usuario, empregados).root();
     }
     if (destino == Destino.EPI) {
       return new EpiManagementView(usuario, catalogo, alvo -> abrir(alvo, true)).root();

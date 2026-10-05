@@ -18,6 +18,7 @@ public enum Destino {
   TRABALHADORES(Grupo.CADASTROS, "Trabalhadores", papeis(Papel.ADMIN, Papel.SESMT)),
   UNIDADES(Grupo.CADASTROS, "Unidades", papeis(Papel.ADMIN, Papel.SESMT)),
   SETORES(Grupo.CADASTROS, "Setores & funções", papeis(Papel.ADMIN, Papel.SESMT)),
+  GHE(Grupo.CADASTROS, "GHE", papeis(Papel.ADMIN, Papel.SESMT)),
   EPI(Grupo.CADASTROS, "Catálogo EPI", papeis(Papel.ADMIN, Papel.SESMT)),
   CA(Grupo.CADASTROS, "CA por EPI", papeis(Papel.ADMIN, Papel.SESMT)),
   LOTES(

@@ -34,6 +34,8 @@ public final class TelasReferencia {
           throw new IllegalStateException("UC-CAD-01 abre pelo shell, com o cadastro real.");
       case SETORES ->
           throw new IllegalStateException("UC-CAD-02 abre pelo shell, com o cadastro real.");
+      case GHE ->
+          throw new IllegalStateException("UC-CAD-07 abre pelo shell, com o cadastro real.");
       case EPI ->
           throw new IllegalStateException("UC-CAD-04 abre pelo shell, com o cadastro real.");
       case CA -> throw new IllegalStateException("UC-CAD-05 abre pelo shell, com o cadastro real.");
