@@ -79,7 +79,7 @@ Referência mock: [`docs/mock/ROADMAP-SESSION-MOCK.md`](../mock/ROADMAP-SESSION-
 | UC-LOT-06 Necessidade de compra | — | ⬜ | spec + matriz | Demanda menos disponivel |
 | UC-REL-04 Consumo para budget | — | ⬜ | spec + matriz | Fornecimento, perdas e ajustes separados |
 | UC-MAT-01 matriz | ✅ 11 | ✅ serviço e tela | spec + matriz | Perfil = função ou GHE ativo. Mock ainda só tem função |
-| UC-MAT-02 periodicidade | ✅ 12 | ⬜ sem tabela | spec + matriz | Dias e aviso por EPI. Sem prazo implicito |
+| UC-MAT-02 periodicidade | ✅ 12 | ✅ serviço e tela | spec + matriz | Dias e aviso por EPI. Sem prazo implícito. Ficha ainda no UC-ENT-01 |
 | Domínios motivos/validação | 🟡 selects fixos | ⬜ | DoR M2 | Extrair enums do mock p/ spec UC-ENT |
 
 ### M2 — Core operacional
@@ -145,7 +145,7 @@ Ordem para maximizar reutilização do protótipo como **critério de aceite UX*
 
 ```text
 Sprint J1 — M1 estoque + regras (desbloqueia DoR M2)
-  • UC-LOT-01, UC-LOT-02, UC-CAD-07 e UC-MAT-01 implementados. Seguir com UC-MAT-02, depois UC-ENT-01/02
+  • UC-LOT-01, UC-LOT-02, UC-CAD-07, UC-MAT-01 e UC-MAT-02 implementados. Seguir com UC-ENT-01/02
   • UC-LOT-03 a 06 e UC-REL-04 já têm spec; código depois do recebimento e da baixa de fornecimento
 
 Sprint J2 — M2 entrega real

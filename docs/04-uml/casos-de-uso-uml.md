@@ -401,7 +401,7 @@ Cada caso de uso segue o formato:
   - `MAT-005` e `MAT-006`.
   - Sem valor: cobertura "Sem prazo".
 - **Pos-condicoes**: Situacao em texto: Vigente, Troca em N dias, Prazo vencido, Pendente, Sem prazo ou Posto.
-- **Status**: especificado em `docs/03-operacao/spec-uc-mat-02-periodicidade.md`.
+- **Status**: implementado. Spec em `docs/03-operacao/spec-uc-mat-02-periodicidade.md`.
 
 ---
 
