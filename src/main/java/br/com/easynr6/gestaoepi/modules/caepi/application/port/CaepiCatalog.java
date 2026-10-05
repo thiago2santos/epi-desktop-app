@@ -16,7 +16,13 @@ public interface CaepiCatalog {
 
   Optional<CaPublicado> findByNumber(String caNumber);
 
-  List<Linha> buscar(String termo, String fabricanteEpi);
+  List<Linha> buscar(
+      String termo,
+      String fabricanteEpi,
+      boolean ativos,
+      boolean suspensos,
+      boolean cancelados,
+      boolean expirados);
 
   List<Tentativa> ultimas();
 

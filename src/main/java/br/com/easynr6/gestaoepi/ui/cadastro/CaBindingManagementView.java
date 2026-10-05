@@ -518,7 +518,8 @@ public final class CaBindingManagementView {
     Optional<Linha> escolhida =
         ConsultaCaDialog.escolher(
             salvar.getScene() == null ? null : salvar.getScene().getWindow(),
-            termo -> caepi.buscar(usuario.id(), termo, null));
+            (termo, ativos, suspensos, cancelados, expirados) ->
+                caepi.buscar(usuario.id(), termo, null, ativos, suspensos, cancelados, expirados));
     escolhida.ifPresent(this::aplicarLinha);
   }
 

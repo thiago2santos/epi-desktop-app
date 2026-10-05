@@ -56,8 +56,19 @@ public class CaepiCatalogService {
   }
 
   public List<Linha> buscar(Long actorId, String termo, String fabricanteEpi) {
+    return buscar(actorId, termo, fabricanteEpi, true, true, true, true);
+  }
+
+  public List<Linha> buscar(
+      Long actorId,
+      String termo,
+      String fabricanteEpi,
+      boolean ativos,
+      boolean suspensos,
+      boolean cancelados,
+      boolean expirados) {
     accessAuthorizer.assertCanManageCatalog(actorId);
-    return catalog.buscar(termo, fabricanteEpi);
+    return catalog.buscar(termo, fabricanteEpi, ativos, suspensos, cancelados, expirados);
   }
 
   public List<Tentativa> ultimas(Long actorId) {

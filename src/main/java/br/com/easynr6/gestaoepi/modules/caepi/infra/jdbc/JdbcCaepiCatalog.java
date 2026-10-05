@@ -135,7 +135,13 @@ public class JdbcCaepiCatalog implements CaepiCatalog {
   }
 
   @Override
-  public List<Linha> buscar(String termo, String fabricanteEpi) {
+  public List<Linha> buscar(
+      String termo,
+      String fabricanteEpi,
+      boolean ativos,
+      boolean suspensos,
+      boolean cancelados,
+      boolean expirados) {
     Optional<CargaSucesso> carga = ultimaSucesso();
     if (carga.isEmpty()) {
       return List.of();
@@ -147,7 +153,11 @@ public class JdbcCaepiCatalog implements CaepiCatalog {
         new MapSqlParameterSource()
             .addValue("cargaId", carga.get().id())
             .addValue("termo", chaveTermo.isBlank() ? null : "%" + chaveTermo + "%")
-            .addValue("fabricante", filtraFabricante ? "%" + chaveFabricante + "%" : null);
+            .addValue("fabricante", filtraFabricante ? "%" + chaveFabricante + "%" : null)
+            .addValue("ativos", ativos ? 1 : 0)
+            .addValue("suspensos", suspensos ? 1 : 0)
+            .addValue("cancelados", cancelados ? 1 : 0)
+            .addValue("expirados", expirados ? 1 : 0);
     return jdbc.query(
         """
         SELECT i.ca_number, i.ca_status, i.valid_until, v.equipment, v.manufacturer
@@ -160,6 +170,12 @@ public class JdbcCaepiCatalog implements CaepiCatalog {
             OR v.ca_number LIKE :termo
             OR upper(v.equipment) LIKE :termo
             OR v.manufacturer_norm LIKE :termo
+          )
+          AND (
+            (:ativos = 1 AND i.ca_status = 'ACTIVE')
+            OR (:suspensos = 1 AND i.ca_status = 'SUSPENDED')
+            OR (:cancelados = 1 AND i.ca_status = 'CANCELED')
+            OR (:expirados = 1 AND i.ca_status = 'EXPIRED')
           )
         ORDER BY v.ca_number
         LIMIT 200
