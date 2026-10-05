@@ -41,7 +41,8 @@ public final class TelasReferencia {
       case CA -> throw new IllegalStateException("UC-CAD-05 abre pelo shell, com o cadastro real.");
       case LOTES ->
           throw new IllegalStateException("UC-LOT-01 abre pelo shell, com o recebimento real.");
-      case MATRIZ -> matriz();
+      case MATRIZ ->
+          throw new IllegalStateException("UC-MAT-01 abre pelo shell, com a matriz real.");
       case PERIODICIDADE -> periodicidade();
       case RELATORIOS -> relatorios(navegar);
       case COBERTURA -> cobertura();
@@ -204,23 +205,6 @@ public final class TelasReferencia {
             "1",
             "Fora da matriz · SESMT"
           }
-        });
-    return ReferenciaPage.scroll(page);
-  }
-
-  private static Node matriz() {
-    ReferenciaPage page =
-        ReferenciaPage.of(
-            "UC-MAT-01 · Matriz",
-            "Matriz função / GHE × EPI",
-            "EPI exigido pela função vigente. Fora da matriz segue para o SESMT.");
-    page.table(
-        new String[] {"Função", "EPI", "Obrigatório", "Vigência"},
-        new String[][] {
-          {"Operador de empilhadeira", "Protetor auricular tipo concha", "Sim", "01/03/2026 —"},
-          {"Operador de empilhadeira", "Bota de segurança com biqueira", "Sim", "01/03/2026 —"},
-          {"Auxiliar de guarda", "Luva de vaqueta", "Sim", "01/03/2026 —"},
-          {"Eletricista", "Luva isolante classe 00", "Sim", "01/03/2026 —"}
         });
     return ReferenciaPage.scroll(page);
   }
