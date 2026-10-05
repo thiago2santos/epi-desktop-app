@@ -43,7 +43,8 @@ public final class TelasReferencia {
           throw new IllegalStateException("UC-LOT-01 abre pelo shell, com o recebimento real.");
       case MATRIZ ->
           throw new IllegalStateException("UC-MAT-01 abre pelo shell, com a matriz real.");
-      case PERIODICIDADE -> periodicidade();
+      case PERIODICIDADE ->
+          throw new IllegalStateException("UC-MAT-02 abre pelo shell, com a periodicidade real.");
       case RELATORIOS -> relatorios(navegar);
       case COBERTURA -> cobertura();
       case PENDENCIAS -> pendencias();
@@ -205,22 +206,6 @@ public final class TelasReferencia {
             "1",
             "Fora da matriz · SESMT"
           }
-        });
-    return ReferenciaPage.scroll(page);
-  }
-
-  private static Node periodicidade() {
-    ReferenciaPage page =
-        ReferenciaPage.of(
-            "Regras · Periodicidade",
-            "Periodicidade de troca",
-            "Prazo de substituição por função e EPI. Não prova uso efetivo.");
-    page.table(
-        new String[] {"Função", "EPI", "Prazo", "Unidade"},
-        new String[][] {
-          {"Operador de empilhadeira", "Protetor auricular tipo concha", "180", "dias"},
-          {"Auxiliar de guarda", "Luva de vaqueta", "60", "dias"},
-          {"Eletricista", "Luva isolante classe 00", "365", "dias"}
         });
     return ReferenciaPage.scroll(page);
   }
