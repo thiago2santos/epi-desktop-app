@@ -26,6 +26,7 @@ Use este checklist como evidencia de validacao antes de fechar a task.
 
 - [ ] politica de seguranca validada (ex.: senha, bloqueio, RBAC)
 - [ ] sem segredo exposto em log/console
+- [ ] cada tratamento de excecao registrou log de troubleshooting
 - [ ] evento sensivel auditado corretamente
 - [ ] cenario de acesso nao autorizado validado
 

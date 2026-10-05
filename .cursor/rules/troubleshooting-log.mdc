@@ -1,0 +1,29 @@
+---
+description: Todo tratamento de exceção registra log de troubleshooting
+globs: src/main/java/**/*.java
+alwaysApply: false
+---
+
+# Log de troubleshooting
+
+Todo `catch` que trata a exceção (mostra mensagem, devolve resultado, segue o fluxo) registra log antes de engolir a causa. Relançar sem tratar não cria um segundo log.
+
+- Use `LogTroubleshooting.registrar(acao, usuarioId, alvo, ex)`.
+- Com código de regra (`LOT-003`, `AUTH-004`): `WARN`, com ação, código, usuário, alvo, detalhe e correlação. Sem stack.
+- Sem código: `ERROR` com a mesma identificação e a stack.
+- A tela continua com a frase de `Mensagens*`. O código fica no log.
+- Não gravar senha, token, hash nem segredo.
+- `@AcaoAuditada` já grava a falha na auditoria e no log. O `catch` da tela registra o tratamento que o operador viu.
+
+```java
+// ruim: a causa some
+} catch (RuntimeException ex) {
+  mostrar(MensagensEstoque.erroConsulta(ex), Tom.ERRO);
+}
+
+// certo
+} catch (RuntimeException ex) {
+  LogTroubleshooting.registrar("CONSULTAR_LOTES", usuario.id(), idUnidade, ex);
+  mostrar(MensagensEstoque.erroConsulta(ex), Tom.ERRO);
+}
+```

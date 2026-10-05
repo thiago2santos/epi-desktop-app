@@ -120,6 +120,12 @@ public class CreateEquipmentUseCase {
 
 - dominio retorna erro codificado (`CAD-0xx`, `AUTH-0xx`);
 - UI traduz para mensagem amigavel;
+- todo cenario de tratamento de excecao registra log de troubleshooting antes de seguir:
+  - `catch` que mostra mensagem, devolve resultado ou continua o fluxo chama `LogTroubleshooting.registrar`;
+  - com codigo de regra: `WARN` com acao, codigo, usuario, alvo, detalhe e correlacao, sem stack;
+  - sem codigo: `ERROR` com a mesma identificacao e a stack;
+  - senha, token, hash e segredo nao entram no log;
+  - a frase da tela permanece sem o codigo;
 - log/auditoria sempre com contexto tecnico minimo:
   - `actorId`, `action`, `entity`, `entityId`, `details`.
 

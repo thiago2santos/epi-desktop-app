@@ -11,6 +11,7 @@ Referência: `docs/02-arquitetura/usabilidade/heuristicas-nielsen.md`. Marca e t
 - Feedback com `MensagemTemporaria` e `Enr6Styles`. Sucesso não abre `Alert`.
 - Rede, arquivo e importação em `javafx.concurrent.Task`. Não bloquear a thread do JavaFX.
 - Português do operador. Código `CAD-` / `AUTH-` não aparece na tela; a frase fica em `Mensagens*`.
+- Todo `catch` que trata a falha chama `LogTroubleshooting.registrar` antes da mensagem. A regra completa está em `troubleshooting-log.mdc`.
 - Inativar pede confirmação. Cancelar não chama o serviço.
 - Salvar começa desabilitado e só liga com os obrigatórios preenchidos.
 - Lista vazia tem placeholder que diz o que falta.
