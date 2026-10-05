@@ -4,9 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import br.com.easynr6.gestaoepi.modules.stock.application.port.StockRepository.CaOption;
 import br.com.easynr6.gestaoepi.shared.auth.Papel;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 
@@ -39,6 +41,16 @@ class RecebimentoLoteUxTest {
     assertEquals("Nenhum lote recebido nesta unidade.", LotManagementView.LISTA_VAZIA);
     assertEquals("Registrar recebimento", LotManagementView.ACAO_REGISTRAR);
     assertEquals("Único", LotManagementView.textoTamanho(" "));
+  }
+
+  @Test
+  void caSelecionadoTrazARazaoSocial() {
+    LocalDateTime consulta = LocalDateTime.of(2026, 10, 4, 21, 0);
+    assertEquals(
+        "Vaqueta SA",
+        LotManagementView.fabricanteDoCa(new CaOption(1L, "28941", consulta, "  Vaqueta SA  ")));
+    assertEquals("", LotManagementView.fabricanteDoCa(new CaOption(1L, "28941", consulta, " ")));
+    assertEquals("", LotManagementView.fabricanteDoCa(null));
   }
 
   @Test

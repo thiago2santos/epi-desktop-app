@@ -61,6 +61,7 @@ Usa `LOT-001`, `LOT-002`, `LOT-003`, `LOT-004`, `LOT-005`, `LOT-007` e `AUTH-004
 Destino futuro no grupo Estoque: "Lotes e saldos", junto da consulta do `UC-LOT-02`.
 
 - Formulario: unidade, EPI, CA (so vinculos ativos), codigo do lote, fabricante, tamanho, validade, quantidade, custo unitario.
+- Ao escolher o CA, o fabricante recebe a razao social desse numero na base CAEPI e continua editavel. Sem o numero na base, o campo fica em branco.
 - Salvar desabilitado ate unidade, EPI, CA, codigo, validade e quantidade.
 - Lista: codigo, EPI, tamanho, validade, fisica, reservada, disponivel, situacao em texto.
 - Vazio: "Nenhum lote recebido nesta unidade." e o botao "Registrar recebimento".

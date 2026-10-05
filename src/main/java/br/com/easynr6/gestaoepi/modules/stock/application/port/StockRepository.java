@@ -52,7 +52,7 @@ public interface StockRepository {
     }
   }
 
-  record CaOption(Long id, String caNumber, LocalDateTime officialCheckAt) {
+  record CaOption(Long id, String caNumber, LocalDateTime officialCheckAt, String manufacturer) {
     @Override
     public String toString() {
       return caNumber;

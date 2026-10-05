@@ -97,10 +97,11 @@ public class JdbcStockRepository implements StockRepository {
       """;
   private static final String LIST_CAS_SQL =
       """
-      SELECT id, ca_number, official_check_at
-      FROM epi_ca_binding
-      WHERE epi_id = :epiId AND active = 1 AND ca_status = 'ACTIVE'
-      ORDER BY ca_number
+      SELECT b.id, b.ca_number, b.official_check_at, c.manufacturer
+      FROM epi_ca_binding b
+      LEFT JOIN caepi_ca c ON c.ca_number = b.ca_number
+      WHERE b.epi_id = :epiId AND b.active = 1 AND b.ca_status = 'ACTIVE'
+      ORDER BY b.ca_number
       """;
 
   private final NamedParameterJdbcTemplate jdbc;
@@ -194,7 +195,8 @@ public class JdbcStockRepository implements StockRepository {
             new CaOption(
                 rs.getLong("id"),
                 rs.getString("ca_number"),
-                dataHora(rs.getString("official_check_at"))));
+                dataHora(rs.getString("official_check_at")),
+                rs.getString("manufacturer")));
   }
 
   private static MapSqlParameterSource chave(

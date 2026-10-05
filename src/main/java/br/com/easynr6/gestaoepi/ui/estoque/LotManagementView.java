@@ -145,6 +145,13 @@ public final class LotManagementView {
     return filtrando ? FILTRO_VAZIO : LISTA_VAZIA;
   }
 
+  static String fabricanteDoCa(CaOption ca) {
+    if (ca == null || ca.manufacturer() == null || ca.manufacturer().isBlank()) {
+      return "";
+    }
+    return ca.manufacturer().trim();
+  }
+
   private Node montar() {
     configurarTabela();
     prepararCombos();
@@ -232,6 +239,7 @@ public final class LotManagementView {
         });
     ca.setOnAction(
         event -> {
+          preencherFabricante();
           atualizarAvisoCa();
           atualizarAcoes();
         });
@@ -354,8 +362,12 @@ public final class LotManagementView {
     quantidade.clear();
     custo.clear();
     validade.setValue(null);
-    fabricante.clear();
+    preencherFabricante();
     atualizarAcoes();
+  }
+
+  private void preencherFabricante() {
+    fabricante.setText(fabricanteDoCa(ca.getValue()));
   }
 
   private void atualizarAcoes() {
