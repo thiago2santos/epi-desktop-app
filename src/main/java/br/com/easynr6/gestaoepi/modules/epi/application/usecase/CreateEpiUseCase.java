@@ -28,26 +28,17 @@ public class CreateEpiUseCase {
   @AcaoAuditada(acao = "EPI_CREATED", entidade = "EPI")
   @Transactional
   public Long execute(
-      Long actorId,
-      String epiCode,
-      String description,
-      AnnexGroup annexGroup,
-      String manufacturerName,
-      boolean active) {
+      Long actorId, String epiCode, String description, AnnexGroup annexGroup, boolean active) {
     accessAuthorizer.assertCanManageCatalog(actorId);
-    epiPolicy.validateRequiredFields(description, annexGroup, manufacturerName);
+    epiPolicy.validateRequiredFields(description, annexGroup);
 
     String normalizedCode = epiPolicy.normalizeEpiCode(epiCode);
     String normalizedDescription = epiPolicy.normalizeDescription(description);
-    String normalizedManufacturer = epiPolicy.normalizeManufacturerName(manufacturerName);
-    if (epiRepository.existsEpiDuplicate(
-        null, normalizedDescription, annexGroup, normalizedManufacturer)) {
+    if (epiRepository.existsEpiDuplicate(null, normalizedDescription, annexGroup)) {
       throw new IllegalArgumentException("CAD-033 EPI duplicado no escopo definido.");
     }
 
-    Long epiId =
-        epiRepository.createEpi(
-            normalizedCode, normalizedDescription, annexGroup, normalizedManufacturer, active);
+    Long epiId = epiRepository.createEpi(normalizedCode, normalizedDescription, annexGroup, active);
     auditTrail.registrarEventoCritico(
         actorId, "EPI_CREATED", "EPI", String.valueOf(epiId), "EPI catalog item created.");
     return epiId;

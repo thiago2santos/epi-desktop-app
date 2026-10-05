@@ -168,7 +168,6 @@ class StockManagementServiceIntegrationTest {
             "SEM-" + System.nanoTime(),
             "EPI sem CA " + System.nanoTime(),
             AnnexGroup.A,
-            "Fabricante",
             true);
 
     IllegalArgumentException ex =
@@ -344,7 +343,6 @@ class StockManagementServiceIntegrationTest {
             "EPI-" + System.nanoTime(),
             "Luva de teste " + System.nanoTime(),
             AnnexGroup.A,
-            "Fabricante teste",
             true);
     long caId =
         catalogo.bindCaToEpi(

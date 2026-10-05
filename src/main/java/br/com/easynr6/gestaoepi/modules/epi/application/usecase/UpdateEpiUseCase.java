@@ -33,24 +33,20 @@ public class UpdateEpiUseCase {
       String epiCode,
       String description,
       AnnexGroup annexGroup,
-      String manufacturerName,
       boolean active) {
     accessAuthorizer.assertCanManageCatalog(actorId);
     if (epiId == null || !epiRepository.existsEpiById(epiId)) {
       throw new IllegalArgumentException("CAD-039 Alvo de edicao/inativacao nao encontrado.");
     }
-    epiPolicy.validateRequiredFields(description, annexGroup, manufacturerName);
+    epiPolicy.validateRequiredFields(description, annexGroup);
 
     String normalizedCode = epiPolicy.normalizeEpiCode(epiCode);
     String normalizedDescription = epiPolicy.normalizeDescription(description);
-    String normalizedManufacturer = epiPolicy.normalizeManufacturerName(manufacturerName);
-    if (epiRepository.existsEpiDuplicate(
-        epiId, normalizedDescription, annexGroup, normalizedManufacturer)) {
+    if (epiRepository.existsEpiDuplicate(epiId, normalizedDescription, annexGroup)) {
       throw new IllegalArgumentException("CAD-033 EPI duplicado no escopo definido.");
     }
 
-    epiRepository.updateEpi(
-        epiId, normalizedCode, normalizedDescription, annexGroup, normalizedManufacturer, active);
+    epiRepository.updateEpi(epiId, normalizedCode, normalizedDescription, annexGroup, active);
     auditTrail.registrarEventoCritico(
         actorId, "EPI_UPDATED", "EPI", String.valueOf(epiId), "EPI catalog item updated.");
   }

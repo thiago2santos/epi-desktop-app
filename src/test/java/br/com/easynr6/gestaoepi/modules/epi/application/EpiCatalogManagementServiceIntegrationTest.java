@@ -32,8 +32,7 @@ class EpiCatalogManagementServiceIntegrationTest {
   void shouldCreateEpiAndBindCaWhenActorIsAdmin() {
     long adminId = createUserWithRole("admin.epi", Papel.ADMIN);
     long epiId =
-        epiCatalogService.createEpi(
-            adminId, "CAP-100", "Capacete Classe B", AnnexGroup.A, "Safe Equip", true);
+        epiCatalogService.createEpi(adminId, "CAP-100", "Capacete Classe B", AnnexGroup.A, true);
     long bindingId =
         epiCatalogService.bindCaToEpi(
             adminId,
@@ -80,15 +79,14 @@ class EpiCatalogManagementServiceIntegrationTest {
         AuthorizationDeniedException.class,
         () ->
             epiCatalogService.createEpi(
-                consultaId, "LUV-200", "Luva Nitrilica", AnnexGroup.F, "Fabricante F", true));
+                consultaId, "LUV-200", "Luva Nitrilica", AnnexGroup.F, true));
   }
 
   @Test
   void shouldRejectMissingOfficialEvidence() {
     long adminId = createUserWithRole("admin.epi.evidence", Papel.ADMIN);
     long epiId =
-        epiCatalogService.createEpi(
-            adminId, "BOT-300", "Bota de Seguranca", AnnexGroup.C, "Safe Steps", true);
+        epiCatalogService.createEpi(adminId, "BOT-300", "Bota de Seguranca", AnnexGroup.C, true);
 
     IllegalArgumentException ex =
         assertThrows(
@@ -111,8 +109,7 @@ class EpiCatalogManagementServiceIntegrationTest {
   void shouldRejectCaValidityConflict() {
     long adminId = createUserWithRole("admin.epi.conflict", Papel.ADMIN);
     long epiId =
-        epiCatalogService.createEpi(
-            adminId, "PROT-400", "Protetor Auditivo", AnnexGroup.E, "AudiSafe", true);
+        epiCatalogService.createEpi(adminId, "PROT-400", "Protetor Auditivo", AnnexGroup.E, true);
 
     epiCatalogService.bindCaToEpi(
         adminId,
@@ -149,9 +146,7 @@ class EpiCatalogManagementServiceIntegrationTest {
   @Test
   void shouldBlockEpiActivationWithoutActiveCoherentCa() {
     long adminId = createUserWithRole("admin.epi.status", Papel.ADMIN);
-    long epiId =
-        epiCatalogService.createEpi(
-            adminId, "AV-500", "Avental PVC", AnnexGroup.G, "Chemical Shield", false);
+    long epiId = epiCatalogService.createEpi(adminId, "AV-500", "Avental PVC", AnnexGroup.G, false);
 
     IllegalArgumentException ex =
         assertThrows(

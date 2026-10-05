@@ -16,8 +16,8 @@ Garantir que a entrega de EPI ocorra com base tecnica, legal e operacional consi
 
 - Dados da empresa/unidade.
 - Cadastro de funcoes, setores e GHE (quando houver).
-- Informacoes do EPI (descricao, tipo, fabricante, CAs).
-- Informacoes de recebimento (lote, validade da peca, quantidade, custo unitario).
+- Informacoes do EPI (descricao, tipo, CAs).
+- Informacoes de recebimento (fabricante da peca, lote, validade da peca, quantidade, custo unitario).
 
 ## Saidas
 
@@ -38,7 +38,7 @@ Garantir que a entrega de EPI ocorra com base tecnica, legal e operacional consi
 ## Telas desta etapa
 
 1. **Cadastro de EPI e CA**
-   - Campos: descricao, tipo, fabricante, CAs, status.
+   - Campos: descricao, tipo, CAs, status.
    - Acoes: criar, inativar, consultar historico de CA.
 2. **Recebimento por lote**
    - Campos: unidade, EPI, lote, validade da peca, quantidade, custo unitario.
@@ -121,4 +121,3 @@ Garantir que a entrega de EPI ocorra com base tecnica, legal e operacional consi
 - Lotes com validade proxima do vencimento.
 - Divergencia entre consumo previsto (matriz) e estoque disponivel.
 - Quantidade de excecoes por falta de parametrizacao previa.
-

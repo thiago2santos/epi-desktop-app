@@ -20,15 +20,14 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 
-/** Lista os CAs da última carga. O fabricante do EPI filtra a abertura; a busca abre o resto. */
+/** Lista os CAs da última carga. A busca é por número, equipamento ou razão social. */
 public final class ConsultaCaDialog {
 
   private static final DateTimeFormatter DATA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
   private ConsultaCaDialog() {}
 
-  public static Optional<Linha> escolher(
-      Window owner, String fabricante, Function<String, List<Linha>> buscar) {
+  public static Optional<Linha> escolher(Window owner, Function<String, List<Linha>> buscar) {
     Dialog<Linha> dialog = new Dialog<>();
     dialog.setTitle("CAs da base");
     dialog.initOwner(owner);
@@ -50,7 +49,7 @@ public final class ConsultaCaDialog {
             coluna(
                 "Validade",
                 linha -> linha.validUntil() == null ? "" : linha.validUntil().format(DATA)));
-    Label vazio = new Label("Nenhum CA desse fabricante. Busque pelo número.");
+    Label vazio = new Label("Busque pelo número, equipamento ou razão social.");
     tabela.setPlaceholder(vazio);
     Button buscarBtn = new Button("Buscar");
     buscarBtn.setOnAction(event -> tabela.getItems().setAll(buscar.apply(termo.getText())));
@@ -58,12 +57,7 @@ public final class ConsultaCaDialog {
 
     HBox busca = new HBox(8, termo, buscarBtn);
     HBox.setHgrow(termo, Priority.ALWAYS);
-    VBox corpo =
-        new VBox(
-            8,
-            new Label("Fabricante do EPI: " + (fabricante == null ? "" : fabricante)),
-            busca,
-            tabela);
+    VBox corpo = new VBox(8, busca, tabela);
     dialog.getDialogPane().setContent(corpo);
     dialog.setResultConverter(
         botao -> botao == usar ? tabela.getSelectionModel().getSelectedItem() : null);

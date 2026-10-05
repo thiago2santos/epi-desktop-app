@@ -67,7 +67,6 @@ public final class EpiManagementView {
   private final TextField codigo = new TextField();
   private final TextField descricao = new TextField();
   private final ComboBox<AnnexGroup> grupo = new ComboBox<>();
-  private final TextField fabricante = new TextField();
   private final ComboBox<StatusOpcao> status = new ComboBox<>();
   private final TableView<EpiSummary> tabela = new TableView<>();
   private final Button salvar = new Button("Salvar");
@@ -89,7 +88,7 @@ public final class EpiManagementView {
         ReferenciaPage.of(
             "UC-CAD-04 · Anexo I",
             "Catálogo de EPI",
-            "Classificação do Anexo I, fabricante e status. Ativar exige CA ativo.");
+            "Classificação do Anexo I e status. O fabricante entra no lote. Ativar exige CA ativo.");
     page.section(montar(navegar));
     this.root = ReferenciaPage.scroll(page);
     carregar();
@@ -100,8 +99,8 @@ public final class EpiManagementView {
     return root;
   }
 
-  static boolean epiProntoParaSalvar(String descricao, AnnexGroup grupo, String fabricante) {
-    return textoPreenchido(descricao) && grupo != null && textoPreenchido(fabricante);
+  static boolean epiProntoParaSalvar(String descricao, AnnexGroup grupo) {
+    return textoPreenchido(descricao) && grupo != null;
   }
 
   static String rotuloAnexo(AnnexGroup grupo) {
@@ -125,7 +124,7 @@ public final class EpiManagementView {
 
   private Node montar(Consumer<Destino> navegar) {
     configurarTabela();
-    filtro.setPromptText("Descrição, código ou fabricante");
+    filtro.setPromptText("Descrição ou código");
     filtro.textProperty().addListener((obs, anterior, atual) -> carregar());
     codigo.setPromptText("Opcional. Ex.: LUV-VAQ");
     descricao.setPromptText("Ex.: Luva de vaqueta");
@@ -135,8 +134,6 @@ public final class EpiManagementView {
     grupo.setMaxWidth(Double.MAX_VALUE);
     grupo.setPromptText("Anexo I");
     grupo.valueProperty().addListener((obs, anterior, atual) -> atualizarAcoes());
-    fabricante.setPromptText("Fabricante");
-    fabricante.textProperty().addListener((obs, anterior, atual) -> atualizarAcoes());
     prepararStatus(status);
     prepararAcao(salvar, inativar, reativar);
     salvar.setOnAction(event -> salvar());
@@ -162,7 +159,6 @@ public final class EpiManagementView {
             campo("Código", codigo),
             campo("Descrição", descricao),
             campo("Grupo Anexo I", grupo),
-            campo("Fabricante", fabricante),
             campo("Status inicial", status),
             feedback,
             new HBox(8, salvar, inativar, reativar, limpar),
@@ -181,7 +177,6 @@ public final class EpiManagementView {
             coluna("Código", item -> item.epiCode() == null ? "" : item.epiCode()),
             coluna("Descrição", EpiSummary::description),
             coluna("Anexo", item -> rotuloAnexo(item.annexGroup())),
-            coluna("Fabricante", EpiSummary::manufacturerName),
             coluna("Status", item -> item.active() ? "Ativo" : "Inativo"));
     tabela
         .getSelectionModel()
@@ -202,7 +197,6 @@ public final class EpiManagementView {
       codigo.clear();
       descricao.clear();
       grupo.getSelectionModel().clearSelection();
-      fabricante.clear();
       status.setValue(StatusOpcao.ATIVO);
       status.setDisable(false);
       limparMarcacao();
@@ -220,7 +214,6 @@ public final class EpiManagementView {
       codigo.setText(epi.epiCode() == null ? "" : epi.epiCode());
       descricao.setText(epi.description());
       grupo.setValue(epi.annexGroup());
-      fabricante.setText(epi.manufacturerName());
       status.setValue(epi.active() ? StatusOpcao.ATIVO : StatusOpcao.INATIVO);
       status.setDisable(true);
       limparMarcacao();
@@ -235,10 +228,9 @@ public final class EpiManagementView {
 
   private void salvar() {
     limparMarcacao();
-    if (!epiProntoParaSalvar(descricao.getText(), grupo.getValue(), fabricante.getText())) {
-      mostrar("Informe a descrição, o grupo do Anexo I e o fabricante.", Tom.ERRO);
+    if (!epiProntoParaSalvar(descricao.getText(), grupo.getValue())) {
+      mostrar("Informe a descrição e o grupo do Anexo I.", Tom.ERRO);
       Enr6Styles.markFieldInvalid(descricao, !textoPreenchido(descricao.getText()));
-      Enr6Styles.markFieldInvalid(fabricante, !textoPreenchido(fabricante.getText()));
       marcar(grupo, grupo.getValue() == null);
       return;
     }
@@ -255,7 +247,6 @@ public final class EpiManagementView {
             codigo.getText(),
             descricao.getText(),
             grupo.getValue(),
-            fabricante.getText(),
             statusEscolhido(status));
       } else {
         catalogo.updateEpi(
@@ -264,7 +255,6 @@ public final class EpiManagementView {
             codigo.getText(),
             descricao.getText(),
             grupo.getValue(),
-            fabricante.getText(),
             atual.active());
       }
       carregar();
@@ -279,8 +269,7 @@ public final class EpiManagementView {
     String codigoAtual = atual.epiCode() == null ? "" : atual.epiCode();
     return codigo.getText().trim().equalsIgnoreCase(codigoAtual)
         && descricao.getText().trim().equals(atual.description())
-        && grupo.getValue() == atual.annexGroup()
-        && fabricante.getText().trim().equals(atual.manufacturerName());
+        && grupo.getValue() == atual.annexGroup();
   }
 
   private void inativar() {
@@ -350,8 +339,7 @@ public final class EpiManagementView {
     if (sincronizando) {
       return;
     }
-    salvar.setDisable(
-        !epiProntoParaSalvar(descricao.getText(), grupo.getValue(), fabricante.getText()));
+    salvar.setDisable(!epiProntoParaSalvar(descricao.getText(), grupo.getValue()));
     boolean ativo = editando != null && editando.active();
     inativar.setVisible(ativo);
     inativar.setManaged(ativo);
@@ -361,7 +349,6 @@ public final class EpiManagementView {
 
   private void limparMarcacao() {
     Enr6Styles.markFieldInvalid(descricao, false);
-    Enr6Styles.markFieldInvalid(fabricante, false);
     marcar(grupo, false);
   }
 

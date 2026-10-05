@@ -22,7 +22,7 @@
 ## 2) Escopo
 
 - Comportamento no escopo:
-  - cadastrar EPI com classificacao normativa (Anexo I);
+  - cadastrar EPI com classificacao normativa (Anexo I), sem fabricante fixo: o mesmo tipo pode ser comprado de mais de um fabricante, e o nome entra no recebimento do lote;
   - vincular um ou mais CAs ao EPI com dados de situacao/vigencia e evidencia de consulta oficial;
   - ativar/inativar EPI e vinculos de CA sem delete fisico;
   - bloquear inconsistencias normativas no momento do cadastro.
@@ -52,7 +52,7 @@
 
 ## 4) Regras de negocio (motor normativo do cadastro)
 
-1. `EPI` exige classificacao obrigatoria conforme grupos do Anexo I.
+1. `EPI` exige classificacao obrigatoria conforme grupos do Anexo I. O catalogo nao guarda fabricante. A unicidade do tipo e descricao + grupo. O nome impresso na peca entra no recebimento do lote (`UC-LOT-01`).
 2. `CA` so pode ser vinculado se houver numero de CA informado e normalizado.
 3. Nao permitir conflito de vigencia para o mesmo CA no mesmo EPI (sobreposicao de periodo ativo).
 4. Nao permitir ativacao de vinculo de CA com situacao incompatível (`CANCELED`, `SUSPENDED`, `EXPIRED`) no momento da conferencia.
@@ -83,7 +83,6 @@
 - `epi_code` (opcional no MVP, recomendado para rastreio interno)
 - `description`
 - `annex_group` (A..I)
-- `manufacturer_name`
 - `active`
 - `created_at`
 - `updated_at`
@@ -111,14 +110,12 @@
 - Componentes:
   - `TextField` para `epi_code` (opcional) e `description`;
   - `ComboBox<AnnexGroup>` para `annex_group` (A..I);
-  - `TextField` para `manufacturer_name`;
   - `CheckBox` para `active`;
   - `Button` de `Novo`, `Salvar`, `Editar`, `Inativar/Reativar`, `Limpar`;
   - `TableView<EpiRow>` para listagem e selecao.
 - Campos e regras de tela:
   - `description` obrigatorio (`CAD-031`);
   - `annex_group` obrigatorio e valido (`CAD-032`);
-  - `manufacturer_name` obrigatorio (`CAD-031`);
   - `epi_code` opcional no MVP, mas unico quando informado.
 - Busca/lista:
   - filtro por `description`, `annex_group`, `active`;
@@ -144,7 +141,7 @@ Wireframe textual (macro):
   - `DatePicker` para `valid_from` e `valid_until`;
   - `DateTime` (via `DatePicker` + `TextField` de hora) para `official_check_at`;
   - `TextArea` para `official_check_note`;
-  - `Button` **Consultar CAs** abre a lista da ultima carga com sucesso, filtrada no inicio pelo fabricante do EPI e com busca livre;
+  - `Button` **Consultar CAs** abre a busca da ultima carga com sucesso por numero, equipamento ou razao social, sem filtrar por um fabricante do EPI;
   - no caminho da base, data/hora, situacao, validade e evidencia vem da carga (`UC-CAE-01`, secao 15) e a tela nao deixa editar esses campos;
   - anexo de print PNG/JPG da consulta online, obrigatorio quando nao ha carga com sucesso ou o numero nao esta na base; opcional quando o CA veio da base;
   - `CheckBox` para `active`;
@@ -163,7 +160,7 @@ Wireframe textual (macro):
 
 Wireframe textual (macro):
 
-- Painel superior: seletor de EPI + resumo rapido (descricao/fabricante/status)
+- Painel superior: seletor de EPI + resumo rapido (descricao/status)
 - Formulario central: dados do CA + evidencia de consulta
 - Tabela inferior: vinculos existentes, vigencia e situacao
 

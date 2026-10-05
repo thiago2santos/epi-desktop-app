@@ -8,13 +8,13 @@ public final class MensagensCadastroEpi {
   public static String erro(RuntimeException erro) {
     String mensagem = erro.getMessage() == null ? "" : erro.getMessage();
     if (mensagem.startsWith("CAD-031")) {
-      return "Informe a descrição, o grupo do Anexo I e o fabricante.";
+      return "Informe a descrição e o grupo do Anexo I.";
     }
     if (mensagem.startsWith("CAD-032")) {
       return "Escolha um grupo do Anexo I.";
     }
     if (mensagem.startsWith("CAD-033")) {
-      return "Já existe um EPI com essa descrição, grupo e fabricante.";
+      return "Já existe um EPI com essa descrição e esse grupo.";
     }
     if (mensagem.startsWith("CAD-034")) {
       return "Informe um CA de 1 a 6 dígitos, como na base oficial, e a situação.";

@@ -22,13 +22,12 @@ public class JdbcEpiRepository implements EpiRepository {
       FROM epi_catalog
       WHERE UPPER(description) = UPPER(:description)
         AND annex_group = :annexGroup
-        AND UPPER(manufacturer_name) = UPPER(:manufacturerName)
         AND (:excludeEpiId IS NULL OR id <> :excludeEpiId)
       """;
   private static final String INSERT_EPI_SQL =
       """
-      INSERT INTO epi_catalog (epi_code, description, annex_group, manufacturer_name, active)
-      VALUES (:epiCode, :description, :annexGroup, :manufacturerName, :active)
+      INSERT INTO epi_catalog (epi_code, description, annex_group, active)
+      VALUES (:epiCode, :description, :annexGroup, :active)
       """;
   private static final String SELECT_EPI_ID_AFTER_INSERT_SQL =
       """
@@ -36,7 +35,6 @@ public class JdbcEpiRepository implements EpiRepository {
       FROM epi_catalog
       WHERE description = :description
         AND annex_group = :annexGroup
-        AND manufacturer_name = :manufacturerName
       ORDER BY id DESC
       LIMIT 1
       """;
@@ -46,7 +44,6 @@ public class JdbcEpiRepository implements EpiRepository {
       SET epi_code = :epiCode,
           description = :description,
           annex_group = :annexGroup,
-          manufacturer_name = :manufacturerName,
           active = :active,
           updated_at = CURRENT_TIMESTAMP
       WHERE id = :epiId
@@ -70,11 +67,10 @@ public class JdbcEpiRepository implements EpiRepository {
       """;
   private static final String LIST_EPI_SQL =
       """
-      SELECT id, epi_code, description, annex_group, manufacturer_name, active, updated_at
+      SELECT id, epi_code, description, annex_group, active, updated_at
       FROM epi_catalog
       WHERE (:term = ''
          OR description LIKE :termLike
-         OR manufacturer_name LIKE :termLike
          OR IFNULL(epi_code, '') LIKE :termLike)
       ORDER BY description
       """;
@@ -170,33 +166,25 @@ public class JdbcEpiRepository implements EpiRepository {
   }
 
   @Override
-  public boolean existsEpiDuplicate(
-      Long excludeEpiId, String description, AnnexGroup annexGroup, String manufacturerName) {
+  public boolean existsEpiDuplicate(Long excludeEpiId, String description, AnnexGroup annexGroup) {
     Integer count =
         jdbcTemplate.queryForObject(
             COUNT_DUPLICATE_EPI_SQL,
             new MapSqlParameterSource()
                 .addValue("excludeEpiId", excludeEpiId)
                 .addValue("description", description)
-                .addValue("annexGroup", annexGroup.name())
-                .addValue("manufacturerName", manufacturerName),
+                .addValue("annexGroup", annexGroup.name()),
             Integer.class);
     return count != null && count > 0;
   }
 
   @Override
-  public Long createEpi(
-      String epiCode,
-      String description,
-      AnnexGroup annexGroup,
-      String manufacturerName,
-      boolean active) {
+  public Long createEpi(String epiCode, String description, AnnexGroup annexGroup, boolean active) {
     MapSqlParameterSource params =
         new MapSqlParameterSource()
             .addValue("epiCode", epiCode)
             .addValue("description", description)
             .addValue("annexGroup", annexGroup.name())
-            .addValue("manufacturerName", manufacturerName)
             .addValue("active", active ? 1 : 0);
     jdbcTemplate.update(INSERT_EPI_SQL, params);
     return jdbcTemplate.queryForObject(SELECT_EPI_ID_AFTER_INSERT_SQL, params, Long.class);
@@ -204,12 +192,7 @@ public class JdbcEpiRepository implements EpiRepository {
 
   @Override
   public void updateEpi(
-      Long epiId,
-      String epiCode,
-      String description,
-      AnnexGroup annexGroup,
-      String manufacturerName,
-      boolean active) {
+      Long epiId, String epiCode, String description, AnnexGroup annexGroup, boolean active) {
     jdbcTemplate.update(
         UPDATE_EPI_SQL,
         new MapSqlParameterSource()
@@ -217,7 +200,6 @@ public class JdbcEpiRepository implements EpiRepository {
             .addValue("epiCode", epiCode)
             .addValue("description", description)
             .addValue("annexGroup", annexGroup.name())
-            .addValue("manufacturerName", manufacturerName)
             .addValue("active", active ? 1 : 0));
   }
 
@@ -257,7 +239,6 @@ public class JdbcEpiRepository implements EpiRepository {
                 rs.getString("epi_code"),
                 rs.getString("description"),
                 AnnexGroup.valueOf(rs.getString("annex_group")),
-                rs.getString("manufacturer_name"),
                 rs.getInt("active") == 1,
                 rs.getString("updated_at")));
   }

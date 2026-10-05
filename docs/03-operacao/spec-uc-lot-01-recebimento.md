@@ -24,7 +24,7 @@
   - registrar a entrada de um lote fisico numa unidade;
   - gravar o movimento `RECEBIMENTO`;
   - fisica igual a quantidade recebida, reservada zero, disponivel igual a fisica se a peca estiver no prazo;
-  - guardar codigo do lote de fabricacao, fabricante, tamanho, validade da peca, CA escolhido entre os vinculos ativos do EPI, data da consulta desse CA e custo unitario quando informado.
+  - guardar codigo do lote de fabricacao, fabricante impresso na peca, tamanho, validade da peca, CA escolhido entre os vinculos ativos do EPI, data da consulta desse CA e custo unitario quando informado. O catalogo de EPI nao guarda fabricante: o mesmo tipo pode chegar de mais de um.
 - Fora de escopo:
   - reserva, baixa de prateleira, inventario, compra e budget;
   - nota fiscal, cotacao e ordem de compra;

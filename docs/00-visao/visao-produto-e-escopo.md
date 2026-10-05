@@ -62,7 +62,7 @@ flowchart LR
 
 ## Primeira versão
 
-- Cadastro do EPI ligado ao Anexo I, com fabricante e CA.
+- Cadastro do EPI ligado ao Anexo I e ao CA. O fabricante da peca fica no lote.
 - Recebimento por lote: CA na data da compra, validade da peça, tamanho, saldo. Sem módulo de compra, forecast ou centro de custo.
 - Matriz por função ou GHE, mais medidas da pessoa (bota, luva, vestimenta, respirador).
 - Entrega com empregado, função na data, data e hora, descrição, CA, lote, quantidade, motivo e ciência.

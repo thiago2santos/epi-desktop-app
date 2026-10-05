@@ -14,11 +14,10 @@ import org.junit.jupiter.api.Test;
 class CadastroEpiUxTest {
 
   @Test
-  void epiSoSalvaComDescricaoGrupoEFabricante() {
-    assertFalse(EpiManagementView.epiProntoParaSalvar("  ", AnnexGroup.F, "Vaqueta"));
-    assertFalse(EpiManagementView.epiProntoParaSalvar("Luva", null, "Vaqueta"));
-    assertFalse(EpiManagementView.epiProntoParaSalvar("Luva", AnnexGroup.F, ""));
-    assertTrue(EpiManagementView.epiProntoParaSalvar("Luva", AnnexGroup.F, "Vaqueta"));
+  void epiSoSalvaComDescricaoEGrupo() {
+    assertFalse(EpiManagementView.epiProntoParaSalvar("  ", AnnexGroup.F));
+    assertFalse(EpiManagementView.epiProntoParaSalvar("Luva", null));
+    assertTrue(EpiManagementView.epiProntoParaSalvar("Luva", AnnexGroup.F));
   }
 
   @Test
@@ -68,7 +67,7 @@ class CadastroEpiUxTest {
   @Test
   void mensagensExplicamSemExporOCodigo() {
     assertEquals(
-        "Já existe um EPI com essa descrição, grupo e fabricante.",
+        "Já existe um EPI com essa descrição e esse grupo.",
         MensagensCadastroEpi.erro(
             new IllegalArgumentException("CAD-033 EPI duplicado no escopo definido.")));
     assertEquals(

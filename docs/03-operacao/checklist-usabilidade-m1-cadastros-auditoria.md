@@ -54,7 +54,7 @@ E registrar:
 
 ## Roteiro 4 - EPI
 
-- [ ] Cadastrar EPI com descricao, grupo do Anexo I e fabricante.
+- [ ] Cadastrar EPI com descricao e grupo do Anexo I.
 - [ ] Validar bloqueio de obrigatorios e inconsistencias (`CAD-03x`).
 - [ ] Editar EPI.
 - [ ] Inativar e reativar EPI.

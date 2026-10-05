@@ -49,14 +49,8 @@ public class EpiCatalogManagementService {
   }
 
   public Long createEpi(
-      Long actorId,
-      String epiCode,
-      String description,
-      AnnexGroup annexGroup,
-      String manufacturerName,
-      boolean active) {
-    return createEpiUseCase.execute(
-        actorId, epiCode, description, annexGroup, manufacturerName, active);
+      Long actorId, String epiCode, String description, AnnexGroup annexGroup, boolean active) {
+    return createEpiUseCase.execute(actorId, epiCode, description, annexGroup, active);
   }
 
   public void updateEpi(
@@ -65,10 +59,8 @@ public class EpiCatalogManagementService {
       String epiCode,
       String description,
       AnnexGroup annexGroup,
-      String manufacturerName,
       boolean active) {
-    updateEpiUseCase.execute(
-        actorId, epiId, epiCode, description, annexGroup, manufacturerName, active);
+    updateEpiUseCase.execute(actorId, epiId, epiCode, description, annexGroup, active);
   }
 
   public void setEpiStatus(Long actorId, Long epiId, boolean active) {

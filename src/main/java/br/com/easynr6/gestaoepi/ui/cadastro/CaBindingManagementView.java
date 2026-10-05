@@ -515,12 +515,10 @@ public final class CaBindingManagementView {
       mostrar("Selecione o EPI antes de consultar os CAs.", Tom.ERRO);
       return;
     }
-    String fabricante = epi.getValue().manufacturerName();
     Optional<Linha> escolhida =
         ConsultaCaDialog.escolher(
             salvar.getScene() == null ? null : salvar.getScene().getWindow(),
-            fabricante,
-            termo -> caepi.buscar(usuario.id(), termo, fabricante));
+            termo -> caepi.buscar(usuario.id(), termo, null));
     escolhida.ifPresent(this::aplicarLinha);
   }
 

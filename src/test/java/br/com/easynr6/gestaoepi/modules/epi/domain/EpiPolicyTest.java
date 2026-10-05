@@ -13,8 +13,7 @@ class EpiPolicyTest {
   void shouldRejectMissingRequiredFields() {
     IllegalArgumentException ex =
         assertThrows(
-            IllegalArgumentException.class,
-            () -> policy.validateRequiredFields("", AnnexGroup.A, "Fabricante"));
+            IllegalArgumentException.class, () -> policy.validateRequiredFields("", AnnexGroup.A));
     assertEquals("CAD-031 Campos obrigatorios de EPI ausentes.", ex.getMessage());
   }
 
@@ -22,6 +21,5 @@ class EpiPolicyTest {
   void shouldNormalizeFields() {
     assertEquals("CAP-100", policy.normalizeEpiCode(" cap-100 "));
     assertEquals("Capacete Classe B", policy.normalizeDescription("  Capacete Classe B  "));
-    assertEquals("Fabricante XPTO", policy.normalizeManufacturerName("  Fabricante XPTO  "));
   }
 }

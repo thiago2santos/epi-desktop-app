@@ -26,11 +26,11 @@ Detalhar cenarios de teste executaveis para validar as regras do cadastro de EPI
 
 | ID | Tipo | Referencia na spec | Regra alvo | Pre-condicoes | Passos | Resultado esperado |
 |---|---|---|---|---|---|---|
-| CAD45-001 | INT | Regras sec.4(1), CA-01, CA-05 | Fluxo feliz EPI | Usuario `SESMT` autenticado | Cadastrar EPI com `description`, `annex_group=A`, `manufacturer_name`, `active=true` | EPI criado, status ativo, auditoria `EPI_CREATED` |
-| CAD45-002 | UNIT/INT | Regras sec.4(1), Erro `CAD-031` | Obrigatorios EPI | Contexto pronto para cadastro | Tentar criar EPI com `description` vazio ou `manufacturer_name` vazio | Operacao bloqueada com `CAD-031` |
+| CAD45-001 | INT | Regras sec.4(1), CA-01, CA-05 | Fluxo feliz EPI | Usuario `SESMT` autenticado | Cadastrar EPI com `description`, `annex_group=A`, `active=true` | EPI criado, status ativo, auditoria `EPI_CREATED` |
+| CAD45-002 | UNIT/INT | Regras sec.4(1), Erro `CAD-031` | Obrigatorios EPI | Contexto pronto para cadastro | Tentar criar EPI com `description` vazio | Operacao bloqueada com `CAD-031` |
 | CAD45-003 | UNIT/INT | Regras sec.4(1), CA-01, Erro `CAD-032` | Grupo Anexo I | Contexto pronto para cadastro | Tentar criar EPI com grupo fora de `A..I` | Operacao bloqueada com `CAD-032` |
 | CAD45-004 | INT | Regras sec.4, Erro `CAD-033` | Duplicidade EPI | Ja existe EPI no escopo definido | Cadastrar novo EPI com mesma chave de unicidade | Operacao bloqueada com `CAD-033` |
-| CAD45-005 | INT/AUDIT | CA-05 | Edicao EPI | EPI existente | Atualizar descricao/fabricante/grupo com dados validos | EPI atualizado e evento `EPI_UPDATED` registrado |
+| CAD45-005 | INT/AUDIT | CA-05 | Edicao EPI | EPI existente | Atualizar descricao/grupo com dados validos | EPI atualizado e evento `EPI_UPDATED` registrado |
 | CAD45-006 | INT/AUDIT | Regras sec.4(7), CA-05 | Inativacao/Reativacao EPI | EPI existente | Inativar e depois reativar EPI | Status alterado corretamente e eventos `EPI_DEACTIVATED` / `EPI_REACTIVATED` |
 | CAD45-007 | INT | Regras sec.4(2)(5), CA-02, CA-05 | Fluxo feliz CA | EPI existente e ativo | Vincular CA com `ca_number`, `ca_status=ACTIVE`, datas coerentes, `official_check_at`, `official_check_note` | Vinculo criado e auditoria `EPI_CA_BOUND` |
 | CAD45-008 | UNIT/INT | Regras sec.4(2), Erro `CAD-034` | CA ausente/invalido | EPI selecionado | Tentar vincular CA com numero vazio/nulo | Operacao bloqueada com `CAD-034` |

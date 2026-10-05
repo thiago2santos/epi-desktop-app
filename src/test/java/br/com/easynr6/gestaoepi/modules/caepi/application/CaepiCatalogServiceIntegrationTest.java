@@ -58,8 +58,7 @@ class CaepiCatalogServiceIntegrationTest {
     assertEquals("ACTIVE", daMarca.status());
 
     long epiId =
-        catalogo.createEpi(
-            sesmt, "LUV-1", "Luva " + System.nanoTime(), AnnexGroup.F, "Vaqueta SA", true);
+        catalogo.createEpi(sesmt, "LUV-1", "Luva " + System.nanoTime(), AnnexGroup.F, true);
     long bindingId =
         catalogo.bindCaToEpi(
             sesmt,
@@ -102,8 +101,7 @@ class CaepiCatalogServiceIntegrationTest {
     long sesmt = createUserWithRole("sesmt.caepi.print", Papel.SESMT);
     caepi.importar(sesmt, "RelatorioCA.csv", CSV.getBytes(StandardCharsets.UTF_8));
     long epiId =
-        catalogo.createEpi(
-            sesmt, "BOT-1", "Bota " + System.nanoTime(), AnnexGroup.C, "Outro", true);
+        catalogo.createEpi(sesmt, "BOT-1", "Bota " + System.nanoTime(), AnnexGroup.C, true);
 
     IllegalArgumentException semPrint =
         assertThrows(

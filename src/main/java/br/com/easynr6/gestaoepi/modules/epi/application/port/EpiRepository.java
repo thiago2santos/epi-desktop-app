@@ -11,23 +11,12 @@ public interface EpiRepository {
 
   boolean existsEpiById(Long epiId);
 
-  boolean existsEpiDuplicate(
-      Long excludeEpiId, String description, AnnexGroup annexGroup, String manufacturerName);
+  boolean existsEpiDuplicate(Long excludeEpiId, String description, AnnexGroup annexGroup);
 
-  Long createEpi(
-      String epiCode,
-      String description,
-      AnnexGroup annexGroup,
-      String manufacturerName,
-      boolean active);
+  Long createEpi(String epiCode, String description, AnnexGroup annexGroup, boolean active);
 
   void updateEpi(
-      Long epiId,
-      String epiCode,
-      String description,
-      AnnexGroup annexGroup,
-      String manufacturerName,
-      boolean active);
+      Long epiId, String epiCode, String description, AnnexGroup annexGroup, boolean active);
 
   void setEpiActive(Long epiId, boolean active);
 
@@ -83,7 +72,6 @@ public interface EpiRepository {
       String epiCode,
       String description,
       AnnexGroup annexGroup,
-      String manufacturerName,
       boolean active,
       String updatedAt) {}
 

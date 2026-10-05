@@ -179,7 +179,7 @@ Cada caso de uso segue o formato:
 - **Pre-condicoes**: Usuario SESMT autenticado.
 - **Gatilho**: Novo item no programa de protecao.
 - **Fluxo principal**:
-  1. SESMT informa descricao, fabricante e classificacao do EPI conforme Anexo I da NR-6.
+  1. SESMT informa descricao e classificacao do EPI conforme Anexo I da NR-6. O fabricante da peca entra no recebimento do lote.
   2. Sistema valida obrigatorios e consistencia da classificacao.
   3. SESMT define status inicial (ativo/inativo) e confirma cadastro.
 - **Fluxos alternativos/excecoes**:

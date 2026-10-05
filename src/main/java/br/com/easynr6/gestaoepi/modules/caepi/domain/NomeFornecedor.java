@@ -3,7 +3,7 @@ package br.com.easynr6.gestaoepi.modules.caepi.domain;
 import java.text.Normalizer;
 import java.util.Locale;
 
-/** Compara o fabricante digitado no EPI com a razão social da base. */
+/** Normaliza um nome para comparar com a razão social da base CAEPI. */
 public final class NomeFornecedor {
 
   private NomeFornecedor() {}
