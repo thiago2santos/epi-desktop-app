@@ -15,4 +15,4 @@
 - **Fora deste caso**: cadastro do GHE (`UC-CAD-07`), periodicidade, excecao no balcao.
 - **Spec**: `docs/03-operacao/spec-uc-mat-01-matriz.md`
 - **Testes**: `docs/03-operacao/matriz-testes-uc-mat-01.md`
-- **Status**: especificado; implementacao pendente.
+- **Status**: implementado. Spec em `docs/03-operacao/spec-uc-mat-01-matriz.md`.

@@ -6,7 +6,7 @@
 - Tipo: `UC`
 - Iniciativa/Epico: `INI-01` / `EP-CORE`
 - Responsavel: Time Easy NR6
-- Status: especificado; implementacao nao iniciada
+- Status: implementado na tela Matriz (`MatrizManagementView`)
 
 ## 1) Contexto
 

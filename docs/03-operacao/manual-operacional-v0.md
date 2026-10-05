@@ -131,10 +131,12 @@ Campos minimos:
 
 ## 4.4 Matriz funcao/GHE x EPI
 
-1. Definir quais EPIs cada funcao/GHE deve receber.
-2. Definir obrigatoriedade.
-3. Definir periodicidade esperada.
-4. Salvar vigencia da regra.
+Tela Matriz (`UC-MAT-01`). O perfil e a funcao ativa fora de GHE ativo, ou o GHE ativo.
+
+1. Escolher o perfil.
+2. Incluir o EPI ativo que tenha CA ativo. O CA esperado nasce desse CA.
+3. Ajustar Individual ou Posto, e se exige treinamento.
+4. Inativar a linha, se o EPI sair da lista. O registro permanece. A periodicidade e o `UC-MAT-02`.
 
 ## 4.5 Recebimento por lote
 

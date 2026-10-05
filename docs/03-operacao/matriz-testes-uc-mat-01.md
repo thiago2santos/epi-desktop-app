@@ -1,6 +1,6 @@
 # Matriz executavel de testes - UC-MAT-01 (Matriz funcao x EPI)
 
-Spec: `docs/03-operacao/spec-uc-mat-01-matriz.md`. Nenhum teste existe em codigo ainda.
+Spec: `docs/03-operacao/spec-uc-mat-01-matriz.md`. Cobertos por `MatrizPolicyTest`, `MatrizManagementServiceIntegrationTest` e `MatrizUxTest`.
 
 | ID | Tipo | Referencia | Pre-condicoes | Passos | Resultado esperado |
 |---|---|---|---|---|---|

@@ -387,7 +387,7 @@ Cada caso de uso segue o formato:
 - **Fluxos alternativos/excecoes**:
   - `MAT-001` a `MAT-004`, `MAT-007` e `MAT-008`.
 - **Pos-condicoes**: Lista ativa do perfil vigente para o fornecimento e a cobertura.
-- **Status**: especificado em `docs/03-operacao/spec-uc-mat-01-matriz.md`.
+- **Status**: implementado. Spec em `docs/03-operacao/spec-uc-mat-01-matriz.md`.
 
 ### UC-MAT-02 — Definir periodicidade de troca
 - **Atores**: SESMT, Admin
