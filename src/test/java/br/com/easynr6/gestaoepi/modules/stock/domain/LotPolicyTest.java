@@ -1,6 +1,7 @@
 package br.com.easynr6.gestaoepi.modules.stock.domain;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -59,6 +60,35 @@ class LotPolicyTest {
 
     assertEquals(10, saldo.disponivel());
     assertEquals("Vigente", saldo.situacao());
+  }
+
+  @Test
+  void reservaReduzDisponivelEMantemVigente() {
+    LocalDate hoje = LocalDate.of(2026, 10, 4);
+    LotPolicy.Saldo saldo = policy.saldo(10, 3, hoje.plusDays(10), hoje);
+
+    assertEquals(10, saldo.fisica());
+    assertEquals(3, saldo.reservada());
+    assertEquals(7, saldo.disponivel());
+    assertEquals(LotPolicy.SITUACAO_VIGENTE, saldo.situacao());
+  }
+
+  @Test
+  void fisicaZeroSemVencimentoFicaEsgotada() {
+    LocalDate hoje = LocalDate.of(2026, 10, 4);
+    LotPolicy.Saldo saldo = policy.saldo(0, 0, hoje.plusDays(5), hoje);
+
+    assertEquals(0, saldo.disponivel());
+    assertEquals(LotPolicy.SITUACAO_ESGOTADO, saldo.situacao());
+  }
+
+  @Test
+  void filtroDaConsultaAceitaEpiLoteTamanhoESituacao() {
+    assertTrue(policy.apareceNaConsulta("Luva", "VG-1", "G", "Vigente", " ", null));
+    assertTrue(policy.apareceNaConsulta("Luva", "VG-1", "G", "Vigente", "luva", "Vigente"));
+    assertTrue(policy.apareceNaConsulta("Luva", "VG-1", " ", "Vigente", "unico", "Todas"));
+    assertFalse(policy.apareceNaConsulta("Luva", "VG-1", "G", "Vigente", "bota", "Todas"));
+    assertFalse(policy.apareceNaConsulta("Luva", "VG-1", "G", "Vigente", null, "Vencido"));
   }
 
   private String rejeitaQuantidade(String valor) {

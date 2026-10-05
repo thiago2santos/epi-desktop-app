@@ -295,7 +295,7 @@ Cada caso de uso segue o formato:
 - **Fluxos alternativos/excecoes**:
   - Filtro sem resultado: lista vazia.
 - **Pos-condicoes**: Operador distingue peca livre, reservada e vencida.
-- **Status**: especificado em `docs/03-operacao/spec-uc-lot-02-consulta-saldo.md`.
+- **Status**: implementado. Spec em `docs/03-operacao/spec-uc-lot-02-consulta-saldo.md`.
 
 ### UC-LOT-03 — Reservar e liberar
 - **Atores**: Almoxarife, Admin

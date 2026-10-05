@@ -62,10 +62,25 @@ public class JdbcStockRepository implements StockRepository {
       SELECT l.id, l.lot_code, e.description, l.size_label, l.piece_valid_until,
              l.unit_cost_cents, l.manufacturer,
              COALESCE((
-                 SELECT SUM(m.quantity)
+                 SELECT SUM(CASE m.movement_type
+                     WHEN 'RECEBIMENTO' THEN m.quantity
+                     WHEN 'ESTORNO_FORNECIMENTO' THEN m.quantity
+                     WHEN 'BAIXA_FORNECIMENTO' THEN -m.quantity
+                     WHEN 'BAIXA_PRATELEIRA' THEN -m.quantity
+                     ELSE 0
+                 END)
                  FROM estoque_movimento m
-                 WHERE m.lote_id = l.id AND m.movement_type = 'RECEBIMENTO'
-             ), 0) AS fisica
+                 WHERE m.lote_id = l.id
+             ), 0) AS fisica,
+             COALESCE((
+                 SELECT SUM(CASE m.movement_type
+                     WHEN 'RESERVA' THEN m.quantity
+                     WHEN 'LIBERACAO_RESERVA' THEN -m.quantity
+                     ELSE 0
+                 END)
+                 FROM estoque_movimento m
+                 WHERE m.lote_id = l.id
+             ), 0) AS reservada
       FROM lote_epi l
       JOIN epi_catalog e ON e.id = l.epi_id
       WHERE l.unit_id = :unitId
@@ -201,6 +216,7 @@ public class JdbcStockRepository implements StockRepository {
         rs.getString("size_label"),
         LocalDate.parse(rs.getString("piece_valid_until")),
         rs.getInt("fisica"),
+        rs.getInt("reservada"),
         centavos,
         rs.getString("manufacturer"));
   }

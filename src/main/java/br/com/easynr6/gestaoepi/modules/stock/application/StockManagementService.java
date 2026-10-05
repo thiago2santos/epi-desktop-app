@@ -55,7 +55,11 @@ public class StockManagementService {
   }
 
   public List<LotBalance> listLots(Long actorId, Long unitId) {
-    return listLotsUseCase.listLots(actorId, unitId);
+    return listLots(actorId, unitId, null, null);
+  }
+
+  public List<LotBalance> listLots(Long actorId, Long unitId, String texto, String situacao) {
+    return listLotsUseCase.listLots(actorId, unitId, texto, situacao);
   }
 
   public List<UnitOption> listUnits(Long actorId) {

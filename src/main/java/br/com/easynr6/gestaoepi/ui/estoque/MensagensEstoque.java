@@ -1,9 +1,19 @@
 package br.com.easynr6.gestaoepi.ui.estoque;
 
-/** Texto de tela para o recebimento de lote. O código da regra fica no log e na auditoria. */
+/** Texto de tela para o recebimento e a consulta de lote. O código da regra fica no log. */
 public final class MensagensEstoque {
 
+  public static final String FALHA_CONSULTA = "Não foi possível consultar os lotes.";
+
   private MensagensEstoque() {}
+
+  public static String erroConsulta(RuntimeException erro) {
+    String mensagem = erro.getMessage() == null ? "" : erro.getMessage();
+    if (mensagem.startsWith("AUTH-004")) {
+      return "Você não tem permissão para esta ação.";
+    }
+    return FALHA_CONSULTA;
+  }
 
   public static String erro(RuntimeException erro) {
     String mensagem = erro.getMessage() == null ? "" : erro.getMessage();

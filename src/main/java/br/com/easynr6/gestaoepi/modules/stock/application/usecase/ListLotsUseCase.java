@@ -26,12 +26,27 @@ public class ListLotsUseCase {
   }
 
   public List<LotBalance> listLots(Long actorId, Long unitId) {
+    return listLots(actorId, unitId, null, null);
+  }
+
+  public List<LotBalance> listLots(Long actorId, Long unitId, String texto, String situacao) {
     accessAuthorizer.assertCanView(actorId);
     if (unitId == null) {
       return List.of();
     }
     LocalDate hoje = LocalDate.now();
-    return stockRepository.listByUnit(unitId).stream().map(lote -> saldo(lote, hoje)).toList();
+    return stockRepository.listByUnit(unitId).stream()
+        .map(lote -> saldo(lote, hoje))
+        .filter(
+            item ->
+                lotPolicy.apareceNaConsulta(
+                    item.epiDescription(),
+                    item.lotCode(),
+                    item.sizeLabel(),
+                    item.situacao(),
+                    texto,
+                    situacao))
+        .toList();
   }
 
   public List<UnitOption> listUnits(Long actorId) {
@@ -53,7 +68,7 @@ public class ListLotsUseCase {
   }
 
   private LotBalance saldo(LotStored lote, LocalDate hoje) {
-    Saldo saldo = lotPolicy.saldo(lote.fisica(), 0, lote.pieceValidUntil(), hoje);
+    Saldo saldo = lotPolicy.saldo(lote.fisica(), lote.reservada(), lote.pieceValidUntil(), hoje);
     return new LotBalance(
         lote.id(),
         lote.lotCode(),

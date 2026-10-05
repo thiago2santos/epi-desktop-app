@@ -6,6 +6,8 @@ import br.com.easynr6.gestaoepi.modules.stock.application.port.StockRepository.C
 import br.com.easynr6.gestaoepi.modules.stock.application.port.StockRepository.EpiOption;
 import br.com.easynr6.gestaoepi.modules.stock.application.port.StockRepository.LotBalance;
 import br.com.easynr6.gestaoepi.modules.stock.application.port.StockRepository.UnitOption;
+import br.com.easynr6.gestaoepi.modules.stock.domain.LotPolicy;
+import br.com.easynr6.gestaoepi.shared.audit.LogTroubleshooting;
 import br.com.easynr6.gestaoepi.shared.auth.Papel;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
 import br.com.easynr6.gestaoepi.ui.Enr6Styles;
@@ -32,10 +34,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
-/** UC-LOT-01. Recebe o lote e mostra física, reservada e disponível da unidade. */
+/** UC-LOT-01 e UC-LOT-02. Recebe o lote e consulta física, reservada, disponível e situação. */
 public final class LotManagementView {
 
   public static final String LISTA_VAZIA = "Nenhum lote recebido nesta unidade.";
+  public static final String FILTRO_VAZIO = "Nenhum lote com esse filtro.";
   public static final String ACAO_REGISTRAR = "Registrar recebimento";
   public static final String SUCESSO = "Lote recebido.";
   public static final String DIALOGO_PECA_VENCIDA =
@@ -44,6 +47,7 @@ public final class LotManagementView {
       "A consulta deste CA não é de hoje. Confira o número impresso na peça.";
 
   private static final DateTimeFormatter DATA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+  private static final LotPolicy LEITURA = new LotPolicy();
 
   private enum Tom {
     OK,
@@ -63,6 +67,8 @@ public final class LotManagementView {
   private final DatePicker validade = new DatePicker();
   private final TextField quantidade = new TextField();
   private final TextField custo = new TextField();
+  private final TextField filtro = new TextField();
+  private final ComboBox<String> situacao = new ComboBox<>();
   private final TableView<LotBalance> tabela = new TableView<>();
   private final Button salvar = new Button(ACAO_REGISTRAR);
   private final Label feedback = new Label();
@@ -75,7 +81,7 @@ public final class LotManagementView {
   public LotManagementView(UsuarioAutenticado usuario, StockManagementService estoque) {
     this.usuario = usuario;
     this.estoque = estoque;
-    this.podeReceber = usuario.temPapel(Papel.ALMOXARIFE);
+    this.podeReceber = exibeRecebimento(usuario);
     ReferenciaPage page =
         ReferenciaPage.of(
             "Estoque",
@@ -119,10 +125,24 @@ public final class LotManagementView {
   }
 
   static String textoTamanho(String tamanho) {
-    if (tamanho == null || tamanho.isBlank()) {
-      return "Único";
+    return LEITURA.tamanhoVisivel(tamanho);
+  }
+
+  static boolean exibeRecebimento(UsuarioAutenticado usuario) {
+    return usuario.temPapel(Papel.ALMOXARIFE);
+  }
+
+  static boolean filtroAtivo(String texto, String situacao) {
+    if (texto != null && !texto.isBlank()) {
+      return true;
     }
-    return tamanho;
+    return situacao != null
+        && !situacao.isBlank()
+        && !LotPolicy.SITUACAO_TODAS.equalsIgnoreCase(situacao.trim());
+  }
+
+  static String textoListaVazia(boolean filtrando) {
+    return filtrando ? FILTRO_VAZIO : LISTA_VAZIA;
   }
 
   private Node montar() {
@@ -133,6 +153,18 @@ public final class LotManagementView {
     tamanho.setPromptText("Em branco vale como tamanho único");
     quantidade.setPromptText("Inteiro maior que zero");
     custo.setPromptText("Opcional. Ex.: 12,50");
+    filtro.setPromptText("EPI, lote ou tamanho");
+    situacao
+        .getItems()
+        .setAll(
+            LotPolicy.SITUACAO_TODAS,
+            LotPolicy.SITUACAO_VIGENTE,
+            LotPolicy.SITUACAO_VENCIDO,
+            LotPolicy.SITUACAO_ESGOTADO);
+    situacao.getSelectionModel().selectFirst();
+    situacao.setMinWidth(140);
+    filtro.textProperty().addListener((obs, anterior, atual) -> carregarLotes());
+    situacao.valueProperty().addListener((obs, anterior, atual) -> carregarLotes());
     salvar.getStyleClass().add(Styles.ACCENT);
     salvar.setDisable(true);
     salvar.setOnAction(event -> salvar());
@@ -143,7 +175,10 @@ public final class LotManagementView {
     avisoCa.setManaged(false);
     ouvirCampos();
 
-    VBox lista = painel("Lotes da unidade", tabela);
+    HBox busca = new HBox(8, filtro, situacao);
+    HBox.setHgrow(filtro, Priority.ALWAYS);
+    filtro.setMaxWidth(Double.MAX_VALUE);
+    VBox lista = painel("Lotes da unidade", busca, tabela);
     HBox.setHgrow(lista, Priority.ALWAYS);
     VBox.setVgrow(tabela, Priority.ALWAYS);
     tabela.setPrefHeight(420);
@@ -217,6 +252,7 @@ public final class LotManagementView {
         unidade.getSelectionModel().selectFirst();
       }
     } catch (RuntimeException ex) {
+      LogTroubleshooting.registrar("CARREGAR_OPCOES_LOTE", usuario.id(), "-", ex);
       mostrar(MensagensEstoque.erro(ex), Tom.ERRO);
     } finally {
       sincronizando = false;
@@ -238,6 +274,7 @@ public final class LotManagementView {
     try {
       ca.getItems().setAll(estoque.listCas(usuario.id(), escolhido.id()));
     } catch (RuntimeException ex) {
+      LogTroubleshooting.registrar("CARREGAR_CAS_LOTE", usuario.id(), alvo(escolhido.id()), ex);
       mostrar(MensagensEstoque.erro(ex), Tom.ERRO);
     }
     atualizarAvisoCa();
@@ -252,12 +289,19 @@ public final class LotManagementView {
       if (escolhida == null) {
         tabela.getItems().clear();
       } else {
-        tabela.getItems().setAll(estoque.listLots(usuario.id(), escolhida.id()));
+        tabela
+            .getItems()
+            .setAll(
+                estoque.listLots(
+                    usuario.id(), escolhida.id(), filtro.getText(), situacao.getValue()));
       }
-      vazio.setText(LISTA_VAZIA);
+      vazio.setText(textoListaVazia(filtroAtivo(filtro.getText(), situacao.getValue())));
     } catch (RuntimeException ex) {
+      LogTroubleshooting.registrar(
+          "CONSULTAR_LOTES", usuario.id(), alvo(escolhida == null ? null : escolhida.id()), ex);
       tabela.getItems().clear();
-      mostrar(MensagensEstoque.erro(ex), Tom.ERRO);
+      vazio.setText("");
+      mostrar(MensagensEstoque.erroConsulta(ex), Tom.ERRO);
     }
   }
 
@@ -291,17 +335,26 @@ public final class LotManagementView {
       carregarLotes();
       mostrar(SUCESSO, Tom.OK);
     } catch (RuntimeException ex) {
+      LogTroubleshooting.registrar(
+          "RECEBER_LOTE",
+          usuario.id(),
+          alvo(unidade.getValue() == null ? null : unidade.getValue().id()),
+          ex);
       mostrar(MensagensEstoque.erro(ex), Tom.ERRO);
     }
   }
 
+  private static String alvo(Long id) {
+    return id == null ? "-" : id.toString();
+  }
+
   private void limparRecebimento() {
     codigo.clear();
-    fabricante.clear();
     tamanho.clear();
     quantidade.clear();
     custo.clear();
     validade.setValue(null);
+    fabricante.clear();
     atualizarAcoes();
   }
 

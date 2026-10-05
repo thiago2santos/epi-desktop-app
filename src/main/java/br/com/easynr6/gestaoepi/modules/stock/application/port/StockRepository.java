@@ -66,6 +66,7 @@ public interface StockRepository {
       String sizeLabel,
       LocalDate pieceValidUntil,
       int fisica,
+      int reservada,
       Integer unitCostCents,
       String manufacturer) {}
 

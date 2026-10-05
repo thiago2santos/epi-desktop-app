@@ -102,7 +102,7 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 - **[UC]** `UC-CAD-IMP-01` Orquestra upload, staging, revalidacao e publicacao atomica do lote elegivel.
 - **[UC]** `EPI e CA` (minimo para itens entregaveis).
 - **[UC]** `UC-CAE-01` importação manual publicada, com auditoria e faixa de status. O ciclo automático diário (abertura e 06:00) ainda não dispara o download. O vínculo de CA já usa a última carga com sucesso.
-- **[UC]** `UC-LOT-01` Recebimento de lote implementado (`LotManagementView`, migracao `V8`). `UC-LOT-02` consulta de saldo ainda e o proximo ataque: a lista ja mostra as tres quantidades, sem os filtros da consulta. Ver `spec-uc-lot-01-recebimento.md` e `modelo-diario-estoque.md`.
+- **[UC]** `UC-LOT-01` Recebimento de lote implementado (`LotManagementView`, migracao `V8`). `UC-LOT-02` consulta de saldo implementada na mesma tela: filtro por EPI, lote, tamanho e situacao, com saldo lido do diario. Ver `spec-uc-lot-02-consulta-saldo.md` e `modelo-diario-estoque.md`.
 - **[UC]** `UC-LOT-03` Reservar e liberar. Spec pronta. Codigo depois do recebimento. `UC-SOL-01` continua sem reservar.
 - **[UC]** `UC-LOT-04` Baixa de prateleira (vencimento, perda, descarte). Spec pronta. Perda, nao consumo.
 - **[UC]** `UC-LOT-05` Inventario da unidade. Spec pronta. Feature propria: a contagem explica a diferenca, nao edita o recebimento.
@@ -437,7 +437,7 @@ Toda task deve conter:
 ## Proximo ataque recomendado (sequencia objetiva)
 
 1. `UC-CAD-01` implementado: nome, CNPJ e status da empresa do seed, com a tela no shell.
-2. **Sprint J1:** `UC-LOT-01` implementado. Seguir com `UC-LOT-02`, depois `UC-MAT-01/02`, depois `UC-ENT-01/02`, depois devolucao, estorno, historico e pendencias. Reserva, baixa de prateleira, inventario, compra e budget entram na mesma cadeia. Solicitacao, CAEPI e CSV de cadastros ja tem spec e entram em seguida.
+2. **Sprint J1:** `UC-LOT-01` e `UC-LOT-02` implementados. Seguir com `UC-MAT-01/02`, depois `UC-ENT-01/02`, depois devolucao, estorno, historico e pendencias. Reserva, baixa de prateleira, inventario, compra e budget entram na mesma cadeia. Solicitacao, CAEPI e CSV de cadastros ja tem spec e entram em seguida.
 3. **Sprint J2:** core transacional M2 — wizard de fornecimento com persistencia, historico, devolucao e estorno.
 4. **Sprint J3:** relatorios M3 alem da auditoria — cobertura, pendencias e PDF minimo.
 5. **Sprint J4:** `UC-CAE-01` e `UC-SOL-01`.

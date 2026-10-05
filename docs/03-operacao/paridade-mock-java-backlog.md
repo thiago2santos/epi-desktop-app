@@ -31,7 +31,7 @@ Documento de alinhamento entre **documentação/backlog**, **protótipo navegáv
 | `07-setores-funcoes` | UC-CAD-02 | `DepartmentManagementView`, `JobRoleManagementView` — no shell: `OrgStructureManagementView` |
 | `08-cad-epi` | UC-CAD-04 | `EpiManagementView` |
 | `09-cad-ca-epi` | UC-CAD-05 | `CaBindingManagementView` |
-| `10-estoque-lotes` | UC-LOT-01/02 | `LotManagementView` no destino Lotes e saldos. Recebimento real; consulta com filtro ainda pendente |
+| `10-estoque-lotes` | UC-LOT-01/02 | `LotManagementView` no destino Lotes e saldos. Recebimento e consulta com filtro |
 | `11-matriz` | UC-MAT-01 | `MainShellView.Modulo.REGRAS` → `MatrixManagementView` |
 | `12-periodicidade` | UC-MAT ext. | mesma área Regras → `PeriodicityView` |
 | `13-relatorios-hub` | M3 FEAT | `MainShellView.Modulo.RELATORIOS` → `ReportsHubView` |
@@ -71,7 +71,7 @@ Referência mock: [`docs/mock/ROADMAP-SESSION-MOCK.md`](../mock/ROADMAP-SESSION-
 | UC-CAD-03 Trabalhador | ✅ | ✅ | employee tests | |
 | UC-CAD-04/05 EPI + CA | ✅ + CAEPI gate | ✅ serviço e tela | `spec-uc-cad-04-05`, matriz testes | Vínculo lê a última carga; print cobre número fora da base |
 | UC-CAE-01 Import CAEPI | ✅ 21 AUTO sim + **manual real** (upload ZIP/txt) | ✅ manual | spec fechada + matriz | Índice e variantes publicados. Download diário automático pendente |
-| UC-LOT-01/02 Recebimento e saldo | ✅ 10 | ✅ recebimento | spec + matriz | Diario `V8`. LOT-01 na tela. Filtros do LOT-02 pendentes |
+| UC-LOT-01/02 Recebimento e saldo | ✅ 10 | ✅ recebimento e consulta | spec + matriz | Diario `V8`. Filtro e saldo lido dos movimentos |
 | UC-LOT-03 Reserva | — | ⬜ | spec + matriz | Solicitacao continua sem reservar |
 | UC-LOT-04 Baixa de prateleira | — | ⬜ | spec + matriz | Perda, fora do consumo |
 | UC-LOT-05 Inventario | — | ⬜ | spec + matriz | Ajuste da diferenca |
@@ -144,7 +144,7 @@ Ordem para maximizar reutilização do protótipo como **critério de aceite UX*
 
 ```text
 Sprint J1 — M1 estoque + regras (desbloqueia DoR M2)
-  • UC-LOT-01 implementado. Seguir com UC-LOT-02, depois UC-MAT-01/02, depois UC-ENT-01/02
+  • UC-LOT-01 e UC-LOT-02 implementados. Seguir com UC-MAT-01/02, depois UC-ENT-01/02
   • UC-LOT-03 a 06 e UC-REL-04 já têm spec; código depois do recebimento e da baixa de fornecimento
 
 Sprint J2 — M2 entrega real

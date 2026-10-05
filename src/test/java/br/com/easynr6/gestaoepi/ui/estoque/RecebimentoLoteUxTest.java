@@ -4,7 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import br.com.easynr6.gestaoepi.shared.auth.Papel;
+import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
 import java.time.LocalDate;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 class RecebimentoLoteUxTest {
@@ -46,6 +49,39 @@ class RecebimentoLoteUxTest {
     assertEquals(
         "A consulta deste CA não é de hoje. Confira o número impresso na peça.",
         LotManagementView.AVISO_CONSULTA);
+  }
+
+  @Test
+  void consultaVeAListaSemFormularioDeRecebimento() {
+    UsuarioAutenticado consulta =
+        new UsuarioAutenticado(1L, "Consulta", "consulta", Set.of(Papel.CONSULTA));
+    UsuarioAutenticado sesmt = new UsuarioAutenticado(2L, "Sesmt", "sesmt", Set.of(Papel.SESMT));
+    UsuarioAutenticado almox =
+        new UsuarioAutenticado(3L, "Almox", "almox", Set.of(Papel.ALMOXARIFE));
+    UsuarioAutenticado admin = new UsuarioAutenticado(4L, "Admin", "admin", Set.of(Papel.ADMIN));
+
+    assertFalse(LotManagementView.exibeRecebimento(consulta));
+    assertFalse(LotManagementView.exibeRecebimento(sesmt));
+    assertTrue(LotManagementView.exibeRecebimento(almox));
+    assertTrue(LotManagementView.exibeRecebimento(admin));
+    assertEquals("Nenhum lote com esse filtro.", LotManagementView.FILTRO_VAZIO);
+    assertEquals(LotManagementView.FILTRO_VAZIO, LotManagementView.textoListaVazia(true));
+    assertEquals(LotManagementView.LISTA_VAZIA, LotManagementView.textoListaVazia(false));
+    assertTrue(LotManagementView.filtroAtivo("luva", "Todas"));
+    assertTrue(LotManagementView.filtroAtivo(" ", "Vencido"));
+    assertFalse(LotManagementView.filtroAtivo(" ", "Todas"));
+  }
+
+  @Test
+  void falhaDeConsultaNaoMostraListaPelaMetadeNemCodigo() {
+    assertEquals(
+        "Não foi possível consultar os lotes.",
+        MensagensEstoque.erroConsulta(new IllegalStateException("SQLITE_BUSY")));
+    assertEquals(
+        "Você não tem permissão para esta ação.",
+        MensagensEstoque.erroConsulta(
+            new IllegalArgumentException(
+                "AUTH-004 Voce nao tem permissao para executar esta acao.")));
   }
 
   @Test

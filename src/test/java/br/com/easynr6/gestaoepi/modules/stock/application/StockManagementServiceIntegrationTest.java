@@ -11,6 +11,7 @@ import br.com.easynr6.gestaoepi.modules.epi.application.EpiCatalogManagementServ
 import br.com.easynr6.gestaoepi.modules.epi.domain.AnnexGroup;
 import br.com.easynr6.gestaoepi.modules.epi.domain.CaStatus;
 import br.com.easynr6.gestaoepi.modules.stock.application.port.StockRepository.LotBalance;
+import br.com.easynr6.gestaoepi.modules.stock.domain.LotPolicy;
 import br.com.easynr6.gestaoepi.modules.stock.domain.PecaVencidaNaoConfirmadaException;
 import br.com.easynr6.gestaoepi.shared.auth.AuthorizationDeniedException;
 import br.com.easynr6.gestaoepi.shared.auth.Papel;
@@ -285,6 +286,93 @@ class StockManagementServiceIntegrationTest {
   }
 
   @Test
+  void shouldShowReservedQuantityWithoutAudit() {
+    Contexto ctx = contexto();
+    long loteId = receber(ctx, "RES-3", LocalDate.now().plusDays(20), "10", null, false);
+    int auditoria = totalAuditoria();
+    movimento(loteId, "RESERVA", 3);
+
+    LotBalance saldo = saldo(ctx.almoxId(), ctx.unitId(), "RES-3");
+
+    assertEquals(10, saldo.fisica());
+    assertEquals(3, saldo.reservada());
+    assertEquals(7, saldo.disponivel());
+    assertEquals(LotPolicy.SITUACAO_VIGENTE, saldo.situacao());
+    assertEquals(auditoria, totalAuditoria());
+  }
+
+  @Test
+  void shouldDeriveBalanceFromJournalMovements() {
+    Contexto ctx = contexto();
+    long loteId = receber(ctx, "DIARIO", LocalDate.now().plusDays(12), "10", null, false);
+    movimento(loteId, "RESERVA", 5);
+    movimento(loteId, "LIBERACAO_RESERVA", 2);
+    movimento(loteId, "BAIXA_PRATELEIRA", 1);
+
+    LotBalance saldo = saldo(ctx.almoxId(), ctx.unitId(), "DIARIO");
+
+    assertEquals(9, saldo.fisica());
+    assertEquals(3, saldo.reservada());
+    assertEquals(6, saldo.disponivel());
+    assertEquals(LotPolicy.SITUACAO_VIGENTE, saldo.situacao());
+  }
+
+  @Test
+  void shouldMarkZeroPhysicalAsExhausted() {
+    Contexto ctx = contexto();
+    long loteId = receber(ctx, "ZERO", LocalDate.now().plusDays(9), "4", null, false);
+    movimento(loteId, "BAIXA_PRATELEIRA", 4);
+
+    LotBalance saldo = saldo(ctx.almoxId(), ctx.unitId(), "ZERO");
+
+    assertEquals(0, saldo.fisica());
+    assertEquals(0, saldo.disponivel());
+    assertEquals(LotPolicy.SITUACAO_ESGOTADO, saldo.situacao());
+  }
+
+  @Test
+  void shouldReturnEmptyListWhenFilterMisses() {
+    Contexto ctx = contexto();
+    receber(ctx, "ACHEI", LocalDate.now().plusDays(8), "2", null, false);
+
+    assertTrue(estoque.listLots(ctx.almoxId(), ctx.unitId(), "nao-tem", null).isEmpty());
+    assertEquals(
+        1, estoque.listLots(ctx.almoxId(), ctx.unitId(), "achei", LotPolicy.SITUACAO_TODAS).size());
+  }
+
+  @Test
+  void shouldFilterBySituationAndKeepNearestValidityFirst() {
+    Contexto ctx = contexto();
+    receber(ctx, "LONGE", LocalDate.now().plusDays(40), "1", null, false);
+    receber(ctx, "PERTO", LocalDate.now().plusDays(3), "1", null, false);
+    receber(ctx, "VELHO", LocalDate.now().minusDays(1), "4", null, true);
+
+    var lista = estoque.listLots(ctx.almoxId(), ctx.unitId(), null, null);
+    assertEquals("VELHO", lista.get(0).lotCode());
+    assertEquals("PERTO", lista.get(1).lotCode());
+    assertEquals("LONGE", lista.get(2).lotCode());
+
+    var vencidos = estoque.listLots(ctx.almoxId(), ctx.unitId(), null, LotPolicy.SITUACAO_VENCIDO);
+    assertEquals(1, vencidos.size());
+    assertEquals("VELHO", vencidos.get(0).lotCode());
+    assertEquals(0, vencidos.get(0).disponivel());
+    assertEquals(4, vencidos.get(0).fisica());
+  }
+
+  @Test
+  void shouldLetConsultaReadBalances() {
+    Contexto ctx = contexto();
+    long consulta = createUserWithRole("consulta.saldo", Papel.CONSULTA);
+    receber(ctx, "LEITURA", LocalDate.now().plusDays(6), "5", null, false);
+
+    LotBalance saldo = saldo(consulta, ctx.unitId(), "LEITURA");
+
+    assertEquals(5, saldo.fisica());
+    assertEquals(5, saldo.disponivel());
+    assertEquals(LotPolicy.SITUACAO_VIGENTE, saldo.situacao());
+  }
+
+  @Test
   void shouldAllowAdminToReceive() {
     Contexto ctx = contexto();
     long admin = createUserWithRole("admin.lote", Papel.ADMIN);
@@ -433,6 +521,19 @@ class StockManagementServiceIntegrationTest {
             """,
             Integer.class,
             codigo);
+    return count == null ? 0 : count;
+  }
+
+  private void movimento(long loteId, String tipo, int quantidade) {
+    jdbcTemplate.update(
+        "INSERT INTO estoque_movimento (lote_id, movement_type, quantity) VALUES (?, ?, ?)",
+        loteId,
+        tipo,
+        quantidade);
+  }
+
+  private int totalAuditoria() {
+    Integer count = jdbcTemplate.queryForObject("SELECT COUNT(1) FROM auditoria", Integer.class);
     return count == null ? 0 : count;
   }
 

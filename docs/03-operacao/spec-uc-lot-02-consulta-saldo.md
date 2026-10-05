@@ -6,7 +6,7 @@
 - Tipo: `UC`
 - Iniciativa/Epico: `INI-01` / `EP-EST`
 - Responsavel: Time Easy NR6
-- Status: especificado; implementacao nao iniciada
+- Status: implementado na tela Lotes e saldos (`LotManagementView`)
 - Modelo: `docs/03-operacao/modelo-diario-estoque.md`
 
 ## 1) Contexto
@@ -62,6 +62,7 @@ Mesma pagina "Lotes e saldos" do recebimento. Quem nao pode receber ve a lista e
 ## 7) Seguranca e auditoria
 
 - Consulta nao gera evento de auditoria por abertura de lista.
+- Falha de leitura e recusa `AUTH-004` na consulta registram log de troubleshooting, sem linha nova na auditoria.
 - Risco: esconder a reserva e fazer o operador fornecer peca ja separada.
 
 ## 8) Documentacao impactada
