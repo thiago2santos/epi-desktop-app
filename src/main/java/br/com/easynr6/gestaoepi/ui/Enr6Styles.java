@@ -6,6 +6,7 @@ import javafx.scene.control.TextInputControl;
 /** Classes da folha enr6.css. Telas de negocio nao usam setStyle. */
 public final class Enr6Styles {
 
+  public static final String PAGE = "enr6-page";
   public static final String PAGE_TITLE = "enr6-page-title";
   public static final String PAGE_DESCRIPTION = "enr6-page-description";
   public static final String FEEDBACK_OK = "enr6-feedback-ok";
@@ -31,9 +32,12 @@ public final class Enr6Styles {
   public static final String UC_TAG = "enr6-uc-tag";
   public static final String BANNER_INFO = "enr6-banner-info";
   public static final String PANEL = "enr6-panel";
+  public static final String FORM = "enr6-form";
   public static final String METRIC = "enr6-metric";
   public static final String METRIC_VALUE = "enr6-metric-value";
   public static final String LEGAL_BAR = "enr6-legal-bar";
+  public static final String ICON_BUTTON = "enr6-icon-button";
+  public static final String GLYPH = "enr6-glyph";
 
   private Enr6Styles() {}
 

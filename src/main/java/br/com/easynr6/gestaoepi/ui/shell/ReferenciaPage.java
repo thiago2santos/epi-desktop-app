@@ -20,6 +20,7 @@ public final class ReferenciaPage extends VBox {
   private ReferenciaPage(String uc, String titulo, String subtitulo) {
     setSpacing(12);
     setFillWidth(true);
+    getStyleClass().add(Enr6Styles.PAGE);
     Label tag = new Label(uc);
     tag.getStyleClass().add(Enr6Styles.UC_TAG);
     Label title = new Label(titulo);
@@ -35,6 +36,15 @@ public final class ReferenciaPage extends VBox {
   }
 
   public ReferenciaPage section(Node node) {
+    body.getChildren().add(node);
+    return this;
+  }
+
+  /** A seção ocupa o espaço restante. A página não entra num scroll externo. */
+  public ReferenciaPage preencher(Node node) {
+    setMaxHeight(Double.MAX_VALUE);
+    setVgrow(body, Priority.ALWAYS);
+    setVgrow(node, Priority.ALWAYS);
     body.getChildren().add(node);
     return this;
   }
@@ -66,6 +76,7 @@ public final class ReferenciaPage extends VBox {
 
   public static ScrollPane scroll(Node content) {
     ScrollPane scroll = new ScrollPane(content);
+    scroll.getStyleClass().add(Enr6Styles.PAGE);
     scroll.setFitToWidth(true);
     scroll.setFitToHeight(true);
     if (content instanceof VBox box) {

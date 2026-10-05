@@ -7,8 +7,11 @@
 .root {
   -enr6-brand-primary: #0d6e6e;
   -enr6-brand-primary-hover: #0a5858;
-  -enr6-text-muted: #57606a;
+  -enr6-text-primary: #1f2328;
+  -enr6-text-muted: #3d444d;
   -enr6-text-inverse: #ffffff;
+  -enr6-surface-canvas: #e6f4f4;
+  -enr6-field-disabled-bg: #d4ebeb;
   -enr6-surface-raised: #ffffff;
   -enr6-surface-sunken: #eceef2;
   -enr6-border-subtle: #d8dee4;
@@ -32,6 +35,32 @@
   -color-accent-emphasis: #0d6e6e;
   -color-accent-muted: rgba(13, 110, 110, 0.35);
   -color-accent-subtle: #e6f4f4;
+  -fx-background-color: -enr6-surface-canvas;
+}
+
+.enr6-page,
+.enr6-page > .viewport,
+.scroll-pane.enr6-page,
+.scroll-pane.enr6-page > .viewport,
+.scroll-pane.enr6-page > .corner {
+  -fx-background-color: -enr6-surface-canvas;
+  -fx-background: -enr6-surface-canvas;
+}
+
+.text-input:disabled,
+.combo-box-base:disabled,
+.combo-box-base:disabled > .text-field,
+.combo-box-base.date-picker:disabled > .text-field,
+.combo-box-base.date-picker > .text-field:disabled {
+  -fx-opacity: 1;
+  -fx-background-color: -color-input-border, -enr6-field-disabled-bg;
+  -fx-text-fill: -enr6-text-primary;
+  -fx-prompt-text-fill: -enr6-text-muted;
+}
+
+.combo-box:disabled > .list-cell {
+  -fx-opacity: 1;
+  -fx-text-fill: -enr6-text-primary;
 }
 
 .enr6-page-title {
@@ -208,6 +237,45 @@
   -fx-font-size: 22px;
   -fx-font-weight: bold;
   -fx-text-fill: -enr6-brand-primary;
+}
+
+.button.enr6-icon-button {
+  -fx-min-width: 28px;
+  -fx-pref-width: 28px;
+  -fx-max-width: 28px;
+  -fx-min-height: 28px;
+  -fx-pref-height: 28px;
+  -fx-max-height: 28px;
+  -fx-padding: 2px;
+  -fx-background-radius: 6px;
+  -fx-content-display: graphic-only;
+}
+
+.enr6-glyph {
+  -fx-fill: transparent;
+  -fx-stroke: -color-button-fg;
+  -fx-stroke-width: 1.5px;
+  -fx-stroke-line-cap: round;
+  -fx-stroke-line-join: round;
+}
+
+.enr6-form .label {
+  -fx-font-weight: bold;
+  -fx-text-fill: -enr6-text-primary;
+}
+
+.enr6-form .text-field,
+.enr6-form .combo-box,
+.enr6-form .date-picker,
+.enr6-form .button {
+  -fx-font-weight: bold;
+}
+
+.enr6-form .text-field,
+.enr6-form .combo-box > .list-cell,
+.enr6-form .date-picker .text-field {
+  -fx-text-fill: -enr6-text-primary;
+  -fx-prompt-text-fill: -enr6-text-muted;
 }
 
 .enr6-legal-bar {

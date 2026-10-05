@@ -22,6 +22,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -33,10 +34,17 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputControl;
+import javafx.scene.control.Tooltip;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import javafx.util.StringConverter;
@@ -115,8 +123,8 @@ public final class CaBindingManagementView {
             "UC-CAD-05",
             "Vínculo de CA por EPI",
             "Situação, vigência e evidência da consulta oficial. Vincular não apaga o histórico.");
-    page.section(montar(navegar));
-    this.root = ReferenciaPage.scroll(page);
+    page.preencher(montar(navegar));
+    this.root = page;
     carregarEpis(null);
     prepararNovo();
   }
@@ -237,44 +245,68 @@ public final class CaBindingManagementView {
     reativar.setOnAction(event -> reativar());
     Button limpar = new Button("Limpar");
     limpar.setOnAction(event -> prepararNovo());
-    Button consultar = new Button("Consultar CAs");
+    Button consultar = botaoIcone("Consultar CAs", lupa());
     consultar.setOnAction(event -> consultar());
     Button anexar = new Button("Anexar print");
     anexar.setOnAction(event -> anexar());
     Button manual = new Button("Informar consulta online");
     manual.setOnAction(event -> liberarConsultaManual());
-    Button catalogo = new Button("Ver catálogo de EPI");
+    Button catalogo = botaoIcone("Ver catálogo de EPI", catalogoIcone());
     catalogo.setOnAction(event -> navegar.accept(Destino.EPI));
     aviso.setWrapText(true);
     aviso.getStyleClass().add(Enr6Styles.BANNER_INFO);
     feedback.setWrapText(true);
     feedback.setMaxWidth(Double.MAX_VALUE);
 
+    tabela.setPrefHeight(220);
+    tabela.setMinHeight(140);
+    tabela.setMaxHeight(Double.MAX_VALUE);
     VBox lista = painel("Vínculos", tabela);
-    HBox.setHgrow(lista, Priority.ALWAYS);
+    VBox.setVgrow(lista, Priority.ALWAYS);
     VBox.setVgrow(tabela, Priority.ALWAYS);
-    tabela.setPrefHeight(420);
-    VBox formulario =
-        painel(
-            "Vínculo",
-            aviso,
-            campo("EPI", epi),
-            campo("Número do CA", numero),
-            consultar,
-            campo("Situação", situacao),
-            campo("Vigência de", vigenciaDe),
-            campo("Vigência até", vigenciaAte),
-            campo("Consulta oficial", consulta),
-            campo("Evidência", evidencia),
-            anexoRotulo,
-            new HBox(8, anexar, manual),
-            campo("Status inicial", status),
-            feedback,
-            new HBox(8, salvar, inativar, reativar, limpar),
-            catalogo);
-    formulario.setPrefWidth(380);
-    formulario.setMinWidth(320);
-    return new HBox(12, lista, formulario);
+    GridPane grade = gradeDeCampos(catalogo, consultar);
+    HBox consultaDaBase = new HBox(8, anexar, manual, anexoRotulo);
+    consultaDaBase.setAlignment(Pos.CENTER_LEFT);
+    HBox acoes = new HBox(8, salvar, inativar, reativar, limpar);
+    acoes.setAlignment(Pos.CENTER_LEFT);
+    VBox formulario = painel("Vínculo", aviso, grade, consultaDaBase, acoes, feedback);
+    formulario.getStyleClass().add(Enr6Styles.FORM);
+    VBox.setVgrow(formulario, Priority.NEVER);
+    VBox pagina = new VBox(12, formulario, lista);
+    pagina.setFillWidth(true);
+    VBox.setVgrow(lista, Priority.ALWAYS);
+    return pagina;
+  }
+
+  private GridPane gradeDeCampos(Button catalogo, Button consultar) {
+    GridPane grade = new GridPane();
+    grade.setHgap(12);
+    grade.setVgap(8);
+    for (int i = 0; i < 3; i++) {
+      ColumnConstraints coluna = new ColumnConstraints();
+      coluna.setPercentWidth(100.0 / 3);
+      coluna.setHgrow(Priority.ALWAYS);
+      coluna.setFillWidth(true);
+      coluna.setMinWidth(0);
+      grade.getColumnConstraints().add(coluna);
+    }
+    colocar(grade, campoComAcao("EPI", epi, catalogo), 0, 0);
+    colocar(grade, campoComAcao("Número do CA", numero, consultar), 1, 0);
+    colocar(grade, campo("Situação", situacao), 2, 0);
+    colocar(grade, campo("Vigência de", vigenciaDe), 0, 1);
+    colocar(grade, campo("Vigência até", vigenciaAte), 1, 1);
+    colocar(grade, campo("Status inicial", status), 2, 1);
+    colocar(grade, campo("Consulta oficial", consulta), 0, 2);
+    Node evidenciaCampo = campo("Evidência", evidencia);
+    colocar(grade, evidenciaCampo, 1, 2);
+    GridPane.setColumnSpan(evidenciaCampo, 2);
+    return grade;
+  }
+
+  private static void colocar(GridPane grade, Node celula, int coluna, int linha) {
+    grade.add(celula, coluna, linha);
+    GridPane.setHgrow(celula, Priority.ALWAYS);
+    GridPane.setFillWidth(celula, true);
   }
 
   private void configurarTabela() {
@@ -669,9 +701,55 @@ public final class CaBindingManagementView {
     return column;
   }
 
+  private static VBox campoComAcao(String rotulo, Node editor, Button acao) {
+    if (editor instanceof Region region) {
+      region.setMaxWidth(Double.MAX_VALUE);
+      region.setMinWidth(0);
+    }
+    HBox linha = new HBox(4, editor, acao);
+    linha.setAlignment(Pos.CENTER_LEFT);
+    linha.setMaxWidth(Double.MAX_VALUE);
+    HBox.setHgrow(editor, Priority.ALWAYS);
+    VBox box = new VBox(4, new Label(rotulo), linha);
+    box.setAlignment(Pos.CENTER_LEFT);
+    box.setMaxWidth(Double.MAX_VALUE);
+    return box;
+  }
+
+  private static Button botaoIcone(String dica, Node grafico) {
+    Button botao = new Button();
+    botao.setGraphic(grafico);
+    botao.setTooltip(new Tooltip(dica));
+    botao.setAccessibleText(dica);
+    botao.getStyleClass().addAll(Styles.BUTTON_ICON, Enr6Styles.ICON_BUTTON);
+    return botao;
+  }
+
+  private static Node lupa() {
+    Circle lente = new Circle(6, 6, 3.2);
+    Line cabo = new Line(8.4, 8.4, 12.5, 12.5);
+    return traco(lente, cabo);
+  }
+
+  private static Node catalogoIcone() {
+    Rectangle capa = new Rectangle(1.5, 1.5, 12, 12);
+    capa.setArcWidth(2);
+    capa.setArcHeight(2);
+    Line lombada = new Line(7.5, 1.5, 7.5, 13.5);
+    return traco(capa, lombada);
+  }
+
+  private static Group traco(Shape... formas) {
+    for (Shape forma : formas) {
+      forma.getStyleClass().add(Enr6Styles.GLYPH);
+    }
+    return new Group(formas);
+  }
+
   private static VBox campo(String rotulo, Node editor) {
-    if (editor instanceof TextInputControl input) {
-      input.setMaxWidth(Double.MAX_VALUE);
+    if (editor instanceof Region region) {
+      region.setMaxWidth(Double.MAX_VALUE);
+      region.setMinWidth(0);
     }
     VBox box = new VBox(4, new Label(rotulo), editor);
     box.setAlignment(Pos.CENTER_LEFT);
