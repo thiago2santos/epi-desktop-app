@@ -221,6 +221,21 @@ Cada caso de uso segue o formato:
 - **Pos-condicoes**: Registro inativo para novas operacoes.
 - **Regras relacionadas**: historico preservado; auditoria.
 
+### UC-CAD-07 — Cadastrar GHE
+- **Atores**: SESMT, Admin
+- **Descricao**: Grupo de exposicao da unidade. Funcoes membros compartilham a lista de EPI.
+- **Pre-condicoes**: Unidade existente. Funcao ativa dessa unidade, para o vinculo.
+- **Gatilho**: Varias funcoes exigem o mesmo conjunto de EPI.
+- **Fluxo principal**:
+  1. Operador informa unidade, nome e status.
+  2. Vincula funcoes ativas da mesma unidade.
+  3. Edita o nome, desvincula ou inativa sem delete fisico.
+- **Fluxos alternativos/excecoes**:
+  - `CAD-051` a `CAD-055`.
+- **Pos-condicoes**: GHE ativo e o perfil vigente das funcoes membros. Sem GHE ativo, o perfil e a funcao.
+- **Regras relacionadas**: um GHE por funcao; trabalhador sem coluna de GHE; lista de EPI no `UC-MAT-01`.
+- **Status**: implementado. Spec em `docs/03-operacao/spec-uc-cad-07-ghe.md`.
+
 ### UC-CAD-IMP-01 — Importar cadastros via CSV (validacao previa)
 
 - **Atores**: Admin, SESMT
@@ -362,16 +377,16 @@ Cada caso de uso segue o formato:
 
 ### UC-MAT-01 — Definir matriz funcao x EPI
 - **Atores**: SESMT, Admin
-- **Descricao**: EPIs exigidos por funcao, com CA esperado, Individual ou Posto, e flag de treinamento.
-- **Pre-condicoes**: Funcao ativa. EPI ativo com CA ativo.
-- **Gatilho**: Implantacao ou revisao do que a funcao usa.
+- **Descricao**: EPIs exigidos por perfil, com CA esperado, Individual ou Posto, e flag de treinamento. O perfil e a funcao ou o GHE ativo.
+- **Pre-condicoes**: Perfil ativo. EPI ativo com CA ativo. O perfil vigente esta em `UC-CAD-07`.
+- **Gatilho**: Implantacao ou revisao do que o perfil usa.
 - **Fluxo principal**:
-  1. SESMT escolhe a funcao.
+  1. SESMT escolhe a funcao ou o GHE ativo.
   2. Inclui o EPI.
   3. Ajusta modo e treinamento, ou inativa a linha com confirmacao.
 - **Fluxos alternativos/excecoes**:
-  - `MAT-001` a `MAT-004` e `MAT-007`.
-- **Pos-condicoes**: Lista ativa para o fornecimento e a cobertura. GHE separado fica fora.
+  - `MAT-001` a `MAT-004`, `MAT-007` e `MAT-008`.
+- **Pos-condicoes**: Lista ativa do perfil vigente para o fornecimento e a cobertura.
 - **Status**: especificado em `docs/03-operacao/spec-uc-mat-01-matriz.md`.
 
 ### UC-MAT-02 — Definir periodicidade de troca

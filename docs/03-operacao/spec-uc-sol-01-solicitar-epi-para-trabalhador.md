@@ -28,7 +28,7 @@
 - localizar trabalhador e identificar sua unidade, setor e gestor responsavel vigentes;
 - selecionar EPI ativo e quantidade inteira positiva;
 - consultar, para trabalhadores autorizados, um resumo do historico de entregas efetivamente registradas e solicitacoes ainda abertas;
-- encaminhar solicitacao para analise tecnica quando o item nao estiver previsto na matriz de funcao/GHE;
+- encaminhar solicitacao para analise tecnica quando o item nao estiver previsto na matriz do perfil vigente (`UC-CAD-07`);
 - disponibilizar fila de solicitacoes para os perfis autorizados de analise e atendimento;
 - permitir recusa com motivo, cancelamento dentro dos limites aprovados, espera por estoque e atendimento total/parcial;
 - manter solicitacao, decisoes, cancelamentos e atendimentos auditaveis, com identidade do solicitante distinta do trabalhador destinatario;
@@ -58,7 +58,7 @@
 3. O solicitante, o trabalhador destinatario, quem analisa e quem atende sao papeis/identidades distintos, ainda que em algum caso uma pessoa tenha mais de um papel. Cada acao registra o usuario autenticado que a executou.
 4. Uma solicitacao nao e entrega, reserva de estoque, autorizacao automatica, prova de fornecimento ou consumo realizado. Somente `UC-ENT-01` registra entrega, debita lote e grava evidencia de ciencia/aceite. A reserva explicita de prateleira e o `UC-LOT-03`; este caso continua sem cria-la. Uma iteracao futura pode ligar o pedido aprovado a essa reserva.
 5. Quantidade deve ser inteira, maior que zero e no maximo 999. Nao ha teto por periodo. O controle de volume e a regra de um pedido em aberto por trabalhador e EPI.
-6. Item nao previsto na matriz vigente da funcao/GHE exige analise e decisao do SESMT antes de seguir para atendimento. Situacoes urgentes devem ter caminho de escalonamento, sem concessao automatica pelo papel Gestor.
+6. Item nao previsto na matriz do perfil vigente exige analise e decisao do SESMT antes de seguir para atendimento. O perfil vigente e o da regra 9 do `UC-CAD-07`. Situacoes urgentes devem ter caminho de escalonamento, sem concessao automatica pelo papel Gestor.
 7. Falta de saldo valido nao converte a solicitacao em entrega, nao permite saldo negativo e nao cria reserva implicita. A solicitacao pode aguardar estoque e ser atendida parcialmente quando a regra operacional aprovada permitir.
 8. Substituicao de EPI nao e automatica. Qualquer alternativa exige decisao explicita de perfil autorizado, verificacao de adequacao ao risco e CA aplicavel, e registro da decisao.
 9. Um trabalhador e um EPI so podem ter um pedido em aberto, nos estados `PENDENTE_ANALISE`, `APROVADA`, `AGUARDANDO_ESTOQUE` ou `PARCIALMENTE_ATENDIDA`. O segundo envio mostra o pedido existente e nao grava outro.
@@ -419,7 +419,7 @@ Onde o texto anterior disser que a regra ainda sera aprovada, vale esta secao.
 4. O gestor nao solicita para si. Nao ha autoaprovacao.
 5. Obrigatorios: trabalhador do escopo, EPI ativo, quantidade e motivo (`PRIMEIRA_ENTREGA`, `TROCA_PERIODICA`, `DANO`, `EXTRAVIO`, `MUDANCA_FUNCAO`, `OUTRO` com texto). Sem urgencia e sem data necessaria.
 6. Duplicidade: um pedido em aberto por trabalhador e EPI. O envio mostra o existente e o botao fica desabilitado.
-7. EPI na matriz ativa da funcao nasce `APROVADA`. Fora da matriz nasce `PENDENTE_ANALISE`. Dano e extravio seguem a mesma regra. So SESMT ou Admin aprovam ou recusam a analise, com texto de pelo menos 10 caracteres na recusa.
+7. EPI na matriz ativa do perfil vigente nasce `APROVADA`. Fora dela nasce `PENDENTE_ANALISE`. O perfil vigente e o da regra 9 do `UC-CAD-07`. Dano e extravio seguem a mesma regra. So SESMT ou Admin aprovam ou recusam a analise, com texto de pelo menos 10 caracteres na recusa.
 8. O pedido nao mexe no estoque. Atendimento parcial e total acontecem no `UC-ENT-01`, na mesma transacao da ficha: a quantidade atendida sobe e nao passa do saldo do pedido. Saldo zero vira `ATENDIDA`. Sobrou quantidade, vira `PARCIALMENTE_ATENDIDA`. Almoxarife pode marcar `AGUARDANDO_ESTOQUE` quando o disponivel nao cobre. Nao ha prazo automatico de expiracao.
 9. O gestor cancela o proprio pedido enquanto nao houve atendimento e o estado nao e terminal. Depois da primeira quantidade atendida, so SESMT ou Admin cancelam o restante, com texto. Almoxarife nao recusa pedido.
 10. Desligamento nao cancela o pedido. O `UC-ENT-01` recusa trabalhador inativo. SESMT ou o solicitante cancelam o que restar, se ainda nao houve atendimento; com atendimento, vale a regra 9.
@@ -441,7 +441,7 @@ Onde o texto anterior disser que a regra ainda sera aprovada, vale esta secao.
 | `SOL-004` | Este EPI nao esta ativo para solicitacao. |
 | `SOL-005` | A quantidade precisa ser um numero inteiro de 1 a 999. |
 | `SOL-006` | Ja existe um pedido em aberto para este EPI. |
-| `SOL-007` | Este EPI nao esta na matriz da funcao. O pedido segue para o SESMT. |
+| `SOL-007` | Este EPI nao esta na matriz vigente. O pedido segue para o SESMT. |
 | `SOL-009` | Esta acao nao vale para o estado atual do pedido. |
 | `SOL-010` | O pedido foi atualizado por outra pessoa. Abra de novo. |
 | `SOL-011` | Nao foi possivel confirmar o envio. Consulte a lista antes de tentar outra vez. |

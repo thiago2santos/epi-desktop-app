@@ -15,7 +15,7 @@ Registrar o fornecimento de EPI como evento juridico imutavel, rastreavel e audi
 ## Entradas
 
 - Trabalhador ativo com funcao vigente.
-- Matriz funcao/GHE ativa.
+- Matriz do perfil vigente ativa. O perfil e o GHE ativo da funcao, ou a propria funcao (`UC-CAD-07`).
 - Lotes com saldo e validade adequados.
 - Usuario operador autenticado (SESMT ou almoxarifado conforme permissao).
 
@@ -38,7 +38,7 @@ Registrar o fornecimento de EPI como evento juridico imutavel, rastreavel e audi
 
 1. **Atendimento de entrega (balcao)**
    - Busca de trabalhador por matricula/nome.
-   - Carregamento de itens previstos na matriz da funcao/GHE.
+   - Carregamento de itens previstos na matriz do perfil vigente.
 2. **Selecao de lote e quantidade**
    - Exibe lotes validos, saldo e validade por EPI.
    - Bloqueia lote vencido e saldo insuficiente.
@@ -52,7 +52,7 @@ Registrar o fornecimento de EPI como evento juridico imutavel, rastreavel e audi
 ## Tabelas envolvidas
 
 - `trabalhador`: cadastro do empregado.
-- `funcao`/`ghe`: perfil vigente na data da entrega.
+- `funcao`: gravada na ficha. O GHE ativo dela, quando houver, so define a lista consultada na confirmacao (`UC-CAD-07`).
 - `lote_epi`: origem do item entregue.
 - `entrega_epi`: cabecalho do evento.
 - `entrega_epi_item`: itens entregues.
@@ -119,4 +119,3 @@ Registrar o fornecimento de EPI como evento juridico imutavel, rastreavel e audi
 - Percentual de entregas com excecao.
 - Top motivos de entrega (primeira, desgaste, extravio etc.).
 - Taxa de erros operacionais que viraram estorno.
-

@@ -111,7 +111,7 @@ Configurar:
 
 1. Cadastrar setores da unidade.
 2. Cadastrar funcoes/cargos.
-3. (Opcional) Cadastrar GHE.
+3. (Opcional) Cadastrar GHE na unidade e vincular as funcoes que compartilham a lista. Tela GHE (`UC-CAD-07`). Sem GHE ativo, vale a matriz da funcao.
 
 ## 4.2 Cadastro de trabalhador
 
