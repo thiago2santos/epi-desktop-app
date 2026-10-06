@@ -54,7 +54,7 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 - `M1` inclui `UC-CAE-01` (importacao diaria da base oficial CAEPI): spec fechada, sem codigo.
 - `M1` **FE-CAD-01 / UC-CAD-IMP-01** (importacao CSV de cadastros com staging): spec fechada, sem codigo. Layouts em `layouts-csv-cadastros.md`.
 - `M3` auditoria: consulta com filtro livre ligada de novo (`UC-AUD-01`). Filtro por periodo e exportacao continuam abertos.
-- `M2`: matriz, periodicidade, fornecimento, devolucao, estorno e historico implementados. Pendencias seguem.
+- `M2`: matriz, periodicidade, fornecimento, devolucao, estorno, historico e pendencias implementados.
 
 > **Footnote de governanca (obrigatorio antes de release):**
 > testes de usabilidade de campo ainda pendentes para os modulos `Cadastros` (abas `Empregados`, `Unidades`, `Setores`, `Funcoes`, `EPI`, `CA por EPI`) e `Auditoria` (consulta), incluindo validacao de fluxo ponta a ponta por key user.
@@ -125,7 +125,7 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 - **[UC]** `UC-ENT-03` Historico por trabalhador implementado (`HistoricoView`). Le fornecimento, devolucao e estorno. Nao grava auditoria. Ver `spec-uc-ent-03-historico.md`.
 - **[UC]** `UC-POS-01` Devolucao ou descarte implementado (`DevolucaoView`, migracao `V17`). Nao devolve peca ao disponivel. Item estornado recusa. Ver `spec-uc-pos-01-devolucao.md`.
 - **[UC]** `UC-POS-02` Estorno implementado (`EstornoView`, migracao `V18`). Grava `ESTORNO_FORNECIMENTO` da quantidade inteira. Pedido atendido espera `UC-SOL-01`. Ver `spec-uc-pos-02-estorno.md`.
-- **[UC]** `UC-POS-03` Pendencias de devolucao no desligamento. Spec e matriz prontas.
+- **[UC]** `UC-POS-03` Pendencias de devolucao implementado (`PendenciasView`). Item individual de trabalhador inativo. Posto fica de fora. Ver `spec-uc-pos-03-pendencias.md`.
 - **[UC]** `UC-SOL-01` Solicitar EPI para trabalhador. Spec fechada na secao 15. Papel `GESTOR`, um gestor vigente por trabalhador, pedido nao reserva estoque, atendimento parcial na mesma transacao do `UC-ENT-01`. Vale no SQLite local e no modo oficial.
 
 **Justificativa do wizard (5 passos)**
@@ -438,8 +438,8 @@ Toda task deve conter:
 ## Proximo ataque recomendado (sequencia objetiva)
 
 1. `UC-CAD-01` implementado: nome, CNPJ e status da empresa do seed, com a tela no shell.
-2. **Sprint J1:** `UC-LOT-01`, `UC-LOT-02`, `UC-CAD-07`, `UC-MAT-01`, `UC-MAT-02`, `UC-ENT-01`, `UC-ENT-02`, `UC-ENT-03`, `UC-POS-01` e `UC-POS-02` implementados. Seguir com pendencias. Reserva, baixa de prateleira, inventario, compra e budget entram na mesma cadeia. Solicitacao, CAEPI e CSV de cadastros ja tem spec e entram em seguida.
-3. **Sprint J2:** pendencias de devolucao. O historico ja lista fornecimento, devolucao e estorno sem gravar auditoria.
+2. **Sprint J1:** `UC-LOT-01`, `UC-LOT-02`, `UC-CAD-07`, `UC-MAT-01`, `UC-MAT-02`, `UC-ENT-01`, `UC-ENT-02`, `UC-ENT-03`, `UC-POS-01`, `UC-POS-02` e `UC-POS-03` implementados. Reserva, baixa de prateleira, inventario, compra e budget entram na mesma cadeia. Solicitacao, CAEPI e CSV de cadastros ja tem spec e entram em seguida.
+3. **Sprint J2:** o bloco de pos-entrega deste corte esta na tela. O proximo da cadeia operacional e reserva e baixa de prateleira.
 4. **Sprint J3:** relatorios M3 alem da auditoria — cobertura, pendencias e PDF minimo.
 5. **Sprint J4:** `UC-CAE-01` e `UC-SOL-01`.
 6. Filtro de periodo e exportacao de `UC-AUD-01` ficam no pacote de evidencia, nao na consulta que ja lista a trilha.

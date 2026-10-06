@@ -93,7 +93,7 @@ Referência mock: [`docs/mock/ROADMAP-SESSION-MOCK.md`](../mock/ROADMAP-SESSION-
 | Histórico trabalhador | ✅ 05 | ⬜ | — | |
 | UC-POS-01 Devolucao | ✅ 03 | ✅ serviço e tela | spec + matriz | Nao devolve quantidade ao disponivel |
 | UC-POS-02 Estorno | ✅ 04 | ✅ serviço e tela | spec + matriz | `ESTORNO_FORNECIMENTO`; ficha permanece. Pedido espera `UC-SOL-01` |
-| UC-POS-03 Pendencias | — | ⬜ | spec + matriz | Desligamento, item individual |
+| UC-POS-03 Pendencias | — | ✅ serviço e tela | spec + matriz | Desligamento, item individual. Consulta nao grava auditoria |
 | UC-ENT-03 Historico | ✅ 05 | ✅ serviço e tela | spec + matriz | Fornecimento, devolucao e estorno. Consulta nao grava auditoria |
 | Estorno | ✅ 04 | ⬜ | — | |
 | UC-SOL-01 gestor + fila | ✅ 16–17 | ⬜ | spec fechada + matriz | Papel `GESTOR` ainda ausente no enum |
@@ -145,7 +145,7 @@ Ordem para maximizar reutilização do protótipo como **critério de aceite UX*
 
 ```text
 Sprint J1 — M1 estoque + regras (desbloqueia DoR M2)
-  • UC-LOT-01, UC-LOT-02, UC-CAD-07, UC-MAT-01, UC-MAT-02, UC-ENT-01, UC-ENT-02, UC-ENT-03, UC-POS-01 e UC-POS-02 implementados. Seguir com pendencias
+  • UC-LOT-01, UC-LOT-02, UC-CAD-07, UC-MAT-01, UC-MAT-02, UC-ENT-01, UC-ENT-02, UC-ENT-03, UC-POS-01, UC-POS-02 e UC-POS-03 implementados
   • UC-LOT-03 a 06 e UC-REL-04 já têm spec; código depois do recebimento e da baixa de fornecimento
 
 Sprint J2 — depois da ficha
@@ -153,6 +153,7 @@ Sprint J2 — depois da ficha
   • UC-POS-01 implementado (`DevolucaoView`, migracao V17)
   • UC-POS-02 implementado (`EstornoView`, migracao V18)
   • UC-ENT-03 implementado (`HistoricoView`)
+  • UC-POS-03 implementado (`PendenciasView`)
 
 Sprint J3 — M3 evidência
   • Cobertura + pendências (14–15) + hub (13) + export PDF mínimo

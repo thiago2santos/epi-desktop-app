@@ -1,6 +1,6 @@
 # Matriz executavel de testes - UC-POS-03 (Pendencias)
 
-Spec: `docs/03-operacao/spec-uc-pos-03-pendencias.md`.
+Spec: `docs/03-operacao/spec-uc-pos-03-pendencias.md`. Cobertos por `PendenciaPolicyTest`, `PendenciaManagementServiceIntegrationTest` e `PendenciaUxTest`. A frase de vazio na tela e "Nenhuma pendência de devolução."
 
 | ID | Tipo | Referencia | Pre-condicoes | Passos | Resultado esperado |
 |---|---|---|---|---|---|
