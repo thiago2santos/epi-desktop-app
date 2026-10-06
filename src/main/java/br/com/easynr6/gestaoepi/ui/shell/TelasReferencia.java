@@ -26,7 +26,8 @@ public final class TelasReferencia {
           throw new IllegalStateException("UC-ENT-01 abre pelo shell, com o fornecimento real.");
       case DEVOLUCAO ->
           throw new IllegalStateException("UC-POS-01 abre pelo shell, com a devolucao real.");
-      case ESTORNO -> estorno();
+      case ESTORNO ->
+          throw new IllegalStateException("UC-POS-02 abre pelo shell, com o estorno real.");
       case HISTORICO -> historico();
       case SOLICITAR -> solicitar();
       case FILA -> fila();
@@ -79,22 +80,6 @@ public final class TelasReferencia {
             link("Lotes", Destino.LOTES, navegar),
             link("Cobertura", Destino.COBERTURA, navegar));
     page.section(metrics).section(panel("Atalhos", atalhos));
-    return ReferenciaPage.scroll(page);
-  }
-
-  private static Node estorno() {
-    ReferenciaPage page =
-        ReferenciaPage.of(
-            "Estorno formal",
-            "Estornar registro de fornecimento",
-            "Novo evento. A entrega original permanece na trilha.");
-    page.section(
-            panel(
-                "Estorno",
-                campo("Entrega", "ITU-2026-04418"),
-                campo("Motivo", "Luva lançada na matrícula 3902 em vez da 4418"),
-                botao("Registrar estorno", true)))
-        .legal("Estorno não edita nem apaga o fornecimento.");
     return ReferenciaPage.scroll(page);
   }
 
