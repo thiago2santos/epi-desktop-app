@@ -28,7 +28,8 @@ public final class TelasReferencia {
           throw new IllegalStateException("UC-POS-01 abre pelo shell, com a devolucao real.");
       case ESTORNO ->
           throw new IllegalStateException("UC-POS-02 abre pelo shell, com o estorno real.");
-      case HISTORICO -> historico();
+      case HISTORICO ->
+          throw new IllegalStateException("UC-ENT-03 abre pelo shell, com o historico real.");
       case SOLICITAR -> solicitar();
       case FILA -> fila();
       case TRABALHADORES ->
@@ -50,7 +51,8 @@ public final class TelasReferencia {
           throw new IllegalStateException("UC-MAT-02 abre pelo shell, com a periodicidade real.");
       case RELATORIOS -> relatorios(navegar);
       case COBERTURA -> cobertura();
-      case PENDENCIAS -> pendencias();
+      case PENDENCIAS ->
+          throw new IllegalStateException("UC-POS-03 abre pelo shell, com as pendencias reais.");
       case AUDITORIA ->
           throw new IllegalStateException("UC-AUD-01 abre pelo shell, com a consulta real.");
       case USUARIOS ->
@@ -80,28 +82,6 @@ public final class TelasReferencia {
             link("Lotes", Destino.LOTES, navegar),
             link("Cobertura", Destino.COBERTURA, navegar));
     page.section(metrics).section(panel("Atalhos", atalhos));
-    return ReferenciaPage.scroll(page);
-  }
-
-  private static Node historico() {
-    ReferenciaPage page =
-        ReferenciaPage.of(
-            "Histórico por trabalhador",
-            "Histórico de fornecimento",
-            "Entregas efetivas, separadas de solicitações em aberto.");
-    page.section(campo("Matrícula", "4418"))
-        .table(
-            new String[] {"Data", "EPI", "CA", "Lote", "Evento"},
-            new String[][] {
-              {"12/09/2026", "Luva de vaqueta", "28941", "VG-26-0418", "Fornecimento"},
-              {
-                "02/08/2026",
-                "Bota de segurança com biqueira",
-                "35602",
-                "BT-25-1102",
-                "Fornecimento"
-              }
-            });
     return ReferenciaPage.scroll(page);
   }
 
@@ -181,21 +161,6 @@ public final class TelasReferencia {
           },
           {"Camila Gomes Pinto", "Auxiliar de guarda", "Luva de vaqueta", "Coberto"},
           {"Eduardo Gomes dos Santos", "Eletricista", "Luva isolante classe 00", "Descoberto"}
-        });
-    return ReferenciaPage.scroll(page);
-  }
-
-  private static Node pendencias() {
-    ReferenciaPage page =
-        ReferenciaPage.of(
-            "Pendências operacionais",
-            "Pendências",
-            "Trocas vencidas, exceções e solicitações paradas.");
-    page.table(
-        new String[] {"Tipo", "Quem", "Detalhe", "Desde"},
-        new String[][] {
-          {"Troca", "Eduardo Gomes dos Santos", "Luva isolante classe 00 vencida", "01/09/2026"},
-          {"Exceção", "SOL-1038", "Fora da matriz, aguardando SESMT", "28/09/2026"}
         });
     return ReferenciaPage.scroll(page);
   }

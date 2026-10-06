@@ -12,7 +12,10 @@ public enum Destino {
   DEVOLUCAO(
       Grupo.OPERACAO, "Devolução / descarte", papeis(Papel.ADMIN, Papel.SESMT, Papel.ALMOXARIFE)),
   ESTORNO(Grupo.OPERACAO, "Estorno", papeis(Papel.ADMIN, Papel.SESMT)),
-  HISTORICO(Grupo.OPERACAO, "Histórico por trabalhador", null),
+  HISTORICO(
+      Grupo.OPERACAO,
+      "Histórico por trabalhador",
+      papeis(Papel.ADMIN, Papel.SESMT, Papel.ALMOXARIFE, Papel.CONSULTA)),
   SOLICITAR(Grupo.DEMANDA, "Solicitar EPI (Gestor)", papeis(Papel.ADMIN)),
   FILA(Grupo.DEMANDA, "Fila de solicitações", papeis(Papel.ADMIN, Papel.SESMT, Papel.ALMOXARIFE)),
   TRABALHADORES(Grupo.CADASTROS, "Trabalhadores", papeis(Papel.ADMIN, Papel.SESMT)),

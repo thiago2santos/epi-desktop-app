@@ -480,7 +480,7 @@ Cada caso de uso segue o formato:
 - **Fluxos alternativos/excecoes**:
   - Periodo vazio: "Nenhum fornecimento no periodo."
 - **Pos-condicoes**: Nenhuma gravacao.
-- **Status**: especificado em `docs/03-operacao/spec-uc-ent-03-historico.md`.
+- **Status**: implementado em `docs/03-operacao/spec-uc-ent-03-historico.md`. A consulta nao grava auditoria.
 
 ---
 
@@ -524,7 +524,7 @@ Cada caso de uso segue o formato:
   - Posto, estorno e item ja devolvido ficam de fora.
   - Lista vazia: "Nenhuma pendencia de devolucao."
 - **Pos-condicoes**: Nenhuma gravacao na consulta.
-- **Status**: especificado em `docs/03-operacao/spec-uc-pos-03-pendencias.md`.
+- **Status**: implementado em `docs/03-operacao/spec-uc-pos-03-pendencias.md`. A consulta nao grava auditoria.
 
 ---
 

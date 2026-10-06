@@ -213,6 +213,35 @@ Regras criticas:
 - a quantidade inteira volta para a fisica. A reserva nao e recriada;
 - item ja devolvido nao estorna.
 
+## 5.4 Historico por trabalhador
+
+Tela Historico por trabalhador. Admin, SESMT, Almoxarife e Consulta.
+
+1. Buscar o trabalhador, ativo ou inativo.
+2. Informar o periodo. Data final anterior a inicial nao consulta.
+3. A grade mostra fornecimento, devolucao e estorno. Pedido nao entra.
+
+Regras criticas:
+
+- a consulta nao grava auditoria;
+- o motivo livre do estorno nao aparece na grade;
+- Consulta ve a lista e nao ve devolver nem estornar.
+
+## 5.5 Pendencias de devolucao
+
+Tela Pendencias. Almoxarife, SESMT e Admin.
+
+1. Filtrar unidade, periodo do fornecimento e trabalhador.
+2. A lista mostra a peca individual de quem esta inativo e ainda nao devolveu.
+3. Registrar devolucao abre a tela da linha ja escolhida.
+
+Regras criticas:
+
+- posto, item estornado, item ja devolvido e trabalhador ativo ficam de fora;
+- item fornecido fora da matriz entra como individual;
+- a consulta nao grava auditoria;
+- filtro sem resultado e lista vazia.
+
 ## 6) Relatorios previstos e uso operacional
 
 ## 6.1 Relatorios minimos da operacao
