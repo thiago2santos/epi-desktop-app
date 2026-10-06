@@ -6,7 +6,7 @@
 - Tipo: `UC`
 - Iniciativa/Epico: `INI-01` / `EP-CORE`
 - Responsavel: Time Easy NR6
-- Status: especificado; codigo depois do `UC-ENT-01` e do `UC-POS-01`
+- Status: implementado na tela Pendencias (`PendenciasView`). A consulta nao grava auditoria. Item sem linha de matriz entra como individual. Posto, estorno, devolucao e trabalhador ativo ficam de fora.
 
 ## 1) Contexto
 
