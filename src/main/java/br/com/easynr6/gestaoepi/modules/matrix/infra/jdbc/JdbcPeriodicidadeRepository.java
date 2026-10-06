@@ -144,6 +144,8 @@ public class JdbcPeriodicidadeRepository implements PeriodicidadeRepository {
             FROM fornecimento_item i
             JOIN fornecimento_ficha f ON f.id = i.ficha_id
             WHERE f.employee_id = :employeeId AND i.epi_id = :epiId
+              AND NOT EXISTS (
+                  SELECT 1 FROM fornecimento_devolucao d WHERE d.item_id = i.id)
             ORDER BY f.confirmed_at DESC, f.id DESC
             LIMIT 1
             """,
