@@ -146,6 +146,8 @@ public class JdbcPeriodicidadeRepository implements PeriodicidadeRepository {
             WHERE f.employee_id = :employeeId AND i.epi_id = :epiId
               AND NOT EXISTS (
                   SELECT 1 FROM fornecimento_devolucao d WHERE d.item_id = i.id)
+              AND NOT EXISTS (
+                  SELECT 1 FROM fornecimento_estorno s WHERE s.item_id = i.id)
             ORDER BY f.confirmed_at DESC, f.id DESC
             LIMIT 1
             """,

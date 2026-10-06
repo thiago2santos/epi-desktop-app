@@ -1,7 +1,6 @@
 package br.com.easynr6.gestaoepi.modules.issuance.infra.jdbc;
 
-import br.com.easynr6.gestaoepi.modules.issuance.application.port.DevolucaoRepository;
-import br.com.easynr6.gestaoepi.modules.issuance.domain.MotivoDevolucao;
+import br.com.easynr6.gestaoepi.modules.issuance.application.port.EstornoRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,13 +10,22 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JdbcDevolucaoRepository implements DevolucaoRepository {
+public class JdbcEstornoRepository implements EstornoRepository {
 
   private static final String ITEM_SQL =
       """
-      SELECT i.id AS item_id, f.employee_id, i.epi_id, e.description AS epi, b.ca_number,
-             l.lot_code, i.quantity, substr(f.confirmed_at, 1, 10) AS dia,
-             emp.employee_code, emp.full_name
+      SELECT i.id AS item_id, i.ficha_id, f.employee_id, i.epi_id, i.lote_id, i.quantity,
+             e.description AS epi, b.ca_number, l.lot_code, substr(f.confirmed_at, 1, 10) AS dia,
+             emp.employee_code, emp.full_name, f.unit_name, f.department_name, f.job_role_name,
+             (
+               SELECT m.unit_cost_cents
+               FROM estoque_movimento m
+               WHERE m.lote_id = i.lote_id
+                 AND m.movement_type = 'BAIXA_FORNECIMENTO'
+                 AND m.created_at = f.confirmed_at
+                 AND m.epi_id = i.epi_id
+               LIMIT 1
+             ) AS custo
       FROM fornecimento_item i
       JOIN fornecimento_ficha f ON f.id = i.ficha_id
       JOIN employee emp ON emp.id = f.employee_id
@@ -32,7 +40,7 @@ public class JdbcDevolucaoRepository implements DevolucaoRepository {
 
   private final NamedParameterJdbcTemplate jdbc;
 
-  public JdbcDevolucaoRepository(NamedParameterJdbcTemplate jdbc) {
+  public JdbcEstornoRepository(NamedParameterJdbcTemplate jdbc) {
     this.jdbc = jdbc;
   }
 
@@ -64,7 +72,7 @@ public class JdbcDevolucaoRepository implements DevolucaoRepository {
   }
 
   @Override
-  public List<ItemPendente> listarPendentes(Long employeeId) {
+  public List<ItemAberto> listarAbertos(Long employeeId) {
     if (employeeId == null) {
       return List.of();
     }
@@ -75,11 +83,11 @@ public class JdbcDevolucaoRepository implements DevolucaoRepository {
   }
 
   @Override
-  public Optional<ItemPendente> findPendente(Long itemId) {
+  public Optional<ItemAberto> findAberto(Long itemId) {
     if (itemId == null) {
       return Optional.empty();
     }
-    List<ItemPendente> rows =
+    List<ItemAberto> rows =
         jdbc.query(
             ITEM_SQL + " AND i.id = :itemId",
             new MapSqlParameterSource("itemId", itemId),
@@ -88,46 +96,66 @@ public class JdbcDevolucaoRepository implements DevolucaoRepository {
   }
 
   @Override
-  public long inserir(
-      long itemId,
-      MotivoDevolucao motivo,
-      String motivoTexto,
-      LocalDate devolvidoEm,
-      Long operatorUserId,
-      LocalDateTime createdAt) {
+  public long inserir(long itemId, String motivo, Long operatorUserId, LocalDateTime createdAt) {
     jdbc.update(
         """
-        INSERT INTO fornecimento_devolucao (
-            item_id, motivo, motivo_texto, devolvido_em, operator_user_id, created_at)
-        VALUES (:itemId, :motivo, :texto, :dia, :operatorId, :quando)
+        INSERT INTO fornecimento_estorno (item_id, motivo, operator_user_id, created_at)
+        VALUES (:itemId, :motivo, :operatorId, :quando)
         """,
         new MapSqlParameterSource()
             .addValue("itemId", itemId)
-            .addValue("motivo", motivo.name())
-            .addValue(
-                "texto", motivoTexto == null || motivoTexto.isBlank() ? null : motivoTexto.trim())
-            .addValue("dia", devolvidoEm.toString())
+            .addValue("motivo", motivo)
             .addValue("operatorId", operatorUserId)
             .addValue("quando", createdAt.toString()));
     Long id =
         jdbc.queryForObject("SELECT last_insert_rowid()", new MapSqlParameterSource(), Long.class);
     if (id == null) {
-      throw new IllegalStateException("Devolucao sem identificador.");
+      throw new IllegalStateException("Estorno sem identificador.");
     }
     return id;
   }
 
-  private static ItemPendente item(java.sql.ResultSet rs) throws java.sql.SQLException {
-    return new ItemPendente(
+  @Override
+  public void registrarMovimento(ItemAberto item, LocalDateTime createdAt) {
+    jdbc.update(
+        """
+        INSERT INTO estoque_movimento (
+            lote_id, movement_type, quantity, created_at,
+            unit_cost_cents, unit_name, department_name, job_role_name, epi_id)
+        VALUES (
+            :loteId, 'ESTORNO_FORNECIMENTO', :quantidade, :quando,
+            :custo, :unidade, :setor, :funcao, :epiId)
+        """,
+        new MapSqlParameterSource()
+            .addValue("loteId", item.loteId())
+            .addValue("quantidade", item.quantidade())
+            .addValue("quando", createdAt.toString())
+            .addValue("custo", item.custoCentavos())
+            .addValue("unidade", item.unidade())
+            .addValue("setor", item.setor())
+            .addValue("funcao", item.funcao())
+            .addValue("epiId", item.epiId()));
+  }
+
+  private static ItemAberto item(java.sql.ResultSet rs) throws java.sql.SQLException {
+    int custo = rs.getInt("custo");
+    Integer custoCentavos = rs.wasNull() ? null : custo;
+    return new ItemAberto(
         rs.getLong("item_id"),
+        rs.getLong("ficha_id"),
         rs.getLong("employee_id"),
         rs.getLong("epi_id"),
+        rs.getLong("lote_id"),
         rs.getString("epi"),
         rs.getString("ca_number"),
         rs.getString("lot_code"),
         rs.getInt("quantity"),
         LocalDate.parse(rs.getString("dia")),
         rs.getString("employee_code"),
-        rs.getString("full_name"));
+        rs.getString("full_name"),
+        custoCentavos,
+        rs.getString("unit_name"),
+        rs.getString("department_name"),
+        rs.getString("job_role_name"));
   }
 }

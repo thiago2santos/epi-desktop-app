@@ -6,7 +6,7 @@
 - Tipo: `UC`
 - Iniciativa/Epico: `INI-01` / `EP-CORE`
 - Responsavel: Time Easy NR6
-- Status: especificado; codigo depois do `UC-ENT-01`
+- Status: implementado na tela Historico por trabalhador (`HistoricoView`). Consulta nao grava auditoria. Pedido nao tem tabela e nao aparece. Um item devolvido e um item estornado no periodo geram quatro linhas: o fornecimento devolvido, a devolucao, o fornecimento estornado e o estorno.
 - Norma: NR-6 `6.5.1.1` (a consulta e esta tela; o arquivo e o `UC-REL-01`)
 
 ## 1) Contexto
@@ -43,7 +43,7 @@
 
 ## 4) Criterios de aceite
 
-- `CA-01`: periodo com um fornecimento, uma devolucao e um estorno mostra tres linhas, situacoes distintas.
+- `CA-01`: periodo com um item devolvido e um item estornado mostra quatro linhas. O fornecimento estornado segue visivel. As situacoes sao Devolvido e Estornado.
 - `CA-02`: pedido em aberto do mesmo trabalhador nao aparece.
 - `CA-03`: periodo vazio mostra a frase de vazio, sem erro.
 - `CA-04`: data final anterior a inicial nao consulta.

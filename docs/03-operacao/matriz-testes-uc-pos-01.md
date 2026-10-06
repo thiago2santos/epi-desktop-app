@@ -1,6 +1,6 @@
 # Matriz executavel de testes - UC-POS-01 (Devolucao)
 
-Spec: `docs/03-operacao/spec-uc-pos-01-devolucao.md`. Cobertos por `DevolucaoPolicyTest`, `DevolucaoManagementServiceIntegrationTest` e `DevolucaoUxTest`. `POS01-004` espera a tabela de estorno do `UC-POS-02`.
+Spec: `docs/03-operacao/spec-uc-pos-01-devolucao.md`. Cobertos por `DevolucaoPolicyTest`, `DevolucaoManagementServiceIntegrationTest` e `DevolucaoUxTest`. `POS01-004` roda em `EstornoManagementServiceIntegrationTest`.
 
 | ID | Tipo | Referencia | Pre-condicoes | Passos | Resultado esperado |
 |---|---|---|---|---|---|

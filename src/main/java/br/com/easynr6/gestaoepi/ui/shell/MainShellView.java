@@ -5,7 +5,10 @@ import br.com.easynr6.gestaoepi.modules.caepi.application.CaepiCatalogService;
 import br.com.easynr6.gestaoepi.modules.employee.application.EmployeeManagementService;
 import br.com.easynr6.gestaoepi.modules.epi.application.EpiCatalogManagementService;
 import br.com.easynr6.gestaoepi.modules.issuance.application.DevolucaoManagementService;
+import br.com.easynr6.gestaoepi.modules.issuance.application.EstornoManagementService;
 import br.com.easynr6.gestaoepi.modules.issuance.application.FornecimentoManagementService;
+import br.com.easynr6.gestaoepi.modules.issuance.application.HistoricoManagementService;
+import br.com.easynr6.gestaoepi.modules.issuance.application.PendenciaManagementService;
 import br.com.easynr6.gestaoepi.modules.matrix.application.MatrizManagementService;
 import br.com.easynr6.gestaoepi.modules.matrix.application.PeriodicidadeManagementService;
 import br.com.easynr6.gestaoepi.modules.stock.application.StockManagementService;
@@ -27,7 +30,10 @@ import br.com.easynr6.gestaoepi.ui.estoque.LotManagementView;
 import br.com.easynr6.gestaoepi.ui.matriz.MatrizManagementView;
 import br.com.easynr6.gestaoepi.ui.matriz.PeriodicidadeManagementView;
 import br.com.easynr6.gestaoepi.ui.operacao.DevolucaoView;
+import br.com.easynr6.gestaoepi.ui.operacao.EstornoView;
 import br.com.easynr6.gestaoepi.ui.operacao.FornecimentoWizardView;
+import br.com.easynr6.gestaoepi.ui.operacao.HistoricoView;
+import br.com.easynr6.gestaoepi.ui.operacao.PendenciasView;
 import java.util.EnumMap;
 import java.util.Map;
 import javafx.geometry.Insets;
@@ -58,6 +64,11 @@ public class MainShellView extends BorderPane {
   private final PeriodicidadeManagementService periodicidade;
   private final FornecimentoManagementService fornecimento;
   private final DevolucaoManagementService devolucao;
+  private final EstornoManagementService estorno;
+  private final HistoricoManagementService historico;
+  private final PendenciaManagementService pendencias;
+  private Long itemDevolucao;
+  private Long itemEstorno;
   private final Map<Destino, Button> navButtons = new EnumMap<>(Destino.class);
   private final Map<Destino.Grupo, VBox> grupoItens = new EnumMap<>(Destino.Grupo.class);
   private final Map<Destino.Grupo, Label> grupoSetas = new EnumMap<>(Destino.Grupo.class);
@@ -76,6 +87,9 @@ public class MainShellView extends BorderPane {
       PeriodicidadeManagementService periodicidade,
       FornecimentoManagementService fornecimento,
       DevolucaoManagementService devolucao,
+      EstornoManagementService estorno,
+      HistoricoManagementService historico,
+      PendenciaManagementService pendencias,
       Runnable onLogout) {
     this.usuario = usuario;
     this.auditTrail = auditTrail;
@@ -89,6 +103,9 @@ public class MainShellView extends BorderPane {
     this.periodicidade = periodicidade;
     this.fornecimento = fornecimento;
     this.devolucao = devolucao;
+    this.estorno = estorno;
+    this.historico = historico;
+    this.pendencias = pendencias;
     setTop(buildHeader(onLogout));
     setLeft(buildSidebar());
     abrir(Destino.DASHBOARD, false);
@@ -262,7 +279,39 @@ public class MainShellView extends BorderPane {
       return new FornecimentoWizardView(usuario, fornecimento, periodicidade).root();
     }
     if (destino == Destino.DEVOLUCAO) {
-      return new DevolucaoView(usuario, devolucao, null).root();
+      Long item = itemDevolucao;
+      itemDevolucao = null;
+      return new DevolucaoView(usuario, devolucao, item).root();
+    }
+    if (destino == Destino.ESTORNO) {
+      Long item = itemEstorno;
+      itemEstorno = null;
+      return new EstornoView(usuario, estorno, item).root();
+    }
+    if (destino == Destino.PENDENCIAS) {
+      return new PendenciasView(
+              usuario,
+              pendencias,
+              empregados,
+              item -> {
+                itemDevolucao = item;
+                abrir(Destino.DEVOLUCAO, true);
+              })
+          .root();
+    }
+    if (destino == Destino.HISTORICO) {
+      return new HistoricoView(
+              usuario,
+              historico,
+              item -> {
+                itemDevolucao = item;
+                abrir(Destino.DEVOLUCAO, true);
+              },
+              item -> {
+                itemEstorno = item;
+                abrir(Destino.ESTORNO, true);
+              })
+          .root();
     }
     return TelasReferencia.criar(destino, alvo -> abrir(alvo, true));
   }

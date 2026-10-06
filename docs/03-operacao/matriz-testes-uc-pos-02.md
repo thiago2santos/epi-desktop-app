@@ -1,6 +1,6 @@
 # Matriz executavel de testes - UC-POS-02 (Estorno)
 
-Spec: `docs/03-operacao/spec-uc-pos-02-estorno.md`.
+Spec: `docs/03-operacao/spec-uc-pos-02-estorno.md`. Cobertos por `EstornoPolicyTest`, `EstornoManagementServiceIntegrationTest` e `EstornoUxTest`. `POS02-008` espera o pedido do `UC-SOL-01`. `POS01-004` roda no mesmo teste de integracao.
 
 | ID | Tipo | Referencia | Pre-condicoes | Passos | Resultado esperado |
 |---|---|---|---|---|---|
