@@ -4,6 +4,7 @@ import atlantafx.base.theme.Styles;
 import br.com.easynr6.gestaoepi.modules.caepi.application.CaepiCatalogService;
 import br.com.easynr6.gestaoepi.modules.employee.application.EmployeeManagementService;
 import br.com.easynr6.gestaoepi.modules.epi.application.EpiCatalogManagementService;
+import br.com.easynr6.gestaoepi.modules.issuance.application.FornecimentoManagementService;
 import br.com.easynr6.gestaoepi.modules.matrix.application.MatrizManagementService;
 import br.com.easynr6.gestaoepi.modules.matrix.application.PeriodicidadeManagementService;
 import br.com.easynr6.gestaoepi.modules.stock.application.StockManagementService;
@@ -24,6 +25,7 @@ import br.com.easynr6.gestaoepi.ui.caepi.CaepiImportView;
 import br.com.easynr6.gestaoepi.ui.estoque.LotManagementView;
 import br.com.easynr6.gestaoepi.ui.matriz.MatrizManagementView;
 import br.com.easynr6.gestaoepi.ui.matriz.PeriodicidadeManagementView;
+import br.com.easynr6.gestaoepi.ui.operacao.FornecimentoWizardView;
 import java.util.EnumMap;
 import java.util.Map;
 import javafx.geometry.Insets;
@@ -52,6 +54,7 @@ public class MainShellView extends BorderPane {
   private final CaepiCatalogService caepi;
   private final MatrizManagementService matriz;
   private final PeriodicidadeManagementService periodicidade;
+  private final FornecimentoManagementService fornecimento;
   private final Map<Destino, Button> navButtons = new EnumMap<>(Destino.class);
   private final Map<Destino.Grupo, VBox> grupoItens = new EnumMap<>(Destino.Grupo.class);
   private final Map<Destino.Grupo, Label> grupoSetas = new EnumMap<>(Destino.Grupo.class);
@@ -68,6 +71,7 @@ public class MainShellView extends BorderPane {
       CaepiCatalogService caepi,
       MatrizManagementService matriz,
       PeriodicidadeManagementService periodicidade,
+      FornecimentoManagementService fornecimento,
       Runnable onLogout) {
     this.usuario = usuario;
     this.auditTrail = auditTrail;
@@ -79,6 +83,7 @@ public class MainShellView extends BorderPane {
     this.caepi = caepi;
     this.matriz = matriz;
     this.periodicidade = periodicidade;
+    this.fornecimento = fornecimento;
     setTop(buildHeader(onLogout));
     setLeft(buildSidebar());
     abrir(Destino.DASHBOARD, false);
@@ -247,6 +252,9 @@ public class MainShellView extends BorderPane {
     }
     if (destino == Destino.PERIODICIDADE) {
       return new PeriodicidadeManagementView(usuario, periodicidade).root();
+    }
+    if (destino == Destino.ENTREGA) {
+      return new FornecimentoWizardView(usuario, fornecimento, periodicidade).root();
     }
     return TelasReferencia.criar(destino, alvo -> abrir(alvo, true));
   }

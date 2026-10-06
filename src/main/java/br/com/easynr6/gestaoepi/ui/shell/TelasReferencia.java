@@ -22,7 +22,8 @@ public final class TelasReferencia {
   public static Node criar(Destino destino, Consumer<Destino> navegar) {
     return switch (destino) {
       case DASHBOARD -> dashboard(navegar);
-      case ENTREGA -> entrega();
+      case ENTREGA ->
+          throw new IllegalStateException("UC-ENT-01 abre pelo shell, com o fornecimento real.");
       case DEVOLUCAO -> devolucao();
       case ESTORNO -> estorno();
       case HISTORICO -> historico();
@@ -77,33 +78,6 @@ public final class TelasReferencia {
             link("Lotes", Destino.LOTES, navegar),
             link("Cobertura", Destino.COBERTURA, navegar));
     page.section(metrics).section(panel("Atalhos", atalhos));
-    return ReferenciaPage.scroll(page);
-  }
-
-  private static Node entrega() {
-    ReferenciaPage page =
-        ReferenciaPage.of(
-            "UC-ENT-01", "Registrar fornecimento de EPI", "Passo 1 de 5 — Trabalhador");
-    HBox passos =
-        new HBox(
-            8,
-            passo("1 · Trabalhador", true),
-            passo("2 · Itens da matriz", false),
-            passo("3 · Lote e quantidade", false),
-            passo("4 · Ciência e termo", false),
-            passo("5 · Revisão", false));
-    page.section(passos)
-        .section(
-            split(
-                panel(
-                    "Buscar trabalhador ativo",
-                    campo("Matrícula ou nome", "4418"),
-                    botao("Buscar", false)),
-                panel(
-                    "Cobertura (matriz × vigente)",
-                    new Label("Busque um trabalhador para ver EPI exigido e situação."))))
-        .legal(
-            "Registro legal: ao confirmar, grava fornecimento imutável. Correções apenas por estorno.");
     return ReferenciaPage.scroll(page);
   }
 
@@ -292,20 +266,6 @@ public final class TelasReferencia {
     button.getStyleClass().add(Styles.ACCENT);
     button.setOnAction(event -> navegar.accept(destino));
     return button;
-  }
-
-  private static Label passo(String texto, boolean atual) {
-    Label label = new Label(texto);
-    label.getStyleClass().add(atual ? Enr6Styles.EMPHASIS : Enr6Styles.PAGE_DESCRIPTION);
-    return label;
-  }
-
-  private static HBox split(Node esquerda, Node direita) {
-    HBox.setHgrow(esquerda, Priority.ALWAYS);
-    HBox.setHgrow(direita, Priority.ALWAYS);
-    HBox linha = new HBox(12, esquerda, direita);
-    linha.setFillHeight(true);
-    return linha;
   }
 
   private static VBox panel(String titulo, Node... filhos) {
