@@ -6,7 +6,7 @@
 - Tipo: `UC`
 - Iniciativa/Epico: `INI-01` / `EP-CORE`
 - Responsavel: Time Easy NR6
-- Status: especificado; codigo depois do `UC-ENT-01`
+- Status: implementado na tela Devolucao / descarte (`DevolucaoView`, migracao `V17`). Item estornado recusa com `POS-001`.
 - Modelo: `docs/03-operacao/modelo-diario-estoque.md`
 
 ## 1) Contexto
