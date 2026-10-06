@@ -44,7 +44,7 @@
 4. O lote precisa estar vigente na data da ficha: validade da peca anterior a hoje bloqueia. Disponivel insuficiente bloqueia. Nao ha saldo negativo. O CA gravado no item e o CA do lote (o impresso na peca). CAs ativos adicionais do EPI podem ser incluidos para peca conjugada. O item fica com ao menos um CA.
 5. A quantidade sai do disponivel vigente. Reserva de outro atendimento continua intocada. Se o operador ligar uma reserva deste lote, a quantidade nao passa do restante dessa reserva, e o movimento `BAIXA_FORNECIMENTO` diminui a reservada junto.
 6. O mesmo lote nao se repete na ficha. A quantidade da linha unica e que se ajusta.
-7. Item na matriz ativa da funcao vigente segue sem excecao. Item fora dela so `SESMT` ou `Admin` confirmam, com texto de excecao de pelo menos 10 caracteres. `Almoxarife` nao marca excecao.
+7. Item na matriz ativa do perfil vigente segue sem excecao. O perfil vigente e o da regra 9 do `UC-CAD-07`, lido no instante da confirmacao. A ficha continua gravando a funcao, nao o GHE. Item fora dela so `SESMT` ou `Admin` confirmam, com texto de excecao de pelo menos 10 caracteres. `Almoxarife` nao marca excecao.
 8. Modo Posto nao dispensa a ficha: o trabalhador que retirou o descartavel ou o creme continua nomeado. A cobertura desse item, para ele, permanece "Posto", regra do `UC-MAT-02`.
 9. Ciencia do `6.7.2`, por item: orientacao de uso e ajuste registrada. Se a linha da matriz exige treinamento, a data do treinamento entra no item e nao pode ser posterior a ficha. Nao ha modulo de curso.
 10. Sem o aceite do termo do `UC-ENT-02`, a confirmacao nao grava nada.
@@ -64,7 +64,7 @@
 | `ENT-003` | Quantidade invalida | A quantidade precisa ser um numero inteiro maior que zero. |
 | `ENT-004` | Lote ausente, de outro EPI ou vencido | Escolha um lote vigente deste EPI. Peca vencida nao pode ser fornecida. |
 | `ENT-005` | Quantidade acima do disponivel | Nao ha quantidade disponivel neste lote. |
-| `ENT-006` | Fora da matriz e o papel nao e SESMT nem Admin | Este EPI nao esta na matriz da funcao. So o SESMT pode registrar a excecao. |
+| `ENT-006` | Fora da matriz e o papel nao e SESMT nem Admin | Este EPI nao esta na matriz vigente. So o SESMT pode registrar a excecao. |
 | `ENT-007` | Excecao sem texto de 10 caracteres | Descreva a excecao com pelo menos 10 caracteres. |
 | `ENT-008` | Orientacao ausente, ou treinamento exigido sem data, ou data futura | Registre a orientacao de uso. Se a matriz exige treinamento, informe a data. |
 | `ENT-009` | Termo nao aceito | O fornecimento so conclui com o aceite do termo. |

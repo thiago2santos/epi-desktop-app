@@ -1,6 +1,6 @@
 # Matriz executavel de testes - UC-MAT-01 (Matriz funcao x EPI)
 
-Spec: `docs/03-operacao/spec-uc-mat-01-matriz.md`. Nenhum teste existe em codigo ainda.
+Spec: `docs/03-operacao/spec-uc-mat-01-matriz.md`. Cobertos por `MatrizPolicyTest`, `MatrizManagementServiceIntegrationTest` e `MatrizUxTest`.
 
 | ID | Tipo | Referencia | Pre-condicoes | Passos | Resultado esperado |
 |---|---|---|---|---|---|
@@ -12,7 +12,8 @@ Spec: `docs/03-operacao/spec-uc-mat-01-matriz.md`. Nenhum teste existe em codigo
 | MAT01-006 | UI | CA-05 | Linha ativa | Cancelar a inativacao | Linha segue ativa |
 | MAT01-007 | INT/AUDIT | CA-05, CA-06 | Linha ativa | Confirmar inativacao e incluir de novo | Linha antiga inativa; linha nova ativa; `MATRIZ_INATIVADA` |
 | MAT01-008 | RBAC | CA-07 | `ALMOXARIFE` | Incluir | `AUTH-004` |
-| MAT01-009 | UI | Tela | Funcao sem linhas | Abrir | "Nenhum EPI na matriz desta funcao." |
+| MAT01-009 | UI | Tela | Funcao sem linhas | Abrir | "Nenhum EPI na matriz deste perfil." |
+| MAT01-010 | INT | CA-08, `MAT-008` | Funcao membro de GHE ativo, com ou sem linha propria | Incluir EPI na funcao | `MAT-008`; nenhuma linha nova. O GHE segue como perfil editavel |
 
 ## Gate para iniciar o codigo
 

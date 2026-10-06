@@ -33,7 +33,7 @@
 ## 3) Regras de negocio
 
 1. A situacao de cada item e a da regra 6 do `UC-MAT-02`: Posto, Sem prazo, Pendente, Vigente, Troca em N dias, Prazo vencido. Texto. Cor nao substitui o texto.
-2. Trabalhador ativo sem nenhuma linha de matriz ativa na funcao entra com o resumo "Sem matriz" e zero itens.
+2. Trabalhador ativo sem nenhuma linha de matriz ativa no perfil vigente entra com o resumo "Sem matriz" e zero itens. O perfil vigente e o da regra 9 do `UC-CAD-07`. GHE ativo sem EPI tambem e "Sem matriz".
 3. Resumo do trabalhador, nesta ordem, a primeira que couber:
    - "Sem matriz";
    - "N pendente" se houver item Pendente;
@@ -53,7 +53,7 @@ Unidade ausente: "Escolha a unidade." `AUTH-004` nao se aplica aos quatro papeis
 
 - `CA-01`: trabalhador com luva Pendente e capacete Vigente aparece "1 pendente", e o detalhe mostra as duas situacoes.
 - `CA-02`: item Posto nao entra na contagem de pendente.
-- `CA-03`: funcao sem matriz mostra "Sem matriz".
+- `CA-03`: perfil vigente sem matriz mostra "Sem matriz". GHE ativo sem EPI tambem.
 - `CA-04`: so "Sem prazo" no individual mostra o resumo "Sem prazo".
 - `CA-05`: trabalhador inativo nao aparece.
 - `CA-06`: a situacao do item e a mesma frase que o painel do `UC-ENT-01` mostra para essa pessoa.

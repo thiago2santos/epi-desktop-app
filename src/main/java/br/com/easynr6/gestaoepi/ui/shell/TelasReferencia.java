@@ -34,13 +34,17 @@ public final class TelasReferencia {
           throw new IllegalStateException("UC-CAD-01 abre pelo shell, com o cadastro real.");
       case SETORES ->
           throw new IllegalStateException("UC-CAD-02 abre pelo shell, com o cadastro real.");
+      case GHE ->
+          throw new IllegalStateException("UC-CAD-07 abre pelo shell, com o cadastro real.");
       case EPI ->
           throw new IllegalStateException("UC-CAD-04 abre pelo shell, com o cadastro real.");
       case CA -> throw new IllegalStateException("UC-CAD-05 abre pelo shell, com o cadastro real.");
       case LOTES ->
           throw new IllegalStateException("UC-LOT-01 abre pelo shell, com o recebimento real.");
-      case MATRIZ -> matriz();
-      case PERIODICIDADE -> periodicidade();
+      case MATRIZ ->
+          throw new IllegalStateException("UC-MAT-01 abre pelo shell, com a matriz real.");
+      case PERIODICIDADE ->
+          throw new IllegalStateException("UC-MAT-02 abre pelo shell, com a periodicidade real.");
       case RELATORIOS -> relatorios(navegar);
       case COBERTURA -> cobertura();
       case PENDENCIAS -> pendencias();
@@ -202,39 +206,6 @@ public final class TelasReferencia {
             "1",
             "Fora da matriz · SESMT"
           }
-        });
-    return ReferenciaPage.scroll(page);
-  }
-
-  private static Node matriz() {
-    ReferenciaPage page =
-        ReferenciaPage.of(
-            "UC-MAT-01 · Matriz",
-            "Matriz função / GHE × EPI",
-            "EPI exigido pela função vigente. Fora da matriz segue para o SESMT.");
-    page.table(
-        new String[] {"Função", "EPI", "Obrigatório", "Vigência"},
-        new String[][] {
-          {"Operador de empilhadeira", "Protetor auricular tipo concha", "Sim", "01/03/2026 —"},
-          {"Operador de empilhadeira", "Bota de segurança com biqueira", "Sim", "01/03/2026 —"},
-          {"Auxiliar de guarda", "Luva de vaqueta", "Sim", "01/03/2026 —"},
-          {"Eletricista", "Luva isolante classe 00", "Sim", "01/03/2026 —"}
-        });
-    return ReferenciaPage.scroll(page);
-  }
-
-  private static Node periodicidade() {
-    ReferenciaPage page =
-        ReferenciaPage.of(
-            "Regras · Periodicidade",
-            "Periodicidade de troca",
-            "Prazo de substituição por função e EPI. Não prova uso efetivo.");
-    page.table(
-        new String[] {"Função", "EPI", "Prazo", "Unidade"},
-        new String[][] {
-          {"Operador de empilhadeira", "Protetor auricular tipo concha", "180", "dias"},
-          {"Auxiliar de guarda", "Luva de vaqueta", "60", "dias"},
-          {"Eletricista", "Luva isolante classe 00", "365", "dias"}
         });
     return ReferenciaPage.scroll(page);
   }

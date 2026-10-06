@@ -111,7 +111,7 @@ Configurar:
 
 1. Cadastrar setores da unidade.
 2. Cadastrar funcoes/cargos.
-3. (Opcional) Cadastrar GHE.
+3. (Opcional) Cadastrar GHE na unidade e vincular as funcoes que compartilham a lista. Tela GHE (`UC-CAD-07`). Sem GHE ativo, vale a matriz da funcao.
 
 ## 4.2 Cadastro de trabalhador
 
@@ -131,10 +131,13 @@ Campos minimos:
 
 ## 4.4 Matriz funcao/GHE x EPI
 
-1. Definir quais EPIs cada funcao/GHE deve receber.
-2. Definir obrigatoriedade.
-3. Definir periodicidade esperada.
-4. Salvar vigencia da regra.
+Tela Matriz (`UC-MAT-01`). O perfil e a funcao ativa fora de GHE ativo, ou o GHE ativo.
+
+1. Escolher o perfil.
+2. Incluir o EPI ativo que tenha CA ativo. O CA esperado nasce desse CA.
+3. Ajustar Individual ou Posto, e se exige treinamento.
+4. Inativar a linha, se o EPI sair da lista. O registro permanece.
+5. Na tela Periodicidade (`UC-MAT-02`), informar dias e aviso por EPI. Sem numero salvo, a cobertura diz Sem prazo.
 
 ## 4.5 Recebimento por lote
 

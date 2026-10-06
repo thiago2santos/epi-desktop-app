@@ -54,7 +54,7 @@ Garantir que a entrega de EPI ocorra com base tecnica, legal e operacional consi
 - `unidade`: filial/planta (ex.: Itupeva).
 - `setor`: area organizacional da unidade.
 - `funcao`: cargo/função por unidade.
-- `ghe`: grupo homogeneo de exposicao (opcional na V1, previsto no modelo).
+- `ghe`: grupo homogeneo de exposicao. Cadastro no `UC-CAD-07`. Se a funcao vigente esta num GHE ativo, a matriz lida e a do grupo.
 - `epi`: cadastro mestre de EPI.
 - `epi_ca`: CAs por EPI (um-para-muitos).
 - `lote_epi`: recebimento por lote e saldo.

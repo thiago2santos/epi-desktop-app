@@ -1,6 +1,6 @@
 # Matriz executavel de testes - UC-MAT-02 (Periodicidade)
 
-Spec: `docs/03-operacao/spec-uc-mat-02-periodicidade.md`.
+Spec: `docs/03-operacao/spec-uc-mat-02-periodicidade.md`. Cobertos por `PeriodicidadePolicyTest`, `PeriodicidadeManagementServiceIntegrationTest` e `PeriodicidadeUxTest`. A formula da regra 6 usa a data informada; a ficha real chega no `UC-ENT-01`.
 
 | ID | Tipo | Referencia | Pre-condicoes | Passos | Resultado esperado |
 |---|---|---|---|---|---|
@@ -16,7 +16,7 @@ Spec: `docs/03-operacao/spec-uc-mat-02-periodicidade.md`.
 | MAT02-010 | INT | CA-06 | Linha modo Posto, sem fornecimento | Consultar | "Posto" |
 | MAT02-011 | INT | CA-07 | Ficha com data D e prazo 180; depois prazo 90 | Consultar | Data da ficha segue D; situacao usa 90 |
 | MAT02-012 | RBAC | Regra 8 | `ALMOXARIFE` | Salvar | `AUTH-004` |
-| MAT02-013 | UI | Tela | Nenhuma linha de matriz | Abrir | "Nenhum EPI na matriz. Inclua o EPI na matriz da funcao primeiro." |
+| MAT02-013 | UI | Tela | Nenhuma linha de matriz | Abrir | "Nenhum EPI na matriz. Inclua o EPI na matriz do perfil primeiro." |
 
 ## Gate para iniciar o codigo
 

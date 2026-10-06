@@ -6,7 +6,7 @@
 - Tipo: `UC`
 - Iniciativa/Epico: `INI-01` / `EP-CORE`
 - Responsavel: Time Easy NR6
-- Status: especificado; implementacao nao iniciada
+- Status: implementado na tela Periodicidade (`PeriodicidadeManagementView`). A data do fornecimento que conta entra quando o `UC-ENT-01` gravar a ficha; ate la a leitura fica Pendente, Sem prazo ou Posto.
 
 ## 1) Contexto
 
@@ -35,7 +35,7 @@
 3. Nao ha prazo implicito. Enquanto o SESMT nao salvar, a cobertura diz "Sem prazo". O fornecimento nao e bloqueado por isso.
 4. Alterar o numero nao reescreve ficha antiga. O proximo vencimento usa a periodicidade vigente na consulta, contada da data do ultimo fornecimento que ainda conta.
 5. Fornecimento que conta: item de ficha sem estorno e sem devolucao. Estorno e devolucao continuam nos casos `UC-POS-02` e `UC-POS-01`; ate eles existirem, todo item gravado conta.
-6. Leitura, por trabalhador ativo e por linha ativa da funcao dele, com o relogio da consulta:
+6. Leitura, por trabalhador ativo e por linha ativa do perfil vigente dele, com o relogio da consulta. O perfil vigente e o da regra 9 do `UC-CAD-07`: GHE ativo da funcao, ou a propria funcao:
    - modo Posto: situacao "Posto". Nao vira pendencia pessoal;
    - sem periodicidade: "Sem prazo";
    - sem fornecimento que conte: "Pendente";
@@ -70,7 +70,7 @@ Destino ja previsto: "Periodicidade". Titulo sem codigo de caso de uso.
 - Uma linha por EPI, nao uma linha repetida por funcao. Ao lado, "Usado em N funcoes".
 - Campos: dias e aviso antecipado. Unidade fixa: dias.
 - Salvar desabilitado enquanto alguma linha visivel estiver vazia ou invalida. O campo invalido e marcado e a frase diz o que corrigir.
-- Vazio: "Nenhum EPI na matriz. Inclua o EPI na matriz da funcao primeiro."
+- Vazio: "Nenhum EPI na matriz. Inclua o EPI na matriz do perfil primeiro."
 - Sucesso: "Periodicidade salva." Faixa na propria tela.
 - O wizard de fornecimento mostra, no painel do trabalhador, EPI e a situacao em texto definida na regra 6.
 

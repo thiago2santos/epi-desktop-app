@@ -98,6 +98,7 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 - **[UC]** `Trabalhadores` (minimo operacional: matricula, nome, funcao/setor, status). Tela ligada.
 - **[UC]** `Funcoes/Setores` (minimo para vinculo com matriz). Tela ligada.
 - **[UC]** `UC-CAD-01` Unidade da empresa ja semeada (nome, CNPJ, status). Tela ligada. Ver `spec-uc-cad-01-unidade.md`.
+- **[UC]** `UC-CAD-07` GHE por unidade implementado (`GheManagementView`, migracao `V13`). Funcoes membros. Perfil vigente: GHE ativo, ou a propria funcao. Nao bloqueia o M2 quando a planta usa so a funcao. Ver `spec-uc-cad-07-ghe.md`.
 - **[FEAT]** `FE-CAD-01` Importacao em lote de cadastros via CSV (setor, funcao, trabalhador) com tela de revisao. Spec fechada: `spec-uc-cad-imp-01-importacao-csv-cadastros.md`. Should para adocao.
 - **[UC]** `UC-CAD-IMP-01` Orquestra upload, staging, revalidacao e publicacao atomica do lote elegivel.
 - **[UC]** `EPI e CA` (minimo para itens entregaveis).
@@ -108,8 +109,8 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 - **[UC]** `UC-LOT-05` Inventario da unidade. Spec pronta. Feature propria: a contagem explica a diferenca, nao edita o recebimento.
 - **[UC]** `UC-LOT-06` Necessidade de compra: demanda menos disponivel vigente. Spec pronta. Sem ordem de compra.
 - **[UC]** `UC-REL-04` Consumo para budget da seguranca do trabalho. Spec pronta. Codigo depois da baixa de fornecimento.
-- **[UC]** `UC-MAT-01` Matriz funcao x EPI. Spec e matriz prontas. Perfil desta versao e a funcao; GHE separado fica fora. Ver `spec-uc-mat-01-matriz.md`.
-- **[UC]** `UC-MAT-02` Periodicidade de troca por EPI, e a leitura de cobertura em texto. Spec e matriz prontas. Sem prazo implicito. Ver `spec-uc-mat-02-periodicidade.md`.
+- **[UC]** `UC-MAT-01` Matriz por perfil implementada (`MatrizManagementView`, migracao `V14`). O perfil e a funcao, ou o GHE ativo dela (`UC-CAD-07`). As listas nao se somam. Ver `spec-uc-mat-01-matriz.md`.
+- **[UC]** `UC-MAT-02` Periodicidade de troca por EPI implementada (`PeriodicidadeManagementView`, migracao `V15`). Sem prazo implicito. A leitura em texto espera a data da ficha do `UC-ENT-01`. Ver `spec-uc-mat-02-periodicidade.md`.
 - **[TECH]** Dominios minimos de validacao (motivos, metodo de validacao, status).
 
 **Criterio de pronto**
@@ -437,7 +438,7 @@ Toda task deve conter:
 ## Proximo ataque recomendado (sequencia objetiva)
 
 1. `UC-CAD-01` implementado: nome, CNPJ e status da empresa do seed, com a tela no shell.
-2. **Sprint J1:** `UC-LOT-01` e `UC-LOT-02` implementados. Seguir com `UC-MAT-01/02`, depois `UC-ENT-01/02`, depois devolucao, estorno, historico e pendencias. Reserva, baixa de prateleira, inventario, compra e budget entram na mesma cadeia. Solicitacao, CAEPI e CSV de cadastros ja tem spec e entram em seguida.
+2. **Sprint J1:** `UC-LOT-01`, `UC-LOT-02`, `UC-CAD-07`, `UC-MAT-01` e `UC-MAT-02` implementados. Seguir com `UC-ENT-01/02`, depois devolucao, estorno, historico e pendencias. Reserva, baixa de prateleira, inventario, compra e budget entram na mesma cadeia. Solicitacao, CAEPI e CSV de cadastros ja tem spec e entram em seguida.
 3. **Sprint J2:** core transacional M2 — wizard de fornecimento com persistencia, historico, devolucao e estorno.
 4. **Sprint J3:** relatorios M3 alem da auditoria — cobertura, pendencias e PDF minimo.
 5. **Sprint J4:** `UC-CAE-01` e `UC-SOL-01`.

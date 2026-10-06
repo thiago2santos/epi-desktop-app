@@ -15,4 +15,4 @@
 - **Pos-condicoes**: Consulta do trabalhador mostra Vigente, Troca em N dias, Prazo vencido, Pendente, Sem prazo ou Posto.
 - **Spec**: `docs/03-operacao/spec-uc-mat-02-periodicidade.md`
 - **Testes**: `docs/03-operacao/matriz-testes-uc-mat-02.md`
-- **Status**: especificado; implementacao pendente.
+- **Status**: implementado. Spec em `docs/03-operacao/spec-uc-mat-02-periodicidade.md`.
