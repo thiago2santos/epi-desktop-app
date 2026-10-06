@@ -92,7 +92,7 @@ Referência mock: [`docs/mock/ROADMAP-SESSION-MOCK.md`](../mock/ROADMAP-SESSION-
 | Termo / ciência NR-6 | ✅ checkboxes | ⬜ | blueprint passo 4 | |
 | Histórico trabalhador | ✅ 05 | ⬜ | — | |
 | UC-POS-01 Devolucao | ✅ 03 | ✅ serviço e tela | spec + matriz | Nao devolve quantidade ao disponivel |
-| UC-POS-02 Estorno | ✅ 04 | ⬜ | spec + matriz | `ESTORNO_FORNECIMENTO`; ficha permanece |
+| UC-POS-02 Estorno | ✅ 04 | ✅ serviço e tela | spec + matriz | `ESTORNO_FORNECIMENTO`; ficha permanece. Pedido espera `UC-SOL-01` |
 | UC-POS-03 Pendencias | — | ⬜ | spec + matriz | Desligamento, item individual |
 | UC-ENT-03 Historico | ✅ 05 | ⬜ | spec + matriz | Fornecimento, devolucao e estorno |
 | Estorno | ✅ 04 | ⬜ | — | |
@@ -133,7 +133,7 @@ Ao implementar cada UC no Java, validar paridade com o mock (comportamento, não
 | Saldo insuficiente | ✅ | ✅ regra saldo |
 | Fora da matriz sem exceção | ✅ | ⬜ |
 | Devolução data ≥ entrega | ✅ | ✅ `devolucaoEmDataValida` |
-| Estorno motivo ≥ 10 chars | ✅ | ⬜ |
+| Estorno motivo ≥ 10 chars | ✅ | ✅ `EstornoPolicy` |
 | Solicitação não baixa estoque | ✅ | ⬜ |
 | Imutabilidade entrega | ✅ status REVERSED/RETURNED | ⬜ schema |
 
@@ -145,13 +145,14 @@ Ordem para maximizar reutilização do protótipo como **critério de aceite UX*
 
 ```text
 Sprint J1 — M1 estoque + regras (desbloqueia DoR M2)
-  • UC-LOT-01, UC-LOT-02, UC-CAD-07, UC-MAT-01, UC-MAT-02, UC-ENT-01, UC-ENT-02 e UC-POS-01 implementados. Seguir com estorno
+  • UC-LOT-01, UC-LOT-02, UC-CAD-07, UC-MAT-01, UC-MAT-02, UC-ENT-01, UC-ENT-02, UC-POS-01 e UC-POS-02 implementados. Seguir com historico
   • UC-LOT-03 a 06 e UC-REL-04 já têm spec; código depois do recebimento e da baixa de fornecimento
 
 Sprint J2 — depois da ficha
   • UC-ENT-01/02 implementados (`FornecimentoWizardView`, migracao V16)
   • UC-POS-01 implementado (`DevolucaoView`, migracao V17)
-  • Histórico (05) e estorno (04)
+  • UC-POS-02 implementado (`EstornoView`, migracao V18)
+  • Histórico (05)
 
 Sprint J3 — M3 evidência
   • Cobertura + pendências (14–15) + hub (13) + export PDF mínimo

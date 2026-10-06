@@ -34,7 +34,7 @@
 2. Periodicidade e inteira e maior que zero, em dias. Aviso antecipado e inteiro, maior ou igual a zero, e menor que a periodicidade.
 3. Nao ha prazo implicito. Enquanto o SESMT nao salvar, a cobertura diz "Sem prazo". O fornecimento nao e bloqueado por isso.
 4. Alterar o numero nao reescreve ficha antiga. O proximo vencimento usa a periodicidade vigente na consulta, contada da data do ultimo fornecimento que ainda conta.
-5. Fornecimento que conta: item de ficha sem devolucao. A devolucao (`UC-POS-01`) tira o item da cobertura. O estorno (`UC-POS-02`) ainda nao exclui o item; entra no caso seguinte.
+5. Fornecimento que conta: item de ficha sem devolucao (`UC-POS-01`) e sem estorno (`UC-POS-02`). Os dois tiram o item da cobertura.
 6. Leitura, por trabalhador ativo e por linha ativa do perfil vigente dele, com o relogio da consulta. O perfil vigente e o da regra 9 do `UC-CAD-07`: GHE ativo da funcao, ou a propria funcao:
    - modo Posto: situacao "Posto". Nao vira pendencia pessoal;
    - sem periodicidade: "Sem prazo";

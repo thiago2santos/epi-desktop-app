@@ -6,7 +6,7 @@
 - Tipo: `UC`
 - Iniciativa/Epico: `INI-01` / `EP-CORE`
 - Responsavel: Time Easy NR6
-- Status: especificado; codigo depois do `UC-ENT-01`
+- Status: implementado na tela Estorno (`EstornoView`, migracao `V18`). Pedido atendido (`CA-08`) espera a tabela do `UC-SOL-01`: o estorno nao reabre pedido porque pedido ainda nao existe.
 - Modelo: `docs/03-operacao/modelo-diario-estoque.md`
 
 ## 1) Contexto

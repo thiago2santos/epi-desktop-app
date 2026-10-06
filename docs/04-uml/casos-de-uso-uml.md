@@ -497,7 +497,7 @@ Cada caso de uso segue o formato:
 - **Fluxos alternativos/excecoes**:
   - `POS-001` a `POS-003`.
 - **Pos-condicoes**: Item sai da cobertura. Saldo da prateleira intacto.
-- **Status**: implementado em `docs/03-operacao/spec-uc-pos-01-devolucao.md`. Item estornado espera o `UC-POS-02`.
+- **Status**: implementado em `docs/03-operacao/spec-uc-pos-01-devolucao.md`. Item estornado recusa.
 
 ### UC-POS-02 — Registrar estorno de fornecimento
 - **Atores**: SESMT, Admin
@@ -510,7 +510,7 @@ Cada caso de uso segue o formato:
 - **Fluxos alternativos/excecoes**:
   - `POS-004` e `POS-005`.
 - **Pos-condicoes**: Item estornado. Consumo do periodo do estorno diminui.
-- **Status**: especificado em `docs/03-operacao/spec-uc-pos-02-estorno.md`.
+- **Status**: implementado em `docs/03-operacao/spec-uc-pos-02-estorno.md`. Pedido atendido espera o `UC-SOL-01`.
 
 ### UC-POS-03 — Consultar pendencias de devolucao
 - **Atores**: Almoxarife, SESMT, Admin

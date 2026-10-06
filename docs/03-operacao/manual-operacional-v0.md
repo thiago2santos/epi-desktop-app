@@ -201,15 +201,17 @@ Regras criticas:
 
 ## 5.3 Fluxo de estorno
 
-Usar estorno quando houver erro operacional na entrega:
+Tela Estorno. SESMT e Admin. Almoxarife nao corrige a propria ficha.
 
-1. Selecionar item de entrega incorreto.
-2. Informar motivo do estorno (obrigatorio).
-3. Confirmar registro de estorno.
+1. Localizar o trabalhador e o item que ainda conta.
+2. Descrever o motivo, com pelo menos 10 caracteres.
+3. Confirmar no dialogo. Voltar nao grava.
 
-Regra critica:
+Regras criticas:
 
-- estorno corrige sem apagar historico original.
+- estorno corrige sem apagar a ficha;
+- a quantidade inteira volta para a fisica. A reserva nao e recriada;
+- item ja devolvido nao estorna.
 
 ## 6) Relatorios previstos e uso operacional
 
