@@ -6,6 +6,7 @@ import br.com.easynr6.gestaoepi.modules.epi.application.EpiCatalogManagementServ
 import br.com.easynr6.gestaoepi.modules.issuance.application.DevolucaoManagementService;
 import br.com.easynr6.gestaoepi.modules.issuance.application.EstornoManagementService;
 import br.com.easynr6.gestaoepi.modules.issuance.application.FornecimentoManagementService;
+import br.com.easynr6.gestaoepi.modules.issuance.application.HistoricoManagementService;
 import br.com.easynr6.gestaoepi.modules.matrix.application.MatrizManagementService;
 import br.com.easynr6.gestaoepi.modules.matrix.application.PeriodicidadeManagementService;
 import br.com.easynr6.gestaoepi.modules.stock.application.StockManagementService;
@@ -99,6 +100,7 @@ public class EasyNr6DesktopApp extends Application {
             applicationContext.getBean(FornecimentoManagementService.class),
             applicationContext.getBean(DevolucaoManagementService.class),
             applicationContext.getBean(EstornoManagementService.class),
+            applicationContext.getBean(HistoricoManagementService.class),
             () -> {
               auditTrail.registrarEventoCritico(
                   usuario.id(),

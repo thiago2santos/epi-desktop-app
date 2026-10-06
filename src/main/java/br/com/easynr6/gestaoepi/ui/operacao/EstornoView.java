@@ -29,7 +29,8 @@ public final class EstornoView {
   private ItemAberto item;
   private String motivo = "";
 
-  public EstornoView(UsuarioAutenticado usuario, EstornoManagementService estorno) {
+  public EstornoView(
+      UsuarioAutenticado usuario, EstornoManagementService estorno, Long itemInicial) {
     this.usuario = usuario;
     this.estorno = estorno;
     ReferenciaPage page =
@@ -39,7 +40,21 @@ public final class EstornoView {
             "Corrige o lançamento sem apagar a ficha. O saldo da prateleira volta.");
     page.section(corpo);
     this.root = ReferenciaPage.scroll(page);
+    if (itemInicial != null) {
+      abrirItem(itemInicial);
+    }
     mostrar();
+  }
+
+  private void abrirItem(Long itemInicial) {
+    try {
+      item = estorno.exigirAberto(usuario.id(), itemInicial);
+      trabalhador =
+          new TrabalhadorBusca(item.employeeId(), item.matricula(), item.nome(), true, "", "");
+    } catch (RuntimeException ex) {
+      LogTroubleshooting.registrar("ABRIR_ESTORNO", usuario.id(), String.valueOf(itemInicial), ex);
+      avisar(MensagensEstorno.erro(ex));
+    }
   }
 
   public Node root() {
