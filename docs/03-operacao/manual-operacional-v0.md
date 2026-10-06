@@ -168,12 +168,14 @@ Validar:
 
 ## 5.1 Fluxo de entrega (durante a entrega)
 
-1. Buscar trabalhador ativo.
+Na tela Registrar fornecimento:
+
+1. Buscar trabalhador ativo. O painel ao lado mostra a cobertura em texto.
 2. Carregar itens esperados pela matriz da funcao/GHE.
 3. Selecionar lote valido e quantidade.
-4. Capturar validacao do trabalhador por item.
+4. Capturar a orientacao de uso por item e, se a matriz exige, a data do treinamento.
 5. Capturar aceite do termo de responsabilidade.
-6. Confirmar entrega (registro imutavel).
+6. Confirmar no dialogo. Voltar nao grava. A ficha fica imutavel.
 
 Regras criticas:
 

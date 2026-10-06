@@ -17,4 +17,4 @@
 - **Pos-condicoes**: Disponivel diminui. Ficha nao se edita. Snapshot de setor e funcao fica no movimento.
 - **Spec**: `docs/03-operacao/spec-uc-ent-01-fornecimento.md`
 - **Testes**: `docs/03-operacao/matriz-testes-uc-ent-01.md`
-- **Status**: especificado; codigo depois de lote e matriz.
+- **Status**: implementado na tela Registrar fornecimento. Pedido e reserva entram quando `UC-SOL-01` e `UC-LOT-03` existirem.

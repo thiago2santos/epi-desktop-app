@@ -453,7 +453,7 @@ Cada caso de uso segue o formato:
   - Fora da matriz: so SESMT ou Admin.
   - Cancelar o dialogo nao grava.
 - **Pos-condicoes**: Disponivel diminui. Ficha nao se edita.
-- **Status**: especificado em `docs/03-operacao/spec-uc-ent-01-fornecimento.md`.
+- **Status**: implementado em `docs/03-operacao/spec-uc-ent-01-fornecimento.md`.
 
 ### UC-ENT-02 — Registrar aceite do termo de responsabilidade
 - **Atores**: Almoxarife, SESMT, Admin
@@ -467,7 +467,7 @@ Cada caso de uso segue o formato:
 - **Fluxos alternativos/excecoes**:
   - `ENT-009` Sem aceite. Nada gravado.
 - **Pos-condicoes**: Ficha sem termo nao existe.
-- **Status**: especificado em `docs/03-operacao/spec-uc-ent-02-termo.md`.
+- **Status**: implementado em `docs/03-operacao/spec-uc-ent-02-termo.md`.
 
 ### UC-ENT-03 — Consultar historico por trabalhador
 - **Atores**: SESMT, Almoxarife, Consulta, Admin

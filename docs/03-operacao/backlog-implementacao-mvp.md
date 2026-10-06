@@ -110,7 +110,7 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 - **[UC]** `UC-LOT-06` Necessidade de compra: demanda menos disponivel vigente. Spec pronta. Sem ordem de compra.
 - **[UC]** `UC-REL-04` Consumo para budget da seguranca do trabalho. Spec pronta. Codigo depois da baixa de fornecimento.
 - **[UC]** `UC-MAT-01` Matriz por perfil implementada (`MatrizManagementView`, migracao `V14`). O perfil e a funcao, ou o GHE ativo dela (`UC-CAD-07`). As listas nao se somam. Ver `spec-uc-mat-01-matriz.md`.
-- **[UC]** `UC-MAT-02` Periodicidade de troca por EPI implementada (`PeriodicidadeManagementView`, migracao `V15`). Sem prazo implicito. A leitura em texto espera a data da ficha do `UC-ENT-01`. Ver `spec-uc-mat-02-periodicidade.md`.
+- **[UC]** `UC-MAT-02` Periodicidade de troca por EPI implementada (`PeriodicidadeManagementView`, migracao `V15`). Sem prazo implicito. A leitura usa a data da ficha do `UC-ENT-01`. Ver `spec-uc-mat-02-periodicidade.md`.
 - **[TECH]** Dominios minimos de validacao (motivos, metodo de validacao, status).
 
 **Criterio de pronto**
@@ -120,8 +120,8 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 
 ## M2 - Core operacional governado (Must)
 
-- **[UC]** `UC-ENT-01` Registrar fornecimento, com a tela de cinco passos. Spec e matriz prontas. Commit unico: ficha, termo, `BAIXA_FORNECIMENTO` e auditoria. Ver `spec-uc-ent-01-fornecimento.md`.
-- **[UC]** `UC-ENT-02` Aceite do termo `TERMO-NR6-01`, dentro da mesma confirmacao. Spec e matriz prontas. Ver `spec-uc-ent-02-termo.md`.
+- **[UC]** `UC-ENT-01` Registrar fornecimento implementado (`FornecimentoWizardView`, migracao `V16`). Ficha, termo, `BAIXA_FORNECIMENTO` e auditoria na mesma transacao. Pedido e reserva esperam `UC-SOL-01` e `UC-LOT-03`. Ver `spec-uc-ent-01-fornecimento.md`.
+- **[UC]** `UC-ENT-02` Aceite do termo `TERMO-NR6-01` implementado na mesma confirmacao. Metodo `ASSINATURA_MANUAL`. Ver `spec-uc-ent-02-termo.md`.
 - **[UC]** `UC-ENT-03` Historico por trabalhador. Spec e matriz prontas. Ver `spec-uc-ent-03-historico.md`.
 - **[UC]** `UC-POS-01` Devolucao ou descarte. Spec e matriz prontas. Nao devolve peca ao disponivel.
 - **[UC]** `UC-POS-02` Estorno. Spec e matriz prontas. Grava `ESTORNO_FORNECIMENTO`.
@@ -438,8 +438,8 @@ Toda task deve conter:
 ## Proximo ataque recomendado (sequencia objetiva)
 
 1. `UC-CAD-01` implementado: nome, CNPJ e status da empresa do seed, com a tela no shell.
-2. **Sprint J1:** `UC-LOT-01`, `UC-LOT-02`, `UC-CAD-07`, `UC-MAT-01` e `UC-MAT-02` implementados. Seguir com `UC-ENT-01/02`, depois devolucao, estorno, historico e pendencias. Reserva, baixa de prateleira, inventario, compra e budget entram na mesma cadeia. Solicitacao, CAEPI e CSV de cadastros ja tem spec e entram em seguida.
-3. **Sprint J2:** core transacional M2 — wizard de fornecimento com persistencia, historico, devolucao e estorno.
+2. **Sprint J1:** `UC-LOT-01`, `UC-LOT-02`, `UC-CAD-07`, `UC-MAT-01`, `UC-MAT-02`, `UC-ENT-01` e `UC-ENT-02` implementados. Seguir com devolucao, estorno, historico e pendencias. Reserva, baixa de prateleira, inventario, compra e budget entram na mesma cadeia. Solicitacao, CAEPI e CSV de cadastros ja tem spec e entram em seguida.
+3. **Sprint J2:** historico, devolucao e estorno. O fornecimento ja grava a ficha.
 4. **Sprint J3:** relatorios M3 alem da auditoria — cobertura, pendencias e PDF minimo.
 5. **Sprint J4:** `UC-CAE-01` e `UC-SOL-01`.
 6. Filtro de periodo e exportacao de `UC-AUD-01` ficam no pacote de evidencia, nao na consulta que ja lista a trilha.

@@ -6,7 +6,7 @@
 - Tipo: `UC`
 - Iniciativa/Epico: `INI-01` / `EP-CORE`
 - Responsavel: Time Easy NR6
-- Status: especificado; ocorre dentro da confirmacao do `UC-ENT-01`
+- Status: implementado no passo Ciencia e termo do `UC-ENT-01`. Versao `TERMO-NR6-01`, metodo `ASSINATURA_MANUAL`.
 - Norma: NR-6 `6.6.1`
 
 ## 1) Contexto

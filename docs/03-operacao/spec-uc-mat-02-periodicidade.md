@@ -6,7 +6,7 @@
 - Tipo: `UC`
 - Iniciativa/Epico: `INI-01` / `EP-CORE`
 - Responsavel: Time Easy NR6
-- Status: implementado na tela Periodicidade (`PeriodicidadeManagementView`). A data do fornecimento que conta entra quando o `UC-ENT-01` gravar a ficha; ate la a leitura fica Pendente, Sem prazo ou Posto.
+- Status: implementado na tela Periodicidade (`PeriodicidadeManagementView`). A data do fornecimento que conta sai da ficha do `UC-ENT-01`. Sem ficha, a leitura fica Pendente, Sem prazo ou Posto.
 
 ## 1) Contexto
 

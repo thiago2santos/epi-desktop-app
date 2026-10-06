@@ -6,7 +6,7 @@
 - Tipo: `UC`
 - Iniciativa/Epico: `INI-01` / `EP-CORE`
 - Responsavel: Time Easy NR6
-- Status: especificado; codigo depois de `UC-LOT-01`, `UC-MAT-01` e `UC-MAT-02`
+- Status: implementado na tela Registrar fornecimento (`FornecimentoWizardView`, migracao `V16`). Pedido (`UC-SOL-01`) e reserva (`UC-LOT-03`) ainda nao tem tabela: um id informado recusa a ficha. A tela nao oferece esses vinculos.
 - Modelo: `docs/03-operacao/modelo-diario-estoque.md`
 - Norma: NR-6 `6.5.1 (c)`, `6.5.1 (d)`, `6.5.1.1`, `6.5.1.2.1`, `6.6.1`, `6.7.2`, `6.9.2.1.1`, `6.9.3`
 

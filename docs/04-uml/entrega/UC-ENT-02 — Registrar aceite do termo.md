@@ -13,4 +13,4 @@
 - **Pos-condicoes**: Ficha aponta para a versao do texto, o metodo `ASSINATURA_MANUAL` e o operador.
 - **Spec**: `docs/03-operacao/spec-uc-ent-02-termo.md`
 - **Testes**: `docs/03-operacao/matriz-testes-uc-ent-02.md`
-- **Status**: especificado; sem tela propria.
+- **Status**: implementado no passo Ciencia e termo. Sem tela propria.

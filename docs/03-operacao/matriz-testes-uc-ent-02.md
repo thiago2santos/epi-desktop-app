@@ -1,6 +1,6 @@
 # Matriz executavel de testes - UC-ENT-02 (Termo)
 
-Spec: `docs/03-operacao/spec-uc-ent-02-termo.md`. O termo nao tem tela propria: os casos rodam no passo de ciencia do `UC-ENT-01`.
+Spec: `docs/03-operacao/spec-uc-ent-02-termo.md`. O termo nao tem tela propria: os casos rodam no passo de ciencia do `UC-ENT-01`. Cobertos por `FornecimentoPolicyTest`, `FornecimentoManagementServiceIntegrationTest`, `FornecimentoRollbackTest` e `FornecimentoUxTest`.
 
 | ID | Tipo | Referencia | Pre-condicoes | Passos | Resultado esperado |
 |---|---|---|---|---|---|
