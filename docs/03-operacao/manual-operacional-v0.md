@@ -213,6 +213,20 @@ Regras criticas:
 - a quantidade inteira volta para a fisica. A reserva nao e recriada;
 - item ja devolvido nao estorna.
 
+## 5.4 Historico por trabalhador
+
+Tela Historico por trabalhador. Admin, SESMT, Almoxarife e Consulta.
+
+1. Buscar o trabalhador, ativo ou inativo.
+2. Informar o periodo. Data final anterior a inicial nao consulta.
+3. A grade mostra fornecimento, devolucao e estorno. Pedido nao entra.
+
+Regras criticas:
+
+- a consulta nao grava auditoria;
+- o motivo livre do estorno nao aparece na grade;
+- Consulta ve a lista e nao ve devolver nem estornar.
+
 ## 6) Relatorios previstos e uso operacional
 
 ## 6.1 Relatorios minimos da operacao

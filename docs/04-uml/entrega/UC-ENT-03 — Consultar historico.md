@@ -4,4 +4,4 @@
 - **Descricao**: Lista fornecimento, devolucao e estorno. Pedido fica de fora.
 - **Spec**: `docs/03-operacao/spec-uc-ent-03-historico.md`
 - **Testes**: `docs/03-operacao/matriz-testes-uc-ent-03.md`
-- **Status**: especificado.
+- **Status**: implementado na tela Historico por trabalhador. A consulta nao grava auditoria.

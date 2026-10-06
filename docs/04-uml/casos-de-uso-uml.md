@@ -480,7 +480,7 @@ Cada caso de uso segue o formato:
 - **Fluxos alternativos/excecoes**:
   - Periodo vazio: "Nenhum fornecimento no periodo."
 - **Pos-condicoes**: Nenhuma gravacao.
-- **Status**: especificado em `docs/03-operacao/spec-uc-ent-03-historico.md`.
+- **Status**: implementado em `docs/03-operacao/spec-uc-ent-03-historico.md`. A consulta nao grava auditoria.
 
 ---
 
