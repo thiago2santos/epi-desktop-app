@@ -6,7 +6,7 @@
 - Tipo: `UC`
 - Iniciativa/Epico: `INI-01` / `EP-CORE`
 - Responsavel: Time Easy NR6
-- Status: implementado na tela Periodicidade (`PeriodicidadeManagementView`). A data do fornecimento que conta entra quando o `UC-ENT-01` gravar a ficha; ate la a leitura fica Pendente, Sem prazo ou Posto.
+- Status: implementado na tela Periodicidade (`PeriodicidadeManagementView`). A data do fornecimento que conta sai da ficha do `UC-ENT-01`. Sem ficha, a leitura fica Pendente, Sem prazo ou Posto.
 
 ## 1) Contexto
 
@@ -34,7 +34,7 @@
 2. Periodicidade e inteira e maior que zero, em dias. Aviso antecipado e inteiro, maior ou igual a zero, e menor que a periodicidade.
 3. Nao ha prazo implicito. Enquanto o SESMT nao salvar, a cobertura diz "Sem prazo". O fornecimento nao e bloqueado por isso.
 4. Alterar o numero nao reescreve ficha antiga. O proximo vencimento usa a periodicidade vigente na consulta, contada da data do ultimo fornecimento que ainda conta.
-5. Fornecimento que conta: item de ficha sem estorno e sem devolucao. Estorno e devolucao continuam nos casos `UC-POS-02` e `UC-POS-01`; ate eles existirem, todo item gravado conta.
+5. Fornecimento que conta: item de ficha sem devolucao (`UC-POS-01`) e sem estorno (`UC-POS-02`). Os dois tiram o item da cobertura.
 6. Leitura, por trabalhador ativo e por linha ativa do perfil vigente dele, com o relogio da consulta. O perfil vigente e o da regra 9 do `UC-CAD-07`: GHE ativo da funcao, ou a propria funcao:
    - modo Posto: situacao "Posto". Nao vira pendencia pessoal;
    - sem periodicidade: "Sem prazo";

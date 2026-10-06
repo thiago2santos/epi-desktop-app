@@ -1,6 +1,6 @@
 # Matriz executavel de testes - UC-ENT-01 (Fornecimento)
 
-Spec: `docs/03-operacao/spec-uc-ent-01-fornecimento.md`.
+Spec: `docs/03-operacao/spec-uc-ent-01-fornecimento.md`. Cobertos por `FornecimentoPolicyTest`, `FornecimentoManagementServiceIntegrationTest`, `FornecimentoRollbackTest` e `FornecimentoUxTest`. Reserva (`ENT01-009`) e pedido (`ENT-013`) esperam `UC-LOT-03` e `UC-SOL-01`.
 
 | ID | Tipo | Referencia | Pre-condicoes | Passos | Resultado esperado |
 |---|---|---|---|---|---|

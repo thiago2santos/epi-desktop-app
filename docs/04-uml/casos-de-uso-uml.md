@@ -453,7 +453,7 @@ Cada caso de uso segue o formato:
   - Fora da matriz: so SESMT ou Admin.
   - Cancelar o dialogo nao grava.
 - **Pos-condicoes**: Disponivel diminui. Ficha nao se edita.
-- **Status**: especificado em `docs/03-operacao/spec-uc-ent-01-fornecimento.md`.
+- **Status**: implementado em `docs/03-operacao/spec-uc-ent-01-fornecimento.md`.
 
 ### UC-ENT-02 — Registrar aceite do termo de responsabilidade
 - **Atores**: Almoxarife, SESMT, Admin
@@ -467,7 +467,7 @@ Cada caso de uso segue o formato:
 - **Fluxos alternativos/excecoes**:
   - `ENT-009` Sem aceite. Nada gravado.
 - **Pos-condicoes**: Ficha sem termo nao existe.
-- **Status**: especificado em `docs/03-operacao/spec-uc-ent-02-termo.md`.
+- **Status**: implementado em `docs/03-operacao/spec-uc-ent-02-termo.md`.
 
 ### UC-ENT-03 — Consultar historico por trabalhador
 - **Atores**: SESMT, Almoxarife, Consulta, Admin
@@ -480,7 +480,7 @@ Cada caso de uso segue o formato:
 - **Fluxos alternativos/excecoes**:
   - Periodo vazio: "Nenhum fornecimento no periodo."
 - **Pos-condicoes**: Nenhuma gravacao.
-- **Status**: especificado em `docs/03-operacao/spec-uc-ent-03-historico.md`.
+- **Status**: implementado em `docs/03-operacao/spec-uc-ent-03-historico.md`. A consulta nao grava auditoria.
 
 ---
 
@@ -497,7 +497,7 @@ Cada caso de uso segue o formato:
 - **Fluxos alternativos/excecoes**:
   - `POS-001` a `POS-003`.
 - **Pos-condicoes**: Item sai da cobertura. Saldo da prateleira intacto.
-- **Status**: especificado em `docs/03-operacao/spec-uc-pos-01-devolucao.md`.
+- **Status**: implementado em `docs/03-operacao/spec-uc-pos-01-devolucao.md`. Item estornado recusa.
 
 ### UC-POS-02 — Registrar estorno de fornecimento
 - **Atores**: SESMT, Admin
@@ -510,7 +510,7 @@ Cada caso de uso segue o formato:
 - **Fluxos alternativos/excecoes**:
   - `POS-004` e `POS-005`.
 - **Pos-condicoes**: Item estornado. Consumo do periodo do estorno diminui.
-- **Status**: especificado em `docs/03-operacao/spec-uc-pos-02-estorno.md`.
+- **Status**: implementado em `docs/03-operacao/spec-uc-pos-02-estorno.md`. Pedido atendido espera o `UC-SOL-01`.
 
 ### UC-POS-03 — Consultar pendencias de devolucao
 - **Atores**: Almoxarife, SESMT, Admin
@@ -524,7 +524,7 @@ Cada caso de uso segue o formato:
   - Posto, estorno e item ja devolvido ficam de fora.
   - Lista vazia: "Nenhuma pendencia de devolucao."
 - **Pos-condicoes**: Nenhuma gravacao na consulta.
-- **Status**: especificado em `docs/03-operacao/spec-uc-pos-03-pendencias.md`.
+- **Status**: implementado em `docs/03-operacao/spec-uc-pos-03-pendencias.md`. A consulta nao grava auditoria.
 
 ---
 

@@ -1,6 +1,6 @@
 # Matriz executavel de testes - UC-MAT-02 (Periodicidade)
 
-Spec: `docs/03-operacao/spec-uc-mat-02-periodicidade.md`. Cobertos por `PeriodicidadePolicyTest`, `PeriodicidadeManagementServiceIntegrationTest` e `PeriodicidadeUxTest`. A formula da regra 6 usa a data informada; a ficha real chega no `UC-ENT-01`.
+Spec: `docs/03-operacao/spec-uc-mat-02-periodicidade.md`. Cobertos por `PeriodicidadePolicyTest`, `PeriodicidadeManagementServiceIntegrationTest` e `PeriodicidadeUxTest`. A data que conta sai da ficha do `UC-ENT-01`. Sem ficha, a leitura fica Pendente, Sem prazo ou Posto.
 
 | ID | Tipo | Referencia | Pre-condicoes | Passos | Resultado esperado |
 |---|---|---|---|---|---|
@@ -20,4 +20,4 @@ Spec: `docs/03-operacao/spec-uc-mat-02-periodicidade.md`. Cobertos por `Periodic
 
 ## Gate para iniciar o codigo
 
-`MAT02-001`, `MAT02-002`, `MAT02-005`, `MAT02-006`, `MAT02-010`. Cobertura com fornecimento real (`MAT02-006` em diante no servico) espera o `UC-ENT-01`; ate la, o calculo puro da regra 6 cobre a formula.
+`MAT02-001`, `MAT02-002`, `MAT02-005`, `MAT02-006`, `MAT02-010`. A cobertura com ficha real esta no `UC-ENT-01`. Sem ficha, a leitura fica Pendente, Sem prazo ou Posto.

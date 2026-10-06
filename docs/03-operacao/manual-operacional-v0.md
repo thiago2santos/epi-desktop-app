@@ -168,12 +168,14 @@ Validar:
 
 ## 5.1 Fluxo de entrega (durante a entrega)
 
-1. Buscar trabalhador ativo.
+Na tela Registrar fornecimento:
+
+1. Buscar trabalhador ativo. O painel ao lado mostra a cobertura em texto.
 2. Carregar itens esperados pela matriz da funcao/GHE.
 3. Selecionar lote valido e quantidade.
-4. Capturar validacao do trabalhador por item.
+4. Capturar a orientacao de uso por item e, se a matriz exige, a data do treinamento.
 5. Capturar aceite do termo de responsabilidade.
-6. Confirmar entrega (registro imutavel).
+6. Confirmar no dialogo. Voltar nao grava. A ficha fica imutavel.
 
 Regras criticas:
 
@@ -184,26 +186,61 @@ Regras criticas:
 
 ## 5.2 Fluxo de devolucao/descarte (depois da entrega)
 
-1. Localizar item entregue.
-2. Informar data e motivo da devolucao/descarte.
-3. Registrar usuario responsavel.
-4. Confirmar evento.
+Tela Devolucao / descarte. Almoxarife, SESMT e Admin.
 
-Regra critica:
+1. Localizar o trabalhador, ativo ou inativo.
+2. Escolher o item que ainda conta.
+3. Informar data e motivo da devolucao/descarte.
+4. Confirmar no dialogo. Voltar nao grava.
 
-- data de devolucao nao pode ser anterior a data de entrega.
+Regras criticas:
+
+- data de devolucao nao pode ser anterior a data de entrega nem posterior a hoje;
+- o saldo da prateleira nao muda;
+- uma devolucao por item.
 
 ## 5.3 Fluxo de estorno
 
-Usar estorno quando houver erro operacional na entrega:
+Tela Estorno. SESMT e Admin. Almoxarife nao corrige a propria ficha.
 
-1. Selecionar item de entrega incorreto.
-2. Informar motivo do estorno (obrigatorio).
-3. Confirmar registro de estorno.
+1. Localizar o trabalhador e o item que ainda conta.
+2. Descrever o motivo, com pelo menos 10 caracteres.
+3. Confirmar no dialogo. Voltar nao grava.
 
-Regra critica:
+Regras criticas:
 
-- estorno corrige sem apagar historico original.
+- estorno corrige sem apagar a ficha;
+- a quantidade inteira volta para a fisica. A reserva nao e recriada;
+- item ja devolvido nao estorna.
+
+## 5.4 Historico por trabalhador
+
+Tela Historico por trabalhador. Admin, SESMT, Almoxarife e Consulta.
+
+1. Buscar o trabalhador, ativo ou inativo.
+2. Informar o periodo. Data final anterior a inicial nao consulta.
+3. A grade mostra fornecimento, devolucao e estorno. Pedido nao entra.
+
+Regras criticas:
+
+- a consulta nao grava auditoria;
+- o motivo livre do estorno nao aparece na grade;
+- Consulta ve a lista e nao ve devolver nem estornar.
+
+## 5.5 Pendencias de devolucao
+
+Tela Pendencias. Almoxarife, SESMT e Admin.
+
+1. Filtrar unidade, periodo do fornecimento e trabalhador.
+2. A lista mostra a peca individual de quem esta inativo e ainda nao devolveu.
+3. Registrar devolucao abre a tela da linha ja escolhida.
+
+Regras criticas:
+
+- posto, item estornado, item ja devolvido e trabalhador ativo ficam de fora;
+- item fornecido fora da matriz entra como individual;
+- a consulta nao grava auditoria;
+- filtro sem resultado e lista vazia.
 
 ## 6) Relatorios previstos e uso operacional
 
