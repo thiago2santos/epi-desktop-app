@@ -24,7 +24,8 @@ public final class TelasReferencia {
       case DASHBOARD -> dashboard(navegar);
       case ENTREGA ->
           throw new IllegalStateException("UC-ENT-01 abre pelo shell, com o fornecimento real.");
-      case DEVOLUCAO -> devolucao();
+      case DEVOLUCAO ->
+          throw new IllegalStateException("UC-POS-01 abre pelo shell, com a devolucao real.");
       case ESTORNO -> estorno();
       case HISTORICO -> historico();
       case SOLICITAR -> solicitar();
@@ -78,27 +79,6 @@ public final class TelasReferencia {
             link("Lotes", Destino.LOTES, navegar),
             link("Cobertura", Destino.COBERTURA, navegar));
     page.section(metrics).section(panel("Atalhos", atalhos));
-    return ReferenciaPage.scroll(page);
-  }
-
-  private static Node devolucao() {
-    ReferenciaPage page =
-        ReferenciaPage.of(
-            "Pós-entrega",
-            "Registrar devolução ou descarte",
-            "Vinculado a item entregue — registro imutável");
-    page.section(
-            panel(
-                "Buscar entrega",
-                campo("Trabalhador ou entrega", "4418 ou ITU-2026-04418"),
-                botao("Buscar itens entregues", false)))
-        .table(
-            new String[] {"Data", "EPI", "Qtd", "Status"},
-            new String[][] {
-              {"12/09/2026", "Luva de vaqueta", "1", "Entregue"},
-              {"02/08/2026", "Bota de segurança com biqueira", "1", "Entregue"}
-            })
-        .legal("Devolução gera novo evento; não apaga a entrega original.");
     return ReferenciaPage.scroll(page);
   }
 
