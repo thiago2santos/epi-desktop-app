@@ -137,6 +137,18 @@ public class JdbcPeriodicidadeRepository implements PeriodicidadeRepository {
     if (employeeId == null || epiId == null) {
       return Optional.empty();
     }
-    return Optional.empty();
+    List<String> datas =
+        jdbc.query(
+            """
+            SELECT substr(f.confirmed_at, 1, 10) AS dia
+            FROM fornecimento_item i
+            JOIN fornecimento_ficha f ON f.id = i.ficha_id
+            WHERE f.employee_id = :employeeId AND i.epi_id = :epiId
+            ORDER BY f.confirmed_at DESC, f.id DESC
+            LIMIT 1
+            """,
+            new MapSqlParameterSource().addValue("employeeId", employeeId).addValue("epiId", epiId),
+            (rs, rowNum) -> rs.getString("dia"));
+    return datas.stream().findFirst().map(LocalDate::parse);
   }
 }
