@@ -4,4 +4,4 @@
 - **Descricao**: Registra a devolucao do item. O disponivel da prateleira nao muda.
 - **Spec**: `docs/03-operacao/spec-uc-pos-01-devolucao.md`
 - **Testes**: `docs/03-operacao/matriz-testes-uc-pos-01.md`
-- **Status**: especificado.
+- **Status**: implementado na tela Devolucao / descarte. O disponivel nao muda. Item estornado entra com o `UC-POS-02`.

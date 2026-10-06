@@ -91,7 +91,7 @@ Referência mock: [`docs/mock/ROADMAP-SESSION-MOCK.md`](../mock/ROADMAP-SESSION-
 | Commit entrega+lote+audit | ✅ store | ⬜ | DoR §5 transação | Mock: `createIssuance` |
 | Termo / ciência NR-6 | ✅ checkboxes | ⬜ | blueprint passo 4 | |
 | Histórico trabalhador | ✅ 05 | ⬜ | — | |
-| UC-POS-01 Devolucao | ✅ 03 | ⬜ | spec + matriz | Nao devolve quantidade ao disponivel |
+| UC-POS-01 Devolucao | ✅ 03 | ✅ serviço e tela | spec + matriz | Nao devolve quantidade ao disponivel |
 | UC-POS-02 Estorno | ✅ 04 | ⬜ | spec + matriz | `ESTORNO_FORNECIMENTO`; ficha permanece |
 | UC-POS-03 Pendencias | — | ⬜ | spec + matriz | Desligamento, item individual |
 | UC-ENT-03 Historico | ✅ 05 | ⬜ | spec + matriz | Fornecimento, devolucao e estorno |
@@ -145,12 +145,13 @@ Ordem para maximizar reutilização do protótipo como **critério de aceite UX*
 
 ```text
 Sprint J1 — M1 estoque + regras (desbloqueia DoR M2)
-  • UC-LOT-01, UC-LOT-02, UC-CAD-07, UC-MAT-01, UC-MAT-02, UC-ENT-01 e UC-ENT-02 implementados. Seguir com devolucao e estorno
+  • UC-LOT-01, UC-LOT-02, UC-CAD-07, UC-MAT-01, UC-MAT-02, UC-ENT-01, UC-ENT-02 e UC-POS-01 implementados. Seguir com estorno
   • UC-LOT-03 a 06 e UC-REL-04 já têm spec; código depois do recebimento e da baixa de fornecimento
 
 Sprint J2 — depois da ficha
   • UC-ENT-01/02 implementados (`FornecimentoWizardView`, migracao V16)
-  • Histórico (05), devolução (03), estorno (04)
+  • UC-POS-01 implementado (`DevolucaoView`, migracao V17)
+  • Histórico (05) e estorno (04)
 
 Sprint J3 — M3 evidência
   • Cobertura + pendências (14–15) + hub (13) + export PDF mínimo

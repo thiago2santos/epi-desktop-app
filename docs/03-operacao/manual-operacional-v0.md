@@ -186,14 +186,18 @@ Regras criticas:
 
 ## 5.2 Fluxo de devolucao/descarte (depois da entrega)
 
-1. Localizar item entregue.
-2. Informar data e motivo da devolucao/descarte.
-3. Registrar usuario responsavel.
-4. Confirmar evento.
+Tela Devolucao / descarte. Almoxarife, SESMT e Admin.
 
-Regra critica:
+1. Localizar o trabalhador, ativo ou inativo.
+2. Escolher o item que ainda conta.
+3. Informar data e motivo da devolucao/descarte.
+4. Confirmar no dialogo. Voltar nao grava.
 
-- data de devolucao nao pode ser anterior a data de entrega.
+Regras criticas:
+
+- data de devolucao nao pode ser anterior a data de entrega nem posterior a hoje;
+- o saldo da prateleira nao muda;
+- uma devolucao por item.
 
 ## 5.3 Fluxo de estorno
 
