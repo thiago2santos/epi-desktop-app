@@ -4,7 +4,7 @@ Spec: `docs/03-operacao/spec-uc-ent-01-fornecimento.md`. Cobertos por `Fornecime
 
 | ID | Tipo | Referencia | Pre-condicoes | Passos | Resultado esperado |
 |---|---|---|---|---|---|
-| ENT01-001 | INT/AUDIT | CA-01, CA-10 | Trabalhador ativo; item na matriz; lote vigente qtd 5; custo 10 | Confirmar 1, ciencia e termo | Ficha imutavel; CA do lote; disponivel 4; `BAIXA_FORNECIMENTO` com setor, funcao e custo 10; `FORNECIMENTO_REGISTRADO` |
+| ENT01-001 | INT/AUDIT | CA-01, CA-10 | Trabalhador ativo com senha de recebimento; item na matriz; lote vigente qtd 5; custo 10 | Confirmar 1, ciencia, termo e a senha certa | Ficha imutavel; CA do lote; disponivel 4; `BAIXA_FORNECIMENTO` com setor, funcao e custo 10; `FORNECIMENTO_REGISTRADO` sem a senha e sem o hash |
 | ENT01-002 | INT | CA-02, `ENT-004` | Lote vencido | Confirmar | `ENT-004`; sem ficha e sem movimento |
 | ENT01-003 | INT | CA-03, `ENT-005` | Disponivel 1 | Pedir 2 | `ENT-005` |
 | ENT01-004 | RBAC/INT | CA-04, `ENT-006` | Item fora da matriz; `ALMOXARIFE`; texto longo | Confirmar | `ENT-006` |
@@ -18,6 +18,8 @@ Spec: `docs/03-operacao/spec-uc-ent-01-fornecimento.md`. Cobertos por `Fornecime
 | ENT01-012 | INT | Regra 12 | Lote sem custo | Confirmar | Movimento com custo nulo; ficha gravada |
 | ENT01-013 | RBAC | Regra 14 | `CONSULTA` | Abrir a confirmacao | `AUTH-004` |
 | ENT01-014 | INT | Regra 2 | Relogio fixo | Confirmar | Data da ficha igual ao relogio |
+| ENT01-015 | INT | CA-11, `ENT-014` | Trabalhador ativo sem hash | Confirmar com qualquer senha | `ENT-014`; sem ficha, sem termo, sem movimento |
+| ENT01-016 | INT/AUDIT | CA-12, `ENT-015` | Hash de `capa-77` | Confirmar com `outra-1` e com senha em branco | `ENT-015` nos dois; nada gravado; auditoria de falha sem a senha digitada |
 
 ## Gate para iniciar o codigo
 

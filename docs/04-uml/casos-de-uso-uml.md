@@ -76,7 +76,7 @@ Cada caso de uso segue o formato:
 
 ### UC-ADM-03 — Parametros da instalacao
 - **Atores**: Admin
-- **Descricao**: Grava a unidade padrao da instalacao. Empresa, CNPJ, horario CAEPI, motivos e termo ficam so leitura.
+- **Descricao**: Grava a unidade padrao da instalacao. Empresa, CNPJ, horario CAEPI, motivos, termo e senha de recebimento ficam fora desta tela.
 - **Pre-condicoes**: Ao menos uma unidade ativa.
 - **Gatilho**: Apontar a barra e os filtros para a planta desta instalacao.
 - **Fluxo principal**:
@@ -163,6 +163,7 @@ Cada caso de uso segue o formato:
   4. Sistema valida obrigatorios, unicidade da matricula, coerencia entre funcao e setor e vigencia da relacao gestor-trabalhador.
   5. Operador confirma cadastro.
   6. Para inativacao, sistema exige confirmacao explicita em tela.
+  7. SESMT ou Admin pode definir a senha de recebimento. Sem hash, o trabalhador nao recebe EPI.
 - **Fluxos alternativos/excecoes**:
   - `CAD-001` Matricula ja existente.
   - `CAD-002` Funcao invalida ou inativa.
@@ -170,8 +171,9 @@ Cada caso de uso segue o formato:
   - `CAD-004` Campos obrigatorios ausentes.
   - `CAD-005` Operacao bloqueada por dependencia historica (quando aplicavel).
   - `CAD-006` Trabalhador alvo inexistente/nao selecionado para alteracao de status/edicao.
-- **Pos-condicoes**: Trabalhador ativo/inativo disponivel para entrega e rastreavel por auditoria, com lotacao e gestor responsavel vigentes identificaveis.
-- **Regras relacionadas**: matricula unica; consistencia funcao-setor; relacao trabalhador-gestor com vigencia/historico; sem delete fisico; auditoria em criar/editar/inativar/reativar.
+  - `CAD-008` Senha de recebimento fora da politica.
+- **Pos-condicoes**: Trabalhador ativo/inativo disponivel para entrega e rastreavel por auditoria, com lotacao e gestor responsavel vigentes identificaveis. Sem senha de recebimento, o `UC-ENT-01` recusa.
+- **Regras relacionadas**: matricula unica; consistencia funcao-setor; relacao trabalhador-gestor com vigencia/historico; sem delete fisico; auditoria em criar/editar/inativar/reativar. Senha: `docs/03-operacao/spec-uc-cad-03-senha-recebimento.md`.
 
 ### UC-CAD-04 — Cadastrar EPI
 - **Atores**: SESMT
@@ -446,10 +448,10 @@ Cada caso de uso segue o formato:
 - **Fluxo principal**:
   1. Operador localiza o trabalhador e ve a cobertura em texto.
   2. Escolhe item, lote e quantidade.
-  3. Registra orientacao e o termo.
-  4. Confirma.
+  3. Registra orientacao, o termo e a senha de recebimento do trabalhador.
+  4. Confirma. O sistema confere o hash.
 - **Fluxos alternativos/excecoes**:
-  - `ENT-001` a `ENT-012`.
+  - `ENT-001` a `ENT-015`.
   - Fora da matriz: so SESMT ou Admin.
   - Cancelar o dialogo nao grava.
 - **Pos-condicoes**: Disponivel diminui. Ficha nao se edita.
@@ -457,15 +459,16 @@ Cada caso de uso segue o formato:
 
 ### UC-ENT-02 — Registrar aceite do termo de responsabilidade
 - **Atores**: Almoxarife, SESMT, Admin
-- **Descricao**: Termo `TERMO-NR6-01` na mesma confirmacao do fornecimento. Metodo `ASSINATURA_MANUAL`.
-- **Pre-condicoes**: Ficha em revisao.
+- **Descricao**: Termo `TERMO-NR6-01` na mesma confirmacao do fornecimento. Metodo `SENHA`.
+- **Pre-condicoes**: Ficha em revisao. Trabalhador com senha de recebimento.
 - **Gatilho**: Passo Ciencia e termo.
 - **Fluxo principal**:
   1. Sistema mostra o texto com o nome do trabalhador.
-  2. Operador marca o aceite no balcao.
-  3. A confirmacao grava o termo junto da ficha.
+  2. Trabalhador digita a senha de recebimento.
+  3. A confirmacao confere o hash e grava o termo junto da ficha.
 - **Fluxos alternativos/excecoes**:
-  - `ENT-009` Sem aceite. Nada gravado.
+  - `ENT-014` Sem senha no cadastro. Nada gravado.
+  - `ENT-015` Senha em branco ou diferente. Nada gravado.
 - **Pos-condicoes**: Ficha sem termo nao existe.
 - **Status**: implementado em `docs/03-operacao/spec-uc-ent-02-termo.md`.
 

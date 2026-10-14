@@ -72,7 +72,7 @@ Destino ja previsto: "Periodicidade". Titulo sem codigo de caso de uso.
 - Salvar desabilitado enquanto alguma linha visivel estiver vazia ou invalida. O campo invalido e marcado e a frase diz o que corrigir.
 - Vazio: "Nenhum EPI na matriz. Inclua o EPI na matriz do perfil primeiro."
 - Sucesso: "Periodicidade salva." Faixa na propria tela.
-- O wizard de fornecimento mostra, no painel do trabalhador, EPI e a situacao em texto definida na regra 6.
+- O wizard de fornecimento mostra a situacao da regra 6 na coluna Situacao do passo Selecionar EPIs.
 
 ## 7) Seguranca e auditoria
 

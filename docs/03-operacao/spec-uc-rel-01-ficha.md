@@ -35,7 +35,7 @@
 1. Um trabalhador, localizado por matricula ou nome, ativo ou inativo. O cabecalho usa o snapshot de cada fato: nome, matricula, unidade, setor e funcao gravados na epoca. A empresa e a razao social e o CNPJ da unidade daquele snapshot.
 2. O periodo e obrigatorio. Data final anterior a inicial recusa na tela: "A data final precisa ser igual ou posterior a inicial."
 3. Entram os mesmos fatos do `UC-ENT-03`: fornecimento, devolucao e estorno. Pedido nao entra.
-4. Cada fornecimento lista data e hora, EPI, CA, lote, quantidade, motivo, situacao (Vigente, Estornado, Devolvido) e o metodo de ciencia. O texto do termo e a versao `TERMO-NR6-01` aparecem uma vez por ficha de fornecimento, nao repetidos em cada linha se varios itens compartilham o mesmo termo.
+4. Cada fornecimento lista data e hora, EPI, CA, lote, quantidade, motivo, situacao (Vigente, Estornado, Devolvido) e o metodo de ciencia. Nesta versao o metodo impresso e `SENHA`. O texto do termo e a versao `TERMO-NR6-01` aparecem uma vez por ficha de fornecimento, nao repetidos em cada linha se varios itens compartilham o mesmo termo. A senha e o hash nao entram no PDF.
 5. Devolucao e estorno aparecem como linhas proprias, com data e motivo da devolucao. O motivo interno do estorno entra na ficha: e correcao da prova. Nao entra custo.
 6. Ordem: data crescente, para leitura de processo.
 7. Periodo sem fato gera o PDF mesmo assim, com o cabecalho e a frase "Nenhum fornecimento no periodo."
@@ -49,6 +49,7 @@ Periodo invalido usa a frase da regra 2, sem codigo novo. Trabalhador ausente: "
 ## 5) Criterios de aceite
 
 - `CA-01`: periodo com fornecimento, devolucao e estorno gera PDF com os tres fatos, CA, lote e termo.
+- `CA-07`: o fornecimento impresso traz o metodo `SENHA` e o texto do termo. A senha digitada e o hash nao aparecem.
 - `CA-02`: pedido em aberto nao aparece no PDF.
 - `CA-03`: periodo vazio gera PDF com a frase de vazio.
 - `CA-04`: a funcao impressa e a da ficha, mesmo que o trabalhador tenha mudado de funcao depois.

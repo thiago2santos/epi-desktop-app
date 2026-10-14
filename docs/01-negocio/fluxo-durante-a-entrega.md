@@ -43,7 +43,7 @@ Registrar o fornecimento de EPI como evento juridico imutavel, rastreavel e audi
    - Exibe lotes validos, saldo e validade por EPI.
    - Bloqueia lote vencido e saldo insuficiente.
 3. **Validacao do trabalhador**
-   - Registro de ciencia por item (assinatura manual/digital/biometria).
+   - Registro de ciencia por item. O aceite do termo e a senha de recebimento do trabalhador (`SENHA`).
    - Captura de evidencias de aceite.
 4. **Fechamento da entrega**
    - Exibe termo de responsabilidade e confirma evento imutavel.
