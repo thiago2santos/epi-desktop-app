@@ -4,6 +4,7 @@ import br.com.easynr6.gestaoepi.modules.stock.application.port.StockRepository.C
 import br.com.easynr6.gestaoepi.modules.stock.application.port.StockRepository.EpiOption;
 import br.com.easynr6.gestaoepi.modules.stock.application.port.StockRepository.LotBalance;
 import br.com.easynr6.gestaoepi.modules.stock.application.port.StockRepository.UnitOption;
+import br.com.easynr6.gestaoepi.modules.stock.application.usecase.CorrectLotCaUseCase;
 import br.com.easynr6.gestaoepi.modules.stock.application.usecase.ListLotsUseCase;
 import br.com.easynr6.gestaoepi.modules.stock.application.usecase.ReceiveLotUseCase;
 import br.com.easynr6.gestaoepi.modules.stock.domain.LotPolicy;
@@ -17,12 +18,16 @@ public class StockManagementService {
 
   private final ReceiveLotUseCase receiveLotUseCase;
   private final ListLotsUseCase listLotsUseCase;
+  private final CorrectLotCaUseCase correctLotCaUseCase;
   private final LotPolicy lotPolicy = new LotPolicy();
 
   public StockManagementService(
-      ReceiveLotUseCase receiveLotUseCase, ListLotsUseCase listLotsUseCase) {
+      ReceiveLotUseCase receiveLotUseCase,
+      ListLotsUseCase listLotsUseCase,
+      CorrectLotCaUseCase correctLotCaUseCase) {
     this.receiveLotUseCase = receiveLotUseCase;
     this.listLotsUseCase = listLotsUseCase;
+    this.correctLotCaUseCase = correctLotCaUseCase;
   }
 
   public Long receiveLot(
@@ -52,6 +57,10 @@ public class StockManagementService {
         quantity,
         unitCost,
         aceitaPecaVencida);
+  }
+
+  public void corrigirCa(Long actorId, Long lotId, Long caBindingId) {
+    correctLotCaUseCase.execute(actorId, lotId, caBindingId);
   }
 
   public List<LotBalance> listLots(Long actorId, Long unitId) {

@@ -40,11 +40,18 @@ public final class LotManagementView {
   public static final String LISTA_VAZIA = "Nenhum lote recebido nesta unidade.";
   public static final String FILTRO_VAZIO = "Nenhum lote com esse filtro.";
   public static final String ACAO_REGISTRAR = "Registrar recebimento";
+  public static final String ACAO_CORRIGIR = "Corrigir CA";
   public static final String SUCESSO = "Lote recebido.";
+  public static final String SUCESSO_CA =
+      "CA do lote corrigido. Entregas já assinadas continuam com o número daquele dia.";
+  public static final String DIALOGO_CA =
+      "Trocar o CA deste lote? As fichas já assinadas continuam com o número daquele dia.";
   public static final String DIALOGO_PECA_VENCIDA =
       "Esta peça já venceu. O lote entra sem quantidade disponível.";
   public static final String AVISO_CONSULTA =
       "A consulta deste CA não é de hoje. Confira o número impresso na peça.";
+  public static final String SEM_CA =
+      "Este EPI não tem CA ativo. Vincule um CA antes de receber o lote.";
 
   private static final DateTimeFormatter DATA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
   private static final LotPolicy LEITURA = new LotPolicy();
@@ -58,6 +65,7 @@ public final class LotManagementView {
   private final UsuarioAutenticado usuario;
   private final StockManagementService estoque;
   private final boolean podeReceber;
+  private final boolean podeCorrigir;
   private final ComboBox<UnitOption> unidade = new ComboBox<>();
   private final ComboBox<EpiOption> epi = new ComboBox<>();
   private final ComboBox<CaOption> ca = new ComboBox<>();
@@ -71,7 +79,12 @@ public final class LotManagementView {
   private final ComboBox<String> situacao = new ComboBox<>();
   private final TableView<LotBalance> tabela = new TableView<>();
   private final Button salvar = new Button(ACAO_REGISTRAR);
+  private final Button corrigir = new Button(ACAO_CORRIGIR);
+  private final ComboBox<CaOption> novoCa = new ComboBox<>();
+  private final Label caAtual = new Label("Selecione um lote.");
   private final Label feedback = new Label();
+  private final Label feedbackCa = new Label();
+  private LotBalance loteSelecionado;
   private final Label avisoCa = new Label();
   private final Label vazio = new Label(LISTA_VAZIA);
   private final Node root;
@@ -82,6 +95,7 @@ public final class LotManagementView {
     this.usuario = usuario;
     this.estoque = estoque;
     this.podeReceber = exibeRecebimento(usuario);
+    this.podeCorrigir = exibeCorrecaoCa(usuario);
     ReferenciaPage page =
         ReferenciaPage.of(
             "Estoque",
@@ -130,6 +144,10 @@ public final class LotManagementView {
 
   static boolean exibeRecebimento(UsuarioAutenticado usuario) {
     return usuario.temPapel(Papel.ALMOXARIFE);
+  }
+
+  static boolean exibeCorrecaoCa(UsuarioAutenticado usuario) {
+    return usuario.temPapel(Papel.SESMT) || usuario.temPapel(Papel.ADMIN);
   }
 
   static boolean filtroAtivo(String texto, String situacao) {
@@ -208,16 +226,47 @@ public final class LotManagementView {
     formulario.setMinWidth(300);
     formulario.setVisible(podeReceber);
     formulario.setManaged(podeReceber);
-    return new HBox(12, lista, formulario);
+    VBox lateral = new VBox(12);
+    if (podeReceber) {
+      lateral.getChildren().add(formulario);
+    }
+    if (podeCorrigir) {
+      lateral.getChildren().add(painelCorrecao());
+    }
+    if (lateral.getChildren().isEmpty()) {
+      return lista;
+    }
+    return new HBox(12, lista, lateral);
+  }
+
+  private VBox painelCorrecao() {
+    novoCa.setPromptText("CA impresso na peça");
+    novoCa.setMaxWidth(Double.MAX_VALUE);
+    novoCa.valueProperty().addListener((obs, anterior, atual) -> atualizarCorrecao());
+    corrigir.getStyleClass().add(Styles.ACCENT);
+    corrigir.setDisable(true);
+    corrigir.setOnAction(event -> corrigirCa());
+    caAtual.setWrapText(true);
+    feedbackCa.setWrapText(true);
+    feedbackCa.setMaxWidth(Double.MAX_VALUE);
+    VBox box = painel("Corrigir CA", caAtual, campo("Novo CA", novoCa), feedbackCa, corrigir);
+    box.setPrefWidth(360);
+    box.setMinWidth(300);
+    return box;
   }
 
   private void configurarTabela() {
     tabela.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
     tabela.setPlaceholder(vazio);
     tabela
+        .getSelectionModel()
+        .selectedItemProperty()
+        .addListener((obs, anterior, atual) -> mostrarCorrecao(atual));
+    tabela
         .getColumns()
         .setAll(
             coluna("Código", LotBalance::lotCode),
+            coluna("CA", LotBalance::caNumber),
             coluna("EPI", LotBalance::epiDescription),
             coluna("Tamanho", item -> textoTamanho(item.sizeLabel())),
             coluna("Validade", item -> item.pieceValidUntil().format(DATA)),
@@ -281,9 +330,16 @@ public final class LotManagementView {
     }
     try {
       ca.getItems().setAll(estoque.listCas(usuario.id(), escolhido.id()));
+      if (ca.getItems().isEmpty()) {
+        ca.setPromptText("Nenhum CA ativo deste EPI");
+        mostrar(SEM_CA, Tom.AVISO);
+      } else {
+        ca.setPromptText("CA ativo deste EPI");
+      }
     } catch (RuntimeException ex) {
       LogTroubleshooting.registrar("CARREGAR_CAS_LOTE", usuario.id(), alvo(escolhido.id()), ex);
-      mostrar(MensagensEstoque.erro(ex), Tom.ERRO);
+      ca.setPromptText("Nenhum CA ativo deste EPI");
+      mostrar(MensagensEstoque.erroConsulta(ex), Tom.ERRO);
     }
     atualizarAvisoCa();
   }
@@ -310,6 +366,59 @@ public final class LotManagementView {
       tabela.getItems().clear();
       vazio.setText("");
       mostrar(MensagensEstoque.erroConsulta(ex), Tom.ERRO);
+    }
+  }
+
+  private void mostrarCorrecao(LotBalance lote) {
+    loteSelecionado = lote;
+    novoCa.getItems().clear();
+    novoCa.setValue(null);
+    if (lote == null) {
+      caAtual.setText("Selecione um lote.");
+      atualizarCorrecao();
+      return;
+    }
+    caAtual.setText(lote.lotCode() + " · " + lote.epiDescription() + " · CA " + lote.caNumber());
+    if (!podeCorrigir) {
+      return;
+    }
+    try {
+      novoCa.getItems().setAll(estoque.listCas(usuario.id(), lote.epiId()));
+    } catch (RuntimeException ex) {
+      LogTroubleshooting.registrar("CARREGAR_CAS_CORRECAO", usuario.id(), alvo(lote.id()), ex);
+      mostrarCa(MensagensEstoque.erro(ex), Tom.ERRO);
+    }
+    atualizarCorrecao();
+  }
+
+  private void atualizarCorrecao() {
+    CaOption escolhido = novoCa.getValue();
+    boolean outro =
+        loteSelecionado != null
+            && escolhido != null
+            && !escolhido.id().equals(loteSelecionado.caBindingId());
+    corrigir.setDisable(!outro);
+  }
+
+  private void corrigirCa() {
+    if (loteSelecionado == null || novoCa.getValue() == null || corrigir.isDisable()) {
+      return;
+    }
+    if (!segueAposConfirmacao(confirmar("Corrigir CA", DIALOGO_CA))) {
+      return;
+    }
+    Long loteId = loteSelecionado.id();
+    try {
+      estoque.corrigirCa(usuario.id(), loteId, novoCa.getValue().id());
+      carregarLotes();
+      tabela.getItems().stream()
+          .filter(item -> loteId.equals(item.id()))
+          .findFirst()
+          .ifPresent(item -> tabela.getSelectionModel().select(item));
+      mostrarCa(SUCESSO_CA, Tom.OK);
+    } catch (RuntimeException ex) {
+      LogTroubleshooting.registrar("CORRIGIR_CA_LOTE", usuario.id(), alvo(loteId), ex);
+      mostrarCa(MensagensEstoque.erro(ex), Tom.ERRO);
     }
   }
 
@@ -402,20 +511,28 @@ public final class LotManagementView {
     }
   }
 
+  private void mostrarCa(String texto, Tom tom) {
+    aplicarFeedback(feedbackCa, texto, tom);
+  }
+
   private void mostrar(String texto, Tom tom) {
+    aplicarFeedback(feedback, texto, tom);
+  }
+
+  private void aplicarFeedback(Label destino, String texto, Tom tom) {
     String visivel = texto == null ? "" : texto;
-    feedback.setText(visivel);
+    destino.setText(visivel);
     switch (tom) {
-      case OK -> Enr6Styles.markOk(feedback);
-      case ERRO -> Enr6Styles.markDanger(feedback);
-      case AVISO -> Enr6Styles.markWarn(feedback);
+      case OK -> Enr6Styles.markOk(destino);
+      case ERRO -> Enr6Styles.markDanger(destino);
+      case AVISO -> Enr6Styles.markWarn(destino);
     }
     if (visivel.isBlank()) {
-      feedback
+      destino
           .getStyleClass()
           .removeAll(Enr6Styles.FEEDBACK_OK, Enr6Styles.FEEDBACK_DANGER, Enr6Styles.FEEDBACK_WARN);
     }
-    mensagens.agendar(feedback, visivel);
+    mensagens.agendar(destino, visivel);
   }
 
   private static boolean confirmar(String titulo, String conteudo) {

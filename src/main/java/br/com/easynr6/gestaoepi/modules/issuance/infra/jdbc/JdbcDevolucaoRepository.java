@@ -15,7 +15,11 @@ public class JdbcDevolucaoRepository implements DevolucaoRepository {
 
   private static final String ITEM_SQL =
       """
-      SELECT i.id AS item_id, f.employee_id, i.epi_id, e.description AS epi, b.ca_number,
+      SELECT i.id AS item_id, f.employee_id, i.epi_id, e.description AS epi,
+             COALESCE(
+                 (SELECT c.ca_number FROM fornecimento_item_ca c
+                  WHERE c.item_id = i.id ORDER BY c.ca_number LIMIT 1),
+                 b.ca_number) AS ca_number,
              l.lot_code, i.quantity, substr(f.confirmed_at, 1, 10) AS dia,
              emp.employee_code, emp.full_name
       FROM fornecimento_item i

@@ -33,7 +33,13 @@ public interface StockRepository {
 
   List<CaOption> listActiveCas(Long epiId);
 
-  record CaParaRecebimento(Long id, LocalDateTime officialCheckAt) {}
+  Optional<LoteParaCorrecao> findLot(Long lotId);
+
+  void updateLotCa(Long lotId, Long caBindingId, LocalDateTime caCheckedAt);
+
+  record CaParaRecebimento(Long id, String caNumber, LocalDateTime officialCheckAt) {}
+
+  record LoteParaCorrecao(Long id, Long epiId, Long caBindingId, String caNumber, String lotCode) {}
 
   record UnitOption(Long id, String name) {
     @Override
@@ -61,6 +67,11 @@ public interface StockRepository {
 
   record LotStored(
       Long id,
+      Long unitId,
+      String unitName,
+      Long epiId,
+      Long caBindingId,
+      String caNumber,
       String lotCode,
       String epiDescription,
       String sizeLabel,
@@ -72,6 +83,11 @@ public interface StockRepository {
 
   record LotBalance(
       Long id,
+      Long unitId,
+      String unitName,
+      Long epiId,
+      Long caBindingId,
+      String caNumber,
       String lotCode,
       String epiDescription,
       String sizeLabel,
@@ -79,5 +95,7 @@ public interface StockRepository {
       int fisica,
       int reservada,
       int disponivel,
-      String situacao) {}
+      String situacao,
+      Integer unitCostCents,
+      String manufacturer) {}
 }

@@ -15,7 +15,12 @@ public class JdbcEstornoRepository implements EstornoRepository {
   private static final String ITEM_SQL =
       """
       SELECT i.id AS item_id, i.ficha_id, f.employee_id, i.epi_id, i.lote_id, i.quantity,
-             e.description AS epi, b.ca_number, l.lot_code, substr(f.confirmed_at, 1, 10) AS dia,
+             e.description AS epi,
+             COALESCE(
+                 (SELECT c.ca_number FROM fornecimento_item_ca c
+                  WHERE c.item_id = i.id ORDER BY c.ca_number LIMIT 1),
+                 b.ca_number) AS ca_number,
+             l.lot_code, substr(f.confirmed_at, 1, 10) AS dia,
              emp.employee_code, emp.full_name, f.unit_name, f.department_name, f.job_role_name,
              (
                SELECT m.unit_cost_cents
