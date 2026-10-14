@@ -38,13 +38,15 @@
 4. Custo unitario, quando informado, e maior ou igual a zero. Em branco e permitido e fica nulo. Negativo recusa.
 5. Peca ja vencida na data do recebimento pode entrar, com confirmacao. Disponivel nasce zero. O lote permanece para a baixa de prateleira.
 6. CA vencido ou suspenso nao entra na lista. Se o vinculo ativo existir e a consulta do CA for antiga, a tela avisa e nao bloqueia. O snapshot da consulta fica no lote.
-7. Nao ha edicao do recebimento. Correcao de quantidade futura e inventario ou estorno de um movimento, nunca update da linha.
+7. Nao ha edicao de quantidade, codigo, unidade, EPI, tamanho, fabricante, validade ou custo. Correcao de quantidade futura e inventario ou estorno de um movimento.
 8. `Almoxarife` e `Admin` recebem. `SESMT` e `Consulta` nao.
 9. O evento de auditoria e `LOTE_RECEBIDO`, entidade `LOTE`.
+10. `SESMT` e `Admin` trocam o CA do lote por outro vinculo ativo do mesmo EPI. A quantidade nao muda. O evento e `CA_LOTE_CORRIGIDO`, com o numero antigo e o novo. `Almoxarife` nao troca.
+11. A ficha ja assinada continua com o CA gravado naquele dia. Quem precisa refazer o documento estorna a entrega e registra de novo, depois da correcao do lote. A peca fisica e a mesma.
 
 ## 4) Catalogo de erros
 
-Usa `LOT-001`, `LOT-002`, `LOT-003`, `LOT-004`, `LOT-005`, `LOT-007` e `AUTH-004` do modelo.
+Usa `LOT-001`, `LOT-002`, `LOT-003`, `LOT-004`, `LOT-005`, `LOT-006`, `LOT-007`, `LOT-017`, `LOT-018` e `AUTH-004` do modelo.
 
 ## 5) Criterios de aceite
 
@@ -61,9 +63,11 @@ Usa `LOT-001`, `LOT-002`, `LOT-003`, `LOT-004`, `LOT-005`, `LOT-007` e `AUTH-004
 Destino futuro no grupo Estoque: "Lotes e saldos", junto da consulta do `UC-LOT-02`.
 
 - Formulario: unidade, EPI, CA (so vinculos ativos), codigo do lote, fabricante, tamanho, validade, quantidade, custo unitario.
+- EPI sem CA ativo: o combo fica vazio, com "Nenhum CA ativo deste EPI", e a faixa "Este EPI nao tem CA ativo. Vincule um CA antes de receber o lote."
 - Ao escolher o CA, o fabricante recebe a razao social desse numero na base CAEPI e continua editavel. Sem o numero na base, o campo fica em branco.
 - Salvar desabilitado ate unidade, EPI, CA, codigo, validade e quantidade.
-- Lista: codigo, EPI, tamanho, validade, fisica, reservada, disponivel, situacao em texto.
+- Lista: codigo, CA, EPI, tamanho, validade, fisica, reservada, disponivel, situacao em texto.
+- `SESMT` e `Admin` selecionam o lote e trocam o CA. Dialogo: "Trocar o CA deste lote? As fichas ja assinadas continuam com o numero daquele dia." Sucesso: "CA do lote corrigido. Entregas ja assinadas continuam com o numero daquele dia."
 - Vazio: "Nenhum lote recebido nesta unidade." e o botao "Registrar recebimento".
 - Peca vencida: dialogo "Esta peca ja venceu. O lote entra sem quantidade disponivel." Confirmar / Cancelar.
 - CA com consulta antiga: faixa de aviso, sem codigo de erro.

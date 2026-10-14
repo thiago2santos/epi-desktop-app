@@ -65,7 +65,7 @@
 
 Destino ja previsto: "Estorno". Titulo sem codigo de caso de uso.
 
-- Busca do trabalhador e itens que ainda contam.
+- Busca do trabalhador e itens que ainda contam. O CA e o numero gravado na ficha, nao o CA atual do lote.
 - Campo de motivo e o botao "Estornar".
 - Dialogo: "Estornar este fornecimento? A ficha permanece e o saldo da prateleira volta." Confirmar / Voltar.
 - Vazio: "Nenhum fornecimento em aberto para estornar."

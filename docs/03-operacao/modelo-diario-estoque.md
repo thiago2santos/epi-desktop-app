@@ -96,6 +96,8 @@ A tela mostra o texto. O codigo vai para a auditoria.
 | `LOT-014` | Contagem menor que o reservado do lote | A contagem ficou abaixo do que ja esta reservado. Libere a reserva antes de ajustar. |
 | `LOT-015` | Inventario inexistente ou ja encerrado | Este inventario nao esta aberto. |
 | `LOT-016` | Demanda de compra ausente | Informe a demanda do periodo para calcular a compra. |
+| `LOT-017` | Lote ja esta com o CA escolhido | Este lote ja esta com este CA. |
+| `LOT-018` | CA inativo ou de outro EPI | Escolha um CA ativo deste EPI. |
 | `AUTH-004` | Papel sem permissao | Voce nao tem permissao para esta acao. |
 
 Custo em branco e diferente de custo negativo: o recebimento aceita custo em branco e o budget marca incompleto. Custo zero e um custo informado.
