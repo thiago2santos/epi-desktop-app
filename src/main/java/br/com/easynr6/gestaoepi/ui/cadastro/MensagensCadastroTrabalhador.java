@@ -5,6 +5,17 @@ import br.com.easynr6.gestaoepi.shared.audit.CodigoRegra;
 /** Texto de tela para o UC-CAD-03. O código da regra fica no log e na auditoria. */
 public final class MensagensCadastroTrabalhador {
 
+  public static final String SENHA_ROTULO = "Senha de recebimento";
+  public static final String SEM_SENHA = "Sem senha de recebimento.";
+  public static final String SENHA_DEFINIDA = "Senha de recebimento definida.";
+  public static final String DICA_SENHA =
+      "O trabalhador digita esta senha no balcão. Ela não abre o sistema.";
+  public static final String SENHA_RECUSADA =
+      "A senha de recebimento precisa de 6 a 64 caracteres e não pode ser a matrícula nem uma"
+          + " sequência óbvia.";
+  public static final String SEM_PERMISSAO_SENHA =
+      "Você não tem permissão para definir a senha de recebimento.";
+
   private MensagensCadastroTrabalhador() {}
 
   public static String erro(RuntimeException erro) {
@@ -29,6 +40,12 @@ public final class MensagensCadastroTrabalhador {
     }
     if (mensagem.startsWith("CAD-006")) {
       return "Selecione um trabalhador da lista para editar.";
+    }
+    if (mensagem.startsWith("CAD-008")) {
+      return SENHA_RECUSADA;
+    }
+    if (mensagem.contains("definir a senha de recebimento")) {
+      return SEM_PERMISSAO_SENHA;
     }
     if (mensagem.startsWith("AUTH-004")) {
       return "Você não tem permissão para esta ação.";

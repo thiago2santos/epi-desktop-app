@@ -125,8 +125,28 @@ public class EmployeeManagementService {
       Long jobRoleId,
       Long managerId,
       boolean active) {
+    return createEmployee(
+        actorId, employeeCode, fullName, departmentId, jobRoleId, managerId, active, null);
+  }
+
+  public Long createEmployee(
+      Long actorId,
+      String employeeCode,
+      String fullName,
+      Long departmentId,
+      Long jobRoleId,
+      Long managerId,
+      boolean active,
+      String senhaRecebimento) {
     return createEmployeeUseCase.execute(
-        actorId, employeeCode, fullName, departmentId, jobRoleId, managerId, active);
+        actorId,
+        employeeCode,
+        fullName,
+        departmentId,
+        jobRoleId,
+        managerId,
+        active,
+        senhaRecebimento);
   }
 
   public void updateEmployee(
@@ -137,8 +157,31 @@ public class EmployeeManagementService {
       Long jobRoleId,
       Long managerId,
       boolean active) {
+    updateEmployee(actorId, employeeId, fullName, departmentId, jobRoleId, managerId, active, null);
+  }
+
+  public void updateEmployee(
+      Long actorId,
+      Long employeeId,
+      String fullName,
+      Long departmentId,
+      Long jobRoleId,
+      Long managerId,
+      boolean active,
+      String senhaRecebimento) {
     updateEmployeeUseCase.execute(
-        actorId, employeeId, fullName, departmentId, jobRoleId, managerId, active);
+        actorId,
+        employeeId,
+        fullName,
+        departmentId,
+        jobRoleId,
+        managerId,
+        active,
+        senhaRecebimento);
+  }
+
+  public void definirSenhaRecebimento(Long actorId, Long employeeId, String senhaRecebimento) {
+    updateEmployeeUseCase.definirSenha(actorId, employeeId, senhaRecebimento);
   }
 
   public void setEmployeeStatus(Long actorId, Long employeeId, boolean active) {

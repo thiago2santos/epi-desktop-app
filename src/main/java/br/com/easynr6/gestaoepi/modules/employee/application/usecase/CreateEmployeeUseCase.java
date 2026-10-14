@@ -18,17 +18,20 @@ public class CreateEmployeeUseCase {
   private final OrgStructureRepository orgStructureRepository;
   private final EmployeeAccessAuthorizer accessAuthorizer;
   private final AuditTrail auditTrail;
+  private final SenhaRecebimentoGravacao senhaRecebimentoGravacao;
   private final EmployeePolicy employeePolicy = new EmployeePolicy();
 
   public CreateEmployeeUseCase(
       EmployeeRepository employeeRepository,
       OrgStructureRepository orgStructureRepository,
       EmployeeAccessAuthorizer accessAuthorizer,
-      AuditTrail auditTrail) {
+      AuditTrail auditTrail,
+      SenhaRecebimentoGravacao senhaRecebimentoGravacao) {
     this.employeeRepository = employeeRepository;
     this.orgStructureRepository = orgStructureRepository;
     this.accessAuthorizer = accessAuthorizer;
     this.auditTrail = auditTrail;
+    this.senhaRecebimentoGravacao = senhaRecebimentoGravacao;
   }
 
   @AcaoAuditada(acao = "EMPLOYEE_CREATED", entidade = "EMPLOYEE")
@@ -40,7 +43,12 @@ public class CreateEmployeeUseCase {
       Long departmentId,
       Long jobRoleId,
       Long managerId,
-      boolean active) {
+      boolean active,
+      String senhaRecebimento) {
+    String senha = senhaInformada(senhaRecebimento);
+    if (senha != null) {
+      accessAuthorizer.assertCanDefineReceiptPassword(actorId);
+    }
     accessAuthorizer.assertCanManageEmployees(actorId);
     employeePolicy.validateRequiredFields(employeeCode, fullName, departmentId, jobRoleId);
 
@@ -59,9 +67,15 @@ public class CreateEmployeeUseCase {
     employeePolicy.validateManager(
         null, managerId, department == null ? null : department.unitId(), manager);
 
+    if (senha != null) {
+      employeePolicy.receiptPassword(senha, normalizedCode);
+    }
     Long employeeId =
         employeeRepository.create(
             normalizedCode, normalizedName, departmentId, jobRoleId, managerId, active);
+    if (senha != null) {
+      senhaRecebimentoGravacao.gravar(actorId, employeeId, normalizedCode, senha);
+    }
     auditTrail.registrarEventoCritico(
         actorId,
         "EMPLOYEE_CREATED",
@@ -69,5 +83,12 @@ public class CreateEmployeeUseCase {
         String.valueOf(employeeId),
         "Employee created with code " + normalizedCode);
     return employeeId;
+  }
+
+  static String senhaInformada(String senha) {
+    if (senha == null || senha.isBlank()) {
+      return null;
+    }
+    return senha.trim();
   }
 }

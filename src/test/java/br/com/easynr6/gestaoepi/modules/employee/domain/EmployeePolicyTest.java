@@ -3,6 +3,7 @@ package br.com.easynr6.gestaoepi.modules.employee.domain;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import br.com.easynr6.gestaoepi.modules.employee.application.port.EmployeeRepository.EmployeeAssignment;
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.DepartmentOption;
@@ -61,6 +62,21 @@ class EmployeePolicyTest {
     assertThrows(IllegalArgumentException.class, () -> policy.validateManager(9L, 9L, 1L, self));
     assertDoesNotThrow(
         () -> policy.validateManager(2L, 9L, 1L, new EmployeeAssignment(9L, 1L, true)));
+  }
+
+  @Test
+  void shouldRefuseObviousReceiptPasswords() {
+    assertTrue(recusa("12345", "000123").startsWith("CAD-008"));
+    assertTrue(recusa("000123", "000123").startsWith("CAD-008"));
+    assertTrue(recusa("123456", "000123").startsWith("CAD-008"));
+    assertTrue(recusa("Senha", "000123").startsWith("CAD-008"));
+    assertEquals("capa-77", policy.receiptPassword(" capa-77 ", "000123"));
+  }
+
+  private String recusa(String senha, String matricula) {
+    return assertThrows(
+            IllegalArgumentException.class, () -> policy.receiptPassword(senha, matricula))
+        .getMessage();
   }
 
   @Test

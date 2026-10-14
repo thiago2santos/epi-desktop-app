@@ -18,17 +18,20 @@ public class UpdateEmployeeUseCase {
   private final OrgStructureRepository orgStructureRepository;
   private final EmployeeAccessAuthorizer accessAuthorizer;
   private final AuditTrail auditTrail;
+  private final SenhaRecebimentoGravacao senhaRecebimentoGravacao;
   private final EmployeePolicy employeePolicy = new EmployeePolicy();
 
   public UpdateEmployeeUseCase(
       EmployeeRepository employeeRepository,
       OrgStructureRepository orgStructureRepository,
       EmployeeAccessAuthorizer accessAuthorizer,
-      AuditTrail auditTrail) {
+      AuditTrail auditTrail,
+      SenhaRecebimentoGravacao senhaRecebimentoGravacao) {
     this.employeeRepository = employeeRepository;
     this.orgStructureRepository = orgStructureRepository;
     this.accessAuthorizer = accessAuthorizer;
     this.auditTrail = auditTrail;
+    this.senhaRecebimentoGravacao = senhaRecebimentoGravacao;
   }
 
   @AcaoAuditada(acao = "EMPLOYEE_UPDATED", entidade = "EMPLOYEE", alvo = 1)
@@ -40,7 +43,12 @@ public class UpdateEmployeeUseCase {
       Long departmentId,
       Long jobRoleId,
       Long managerId,
-      boolean active) {
+      boolean active,
+      String senhaRecebimento) {
+    String senha = CreateEmployeeUseCase.senhaInformada(senhaRecebimento);
+    if (senha != null) {
+      accessAuthorizer.assertCanDefineReceiptPassword(actorId);
+    }
     accessAuthorizer.assertCanManageEmployees(actorId);
     if (employeeId == null || !employeeRepository.existsById(employeeId)) {
       throw new IllegalArgumentException("CAD-006 Trabalhador alvo nao encontrado.");
@@ -56,6 +64,14 @@ public class UpdateEmployeeUseCase {
     employeePolicy.validateManager(
         employeeId, managerId, department == null ? null : department.unitId(), manager);
 
+    String matricula =
+        employeeRepository
+            .findCodeById(employeeId)
+            .orElseThrow(
+                () -> new IllegalArgumentException("CAD-006 Trabalhador alvo nao encontrado."));
+    if (senha != null) {
+      employeePolicy.receiptPassword(senha, matricula);
+    }
     employeeRepository.update(
         employeeId,
         employeePolicy.normalizeName(fullName),
@@ -63,7 +79,25 @@ public class UpdateEmployeeUseCase {
         jobRoleId,
         managerId,
         active);
+    if (senha != null) {
+      senhaRecebimentoGravacao.gravar(actorId, employeeId, matricula, senha);
+    }
     auditTrail.registrarEventoCritico(
         actorId, "EMPLOYEE_UPDATED", "EMPLOYEE", String.valueOf(employeeId), "Employee updated");
+  }
+
+  @AcaoAuditada(acao = "SENHA_RECEBIMENTO_DEFINIDA", entidade = "EMPLOYEE", alvo = 1)
+  @Transactional
+  public void definirSenha(Long actorId, Long employeeId, String senhaRecebimento) {
+    accessAuthorizer.assertCanDefineReceiptPassword(actorId);
+    if (employeeId == null || !employeeRepository.existsById(employeeId)) {
+      throw new IllegalArgumentException("CAD-006 Trabalhador alvo nao encontrado.");
+    }
+    String matricula =
+        employeeRepository
+            .findCodeById(employeeId)
+            .orElseThrow(
+                () -> new IllegalArgumentException("CAD-006 Trabalhador alvo nao encontrado."));
+    senhaRecebimentoGravacao.gravar(actorId, employeeId, matricula, senhaRecebimento);
   }
 }

@@ -17,6 +17,10 @@ public interface EmployeeRepository {
       Long managerId,
       boolean active);
 
+  void gravarSenhaRecebimento(Long employeeId, String hash);
+
+  Optional<String> findCodeById(Long employeeId);
+
   void update(
       Long employeeId,
       String fullName,
@@ -52,5 +56,6 @@ public interface EmployeeRepository {
       Long managerId,
       String managerName,
       boolean active,
-      String updatedAt) {}
+      String updatedAt,
+      boolean senhaDefinida) {}
 }
