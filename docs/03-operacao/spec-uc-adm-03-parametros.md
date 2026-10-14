@@ -25,7 +25,8 @@
 - Fora de escopo:
   - editar razao social, CNPJ ou criar empresa (`UC-CAD-01`);
   - trocar o modo demonstracao por cliente-servidor num combo;
-  - mudar o horario da CAEPI, o fuso, os motivos de fornecimento, o metodo de assinatura ou o texto do termo;
+  - mudar o horario da CAEPI, o fuso, os motivos de fornecimento, o metodo `SENHA` ou o texto do termo;
+  - definir a senha de recebimento do trabalhador (`UC-CAD-03`);
   - mover estoque ou reescrever ficha ao trocar a unidade padrao.
 
 ## 3) Regras de negocio

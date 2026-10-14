@@ -10,3 +10,4 @@ Spec: `docs/03-operacao/spec-uc-adm-03-parametros.md`.
 | ADM03-004 | INT | CA-04 | Lote com disponivel 5 | Trocar a unidade padrao | Disponivel segue 5 |
 | ADM03-005 | UI | CA-05 | Nenhuma padrao | Abrir o shell | Barra "Nenhuma unidade padrao." |
 | ADM03-006 | RBAC | CA-06 | `SESMT` | Salvar | `AUTH-004` |
+| ADM03-007 | UI | Fora de escopo | Tela aberta | Procurar senha de recebimento ou metodo do termo | Nenhum campo. Os dois ficam fora desta tela |

@@ -14,3 +14,4 @@ Spec: `docs/03-operacao/spec-uc-cad-imp-01-importacao-csv-cadastros.md`. Layout:
 | IMP01-008 | INT | `CAD-IMP-004` | Falha forcada no commit | Confirmar | Nenhum setor novo; mensagem de rollback |
 | IMP01-009 | RBAC | `CAD-IMP-006` | `CONSULTA` | Abrir a importacao | `CAD-IMP-006` |
 | IMP01-010 | UI | Decisao 7 | Voltou do cadastro de setor | Nao clicar Revalidar | A linha segue com pendencia |
+| IMP01-011 | INT | Fora de escopo, senha | `trabalhadores.csv` com coluna `senha` | Validar e confirmar as outras colunas validas | Linha com pendencia; nenhum hash de recebimento gravado |

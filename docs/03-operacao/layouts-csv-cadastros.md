@@ -27,4 +27,6 @@ Arquivo UTF-8, com ou sem BOM. Delimitador `;`. Cabecalho na primeira linha. Nom
 | funcao | sim | Funcao ativa daquele setor. |
 | gestor_matricula | nao | Em branco deixa sem gestor. Preenchida, precisa ser matricula de trabalhador ja ativo na base. |
 
+Coluna `senha`, ou qualquer coluna fora desta lista, e pendencia da linha. O arquivo nao grava hash de recebimento.
+
 Linha que falha qualquer regra fica amarela e nao entra no commit. Linha que passa fica pronta.
