@@ -223,6 +223,127 @@
   -fx-padding: 16;
 }
 
+.enr6-sheet {
+  -fx-background-color: -enr6-surface-raised;
+  -fx-border-color: -enr6-border-subtle;
+  -fx-border-width: 1;
+  -fx-background-radius: 2;
+  -fx-border-radius: 2;
+  -fx-padding: 28 32 24 32;
+  -fx-spacing: 10;
+}
+
+.enr6-sheet-kicker {
+  -fx-text-fill: -enr6-text-muted;
+  -fx-font-size: 11px;
+}
+
+.enr6-sheet-name {
+  -fx-font-size: 18px;
+  -fx-font-weight: bold;
+  -fx-text-fill: -enr6-text-primary;
+}
+
+.enr6-sheet-meta {
+  -fx-text-fill: -enr6-text-muted;
+  -fx-font-size: 12px;
+}
+
+.enr6-sheet-body {
+  -fx-fill: -enr6-text-primary;
+  -fx-font-size: 13px;
+  -fx-line-spacing: 4px;
+}
+
+.enr6-sheet-sign-line {
+  -fx-background-color: -enr6-text-primary;
+  -fx-pref-height: 1;
+  -fx-min-height: 1;
+  -fx-max-height: 1;
+  -fx-max-width: Infinity;
+}
+
+.enr6-sheet-review {
+  -fx-padding: 36 40 32 40;
+}
+
+.enr6-sheet-group {
+  -fx-spacing: 6;
+}
+
+.enr6-sheet-table {
+  -fx-hgap: 28;
+  -fx-vgap: 0;
+  -fx-padding: 8 0 0 0;
+}
+
+.enr6-sheet-head {
+  -fx-text-fill: -enr6-text-muted;
+  -fx-font-size: 11px;
+  -fx-font-weight: bold;
+  -fx-border-color: transparent transparent -enr6-border-subtle transparent;
+  -fx-border-width: 0 0 1 0;
+  -fx-padding: 0 0 12 0;
+}
+
+.enr6-sheet-cell {
+  -fx-text-fill: -enr6-text-primary;
+  -fx-font-size: 13px;
+  -fx-padding: 16 0 16 0;
+  -fx-border-color: transparent transparent -enr6-border-subtle transparent;
+  -fx-border-width: 0 0 1 0;
+}
+
+.enr6-sheet-proof {
+  -fx-font-size: 13px;
+  -fx-padding: 3 0 3 0;
+}
+
+.enr6-sheet-cell-num {
+  -fx-alignment: CENTER_RIGHT;
+}
+
+.enr6-sheet-note {
+  -fx-text-fill: -enr6-text-muted;
+  -fx-font-size: 12px;
+  -fx-padding: 0;
+}
+
+.enr6-sheet-doc-title {
+  -fx-font-size: 15px;
+  -fx-font-weight: bold;
+  -fx-alignment: center;
+  -fx-text-alignment: center;
+}
+
+.enr6-sheet-grid {
+  -fx-border-color: -enr6-border-subtle;
+  -fx-border-width: 1 0 0 1;
+  -fx-hgap: 0;
+  -fx-vgap: 0;
+}
+
+.enr6-sheet-field {
+  -fx-border-color: -enr6-border-subtle;
+  -fx-border-width: 0 1 1 0;
+  -fx-padding: 10 12 10 12;
+  -fx-background-color: -enr6-surface-raised;
+}
+
+.enr6-sheet-field-head {
+  -fx-background-color: -enr6-surface-sunken;
+}
+
+.enr6-sheet-field-label {
+  -fx-text-fill: -enr6-text-muted;
+  -fx-font-size: 11px;
+}
+
+.enr6-sheet-field-value {
+  -fx-text-fill: -enr6-text-primary;
+  -fx-font-size: 13px;
+}
+
 .enr6-metric {
   -fx-background-color: -enr6-surface-raised;
   -fx-border-color: -enr6-border-subtle;
@@ -276,6 +397,96 @@
 .enr6-form .date-picker .text-field {
   -fx-text-fill: -enr6-text-primary;
   -fx-prompt-text-fill: -enr6-text-muted;
+}
+
+.table-row-cell.enr6-row-inativo:filled .table-cell,
+.table-row-cell.enr6-row-fora:filled .table-cell {
+  -fx-text-fill: -enr6-text-muted;
+}
+
+.table-row-cell.enr6-row-inativo:filled:selected .table-cell {
+  -fx-text-fill: -enr6-text-inverse;
+}
+
+.enr6-opcao-desligada {
+  -fx-text-fill: -enr6-text-muted;
+  -fx-opacity: 0.75;
+}
+
+.enr6-step {
+  -fx-alignment: top-center;
+}
+
+.enr6-step-index {
+  -fx-min-width: 28px;
+  -fx-min-height: 28px;
+  -fx-pref-width: 28px;
+  -fx-pref-height: 28px;
+  -fx-max-width: 28px;
+  -fx-max-height: 28px;
+  -fx-alignment: center;
+  -fx-background-color: transparent;
+  -fx-background-radius: 14px;
+  -fx-border-color: -enr6-border-subtle;
+  -fx-border-radius: 14px;
+  -fx-border-width: 1.5px;
+  -fx-text-fill: -enr6-text-muted;
+  -fx-padding: 0;
+}
+
+.enr6-step-title {
+  -fx-text-fill: -enr6-text-muted;
+  -fx-alignment: center;
+  -fx-text-alignment: center;
+  -fx-max-width: 110px;
+}
+
+.enr6-step-done .enr6-step-index {
+  -fx-background-color: -enr6-brand-primary;
+  -fx-border-color: -enr6-brand-primary;
+  -fx-text-fill: -enr6-text-inverse;
+}
+
+.enr6-step-current .enr6-step-index {
+  -fx-background-color: -enr6-surface-raised;
+  -fx-border-color: -enr6-brand-primary;
+  -fx-border-width: 2px;
+  -fx-text-fill: -enr6-brand-primary;
+  -fx-font-weight: bold;
+}
+
+.enr6-step-current .enr6-step-title {
+  -fx-text-fill: -enr6-text-primary;
+  -fx-font-weight: bold;
+}
+
+.enr6-step-line {
+  -fx-background-color: -enr6-border-subtle;
+  -fx-min-height: 2px;
+  -fx-pref-height: 2px;
+  -fx-max-height: 2px;
+  -fx-min-width: 16px;
+}
+
+.enr6-step-line-done {
+  -fx-background-color: -enr6-brand-primary;
+}
+
+.enr6-pagination .page {
+  -fx-padding: 0;
+  -fx-min-height: 0;
+  -fx-pref-height: 0;
+  -fx-max-height: 0;
+}
+
+.enr6-pagination .page-information {
+  -fx-max-width: 0;
+  -fx-max-height: 0;
+  -fx-pref-width: 0;
+  -fx-pref-height: 0;
+  -fx-min-width: 0;
+  -fx-min-height: 0;
+  -fx-padding: 0;
 }
 
 .enr6-legal-bar {

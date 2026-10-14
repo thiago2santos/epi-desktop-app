@@ -276,7 +276,7 @@ public class MainShellView extends BorderPane {
       return new PeriodicidadeManagementView(usuario, periodicidade).root();
     }
     if (destino == Destino.ENTREGA) {
-      return new FornecimentoWizardView(usuario, fornecimento, periodicidade).root();
+      return new FornecimentoWizardView(usuario, fornecimento, periodicidade, empregados).root();
     }
     if (destino == Destino.DEVOLUCAO) {
       Long item = itemDevolucao;

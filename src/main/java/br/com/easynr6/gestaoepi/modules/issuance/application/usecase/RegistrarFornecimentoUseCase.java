@@ -1,6 +1,7 @@
 package br.com.easynr6.gestaoepi.modules.issuance.application.usecase;
 
 import br.com.easynr6.gestaoepi.identity.application.port.Clock;
+import br.com.easynr6.gestaoepi.identity.application.port.CredentialHasher;
 import br.com.easynr6.gestaoepi.modules.employee.application.usecase.ResolvePerfilVigenteUseCase;
 import br.com.easynr6.gestaoepi.modules.employee.domain.PerfilVigente;
 import br.com.easynr6.gestaoepi.modules.issuance.application.FornecimentoAccessAuthorizer;
@@ -35,6 +36,7 @@ public class RegistrarFornecimentoUseCase {
   private final FornecimentoAccessAuthorizer accessAuthorizer;
   private final AuditTrail auditTrail;
   private final Clock clock;
+  private final CredentialHasher credentialHasher;
   private final FornecimentoPolicy policy = new FornecimentoPolicy();
   private final LotPolicy lotPolicy = new LotPolicy();
 
@@ -45,7 +47,8 @@ public class RegistrarFornecimentoUseCase {
       ResolvePerfilVigenteUseCase resolvePerfilVigenteUseCase,
       FornecimentoAccessAuthorizer accessAuthorizer,
       AuditTrail auditTrail,
-      Clock clock) {
+      Clock clock,
+      CredentialHasher credentialHasher) {
     this.fornecimentoRepository = fornecimentoRepository;
     this.baixaFornecimento = baixaFornecimento;
     this.matrizRepository = matrizRepository;
@@ -53,6 +56,7 @@ public class RegistrarFornecimentoUseCase {
     this.accessAuthorizer = accessAuthorizer;
     this.auditTrail = auditTrail;
     this.clock = clock;
+    this.credentialHasher = credentialHasher;
   }
 
   @AcaoAuditada(acao = "FORNECIMENTO_REGISTRADO", entidade = "FORNECIMENTO")
@@ -62,7 +66,7 @@ public class RegistrarFornecimentoUseCase {
     if (pedido == null) {
       throw new IllegalArgumentException("ENT-002 Inclua ao menos um EPI na ficha.");
     }
-    policy.termo(pedido.termoAceito());
+    conferirSenha(pedido);
     List<ItemParaRegistrar> itens = pedido.itens() == null ? List.of() : pedido.itens();
     policy.exigirItens(itens.size());
     policy.lotesUnicos(itens.stream().map(ItemParaRegistrar::loteId).toList());
@@ -100,6 +104,18 @@ public class RegistrarFornecimentoUseCase {
     return fichaId;
   }
 
+  private void conferirSenha(Pedido pedido) {
+    String senha = pedido.senhaRecebimento();
+    String hash = fornecimentoRepository.hashSenhaRecebimento(pedido.employeeId()).orElse(null);
+    boolean temHash = hash != null && !hash.isBlank();
+    boolean confere =
+        temHash
+            && senha != null
+            && !senha.isBlank()
+            && credentialHasher.matches(senha.trim(), hash);
+    policy.conferirSenhaRecebimento(senha, temHash, confere);
+  }
+
   private Trabalhador trabalhadorAtivo(Long employeeId) {
     return fornecimentoRepository
         .findTrabalhador(employeeId)
@@ -128,6 +144,7 @@ public class RegistrarFornecimentoUseCase {
     List<String> cas =
         policy.cas(
             lote.ca(),
+            "ACTIVE".equals(lote.caStatus()),
             item.casAdicionais(),
             new HashSet<>(fornecimentoRepository.casAtivos(item.epiId())));
     ItemGravado gravado =
@@ -181,7 +198,7 @@ public class RegistrarFornecimentoUseCase {
         instante);
   }
 
-  public record Pedido(Long employeeId, boolean termoAceito, List<ItemParaRegistrar> itens) {}
+  public record Pedido(Long employeeId, String senhaRecebimento, List<ItemParaRegistrar> itens) {}
 
   public record ItemParaRegistrar(
       Long epiId,

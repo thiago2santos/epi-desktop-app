@@ -1,8 +1,9 @@
 package br.com.easynr6.gestaoepi.modules.issuance.application;
 
-import br.com.easynr6.gestaoepi.modules.issuance.application.port.FornecimentoRepository.Trabalhador;
+import br.com.easynr6.gestaoepi.modules.issuance.application.port.FornecimentoRepository.Pagina;
 import br.com.easynr6.gestaoepi.modules.issuance.application.usecase.ConsultarFornecimentoUseCase;
 import br.com.easynr6.gestaoepi.modules.issuance.application.usecase.ConsultarFornecimentoUseCase.LoteVisivel;
+import br.com.easynr6.gestaoepi.modules.issuance.application.usecase.ConsultarFornecimentoUseCase.SaidaContexto;
 import br.com.easynr6.gestaoepi.modules.issuance.application.usecase.RegistrarFornecimentoUseCase;
 import br.com.easynr6.gestaoepi.modules.issuance.application.usecase.RegistrarFornecimentoUseCase.Pedido;
 import br.com.easynr6.gestaoepi.modules.issuance.domain.FornecimentoPolicy;
@@ -28,8 +29,9 @@ public class FornecimentoManagementService {
     return registrarFornecimentoUseCase.execute(actorId, pedido);
   }
 
-  public List<Trabalhador> buscar(Long actorId, String texto) {
-    return consultarFornecimentoUseCase.buscar(actorId, texto);
+  public Pagina buscar(
+      Long actorId, String texto, int pagina, boolean somenteAtivos, Long setorId) {
+    return consultarFornecimentoUseCase.buscar(actorId, texto, pagina, somenteAtivos, setorId);
   }
 
   public List<LinhaMatriz> itensDaFuncao(Long actorId, Long employeeId) {
@@ -42,6 +44,10 @@ public class FornecimentoManagementService {
 
   public List<LoteVisivel> lotes(Long actorId, Long unitId, Long epiId) {
     return consultarFornecimentoUseCase.lotes(actorId, unitId, epiId);
+  }
+
+  public SaidaContexto saida(Long actorId, Long employeeId) {
+    return consultarFornecimentoUseCase.saida(actorId, employeeId);
   }
 
   public String textoDoTermo(String nome) {

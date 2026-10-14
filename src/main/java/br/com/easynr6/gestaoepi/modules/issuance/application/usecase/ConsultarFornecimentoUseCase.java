@@ -6,6 +6,7 @@ import br.com.easynr6.gestaoepi.modules.employee.domain.PerfilVigente;
 import br.com.easynr6.gestaoepi.modules.issuance.application.FornecimentoAccessAuthorizer;
 import br.com.easynr6.gestaoepi.modules.issuance.application.port.FornecimentoRepository;
 import br.com.easynr6.gestaoepi.modules.issuance.application.port.FornecimentoRepository.LoteLido;
+import br.com.easynr6.gestaoepi.modules.issuance.application.port.FornecimentoRepository.Pagina;
 import br.com.easynr6.gestaoepi.modules.issuance.application.port.FornecimentoRepository.Trabalhador;
 import br.com.easynr6.gestaoepi.modules.matrix.application.port.MatrizRepository;
 import br.com.easynr6.gestaoepi.modules.matrix.application.port.MatrizRepository.EpiOpcao;
@@ -13,10 +14,14 @@ import br.com.easynr6.gestaoepi.modules.matrix.application.port.MatrizRepository
 import br.com.easynr6.gestaoepi.modules.stock.domain.LotPolicy;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ConsultarFornecimentoUseCase {
+
+  public static final int MINIMO_BUSCA = 3;
+  public static final int TAMANHO_PAGINA = 10;
 
   private final FornecimentoRepository fornecimentoRepository;
   private final MatrizRepository matrizRepository;
@@ -38,9 +43,17 @@ public class ConsultarFornecimentoUseCase {
     this.clock = clock;
   }
 
-  public List<Trabalhador> buscar(Long actorId, String texto) {
+  public Pagina buscar(
+      Long actorId, String texto, int pagina, boolean somenteAtivos, Long setorId) {
     accessAuthorizer.assertCanRegister(actorId);
-    return fornecimentoRepository.buscarAtivos(texto);
+    if (pagina < 0) {
+      return new Pagina(List.of(), 0, 0, TAMANHO_PAGINA);
+    }
+    String termo = texto == null ? "" : texto.trim();
+    if (termo.length() < MINIMO_BUSCA) {
+      termo = "";
+    }
+    return fornecimentoRepository.buscar(termo, pagina, TAMANHO_PAGINA, somenteAtivos, setorId);
   }
 
   public List<LinhaMatriz> itensDaFuncao(Long actorId, Long employeeId) {
@@ -55,15 +68,19 @@ public class ConsultarFornecimentoUseCase {
 
   public List<EpiOpcao> episForaDaMatriz(Long actorId, Long employeeId) {
     accessAuthorizer.assertCanRegister(actorId);
-    if (!accessAuthorizer.podeRegistrarExcecao(actorId)) {
-      return List.of();
-    }
     Trabalhador trabalhador = fornecimentoRepository.findTrabalhador(employeeId).orElse(null);
     if (trabalhador == null || !trabalhador.ativo()) {
       return List.of();
     }
     PerfilVigente perfil = resolvePerfilVigenteUseCase.execute(trabalhador.jobRoleId());
     return matrizRepository.listarCandidatos(perfil.tipo(), perfil.id());
+  }
+
+  public SaidaContexto saida(Long actorId, Long employeeId) {
+    accessAuthorizer.assertCanRegister(actorId);
+    return new SaidaContexto(
+        Set.copyOf(fornecimentoRepository.episComEntregaQueConta(employeeId)),
+        fornecimentoRepository.funcaoDaUltimaFicha(employeeId).orElse(null));
   }
 
   public List<LoteVisivel> lotes(Long actorId, Long unitId, Long epiId) {
@@ -87,6 +104,8 @@ public class ConsultarFornecimentoUseCase {
         saldo.situacao(),
         lote.custoCentavos());
   }
+
+  public record SaidaContexto(Set<Long> episComEntrega, String funcaoUltimaFicha) {}
 
   public record LoteVisivel(
       long id,

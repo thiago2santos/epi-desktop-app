@@ -10,11 +10,27 @@ public interface FornecimentoRepository {
 
   Optional<Trabalhador> findTrabalhador(Long employeeId);
 
-  List<Trabalhador> buscarAtivos(String texto);
+  Optional<String> hashSenhaRecebimento(Long employeeId);
+
+  Pagina buscar(String texto, int pagina, int tamanho, boolean somenteAtivos, Long setorId);
+
+  /** Página da busca de trabalhador. Com total zero ainda conta uma página. */
+  record Pagina(List<Trabalhador> itens, int total, int pagina, int tamanho) {
+    public int paginas() {
+      if (total <= 0 || tamanho <= 0) {
+        return 1;
+      }
+      return (total + tamanho - 1) / tamanho;
+    }
+  }
 
   Optional<LoteLido> findLote(Long loteId);
 
   List<LoteLido> listarLotes(Long unitId, Long epiId);
+
+  List<Long> episComEntregaQueConta(Long employeeId);
+
+  Optional<String> funcaoDaUltimaFicha(Long employeeId);
 
   List<String> casAtivos(Long epiId);
 
@@ -36,7 +52,8 @@ public interface FornecimentoRepository {
       String unidade,
       String setor,
       String funcao,
-      long jobRoleId) {}
+      long jobRoleId,
+      String gestor) {}
 
   record LoteLido(
       long id,
@@ -44,6 +61,7 @@ public interface FornecimentoRepository {
       long unitId,
       String codigo,
       String ca,
+      String caStatus,
       LocalDate validade,
       int fisica,
       int reservada,

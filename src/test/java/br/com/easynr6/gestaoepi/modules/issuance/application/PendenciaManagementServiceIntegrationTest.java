@@ -119,7 +119,7 @@ class PendenciaManagementServiceIntegrationTest {
         actorId,
         new Pedido(
             employeeId,
-            true,
+            SenhaDeTeste.RECEBIMENTO,
             List.of(
                 new ItemParaRegistrar(
                     peca.epiId(),
@@ -151,6 +151,8 @@ class PendenciaManagementServiceIntegrationTest {
     long ativoId =
         estrutura.createEmployee(
             adminId, "MAT" + System.nanoTime(), "Fica pen", departmentId, jobRoleId, null, true);
+    estrutura.definirSenhaRecebimento(adminId, inativoId, SenhaDeTeste.RECEBIMENTO);
+    estrutura.definirSenhaRecebimento(adminId, ativoId, SenhaDeTeste.RECEBIMENTO);
     return new Cenario(
         adminId, sesmtId, almoxId, consultaId, unitId, jobRoleId, inativoId, ativoId);
   }
