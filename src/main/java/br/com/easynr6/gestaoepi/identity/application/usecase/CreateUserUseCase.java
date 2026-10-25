@@ -43,12 +43,28 @@ public class CreateUserUseCase {
       String senhaInicial,
       boolean ativo,
       Set<Papel> papeis) {
+    return execute(adminId, nome, login, senhaInicial, ativo, papeis, null);
+  }
+
+  @AcaoAuditada(acao = "USUARIO_CRIADO", entidade = "USUARIO")
+  @Transactional
+  public Long execute(
+      Long adminId,
+      String nome,
+      String login,
+      String senhaInicial,
+      boolean ativo,
+      Set<Papel> papeis,
+      Long unidadeId) {
     adminAuthorizer.requireAdmin(adminId);
     if (nome == null || nome.isBlank() || login == null || login.isBlank()) {
       throw new IllegalArgumentException("AUTH-010 Nome e login sao obrigatorios.");
     }
     if (papeis == null || papeis.isEmpty()) {
       throw new IllegalArgumentException("AUTH-008 Defina ao menos um papel para o usuario.");
+    }
+    if (unidadeId != null && !identityRepository.unidadeAtiva(unidadeId)) {
+      throw new IllegalArgumentException("AUTH-018 Escolha uma unidade ativa.");
     }
 
     String normalizedLogin = login.trim();
@@ -65,6 +81,9 @@ public class CreateUserUseCase {
 
     for (Papel papel : papeis) {
       identityRepository.assignRole(createdUserId, papel);
+    }
+    if (unidadeId != null) {
+      identityRepository.definirUnidade(createdUserId, unidadeId);
     }
 
     auditTrail.registrarEventoCritico(

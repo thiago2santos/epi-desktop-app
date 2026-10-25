@@ -6,4 +6,16 @@ public record IdentityUser(
     String login,
     String credentialHash,
     boolean ativo,
-    CredentialState credentialState) {}
+    CredentialState credentialState,
+    Long unidadeId) {
+
+  public IdentityUser(
+      Long id,
+      String nome,
+      String login,
+      String credentialHash,
+      boolean ativo,
+      CredentialState credentialState) {
+    this(id, nome, login, credentialHash, ativo, credentialState, null);
+  }
+}

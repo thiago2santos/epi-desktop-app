@@ -89,7 +89,8 @@ public class AuthenticateUserUseCase {
     }
 
     UsuarioAutenticado authenticated =
-        new UsuarioAutenticado(user.id(), user.nome(), user.login(), EnumSet.copyOf(roles));
+        new UsuarioAutenticado(user.id(), user.nome(), user.login(), EnumSet.copyOf(roles))
+            .comVinculo(user.unidadeId());
     if (user.credentialState().forcePasswordChange()) {
       return AuthenticationResult.forcePasswordChange(authenticated);
     }

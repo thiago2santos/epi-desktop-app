@@ -46,4 +46,10 @@ public interface IdentityRepository {
   void deleteUserRoles(Long userId);
 
   List<UsuarioAdminResumo> listUsers();
+
+  default void definirUnidade(Long userId, Long unidadeId) {}
+
+  default boolean unidadeAtiva(Long unidadeId) {
+    return false;
+  }
 }

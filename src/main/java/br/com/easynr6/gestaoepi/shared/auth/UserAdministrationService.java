@@ -3,6 +3,7 @@ package br.com.easynr6.gestaoepi.shared.auth;
 import br.com.easynr6.gestaoepi.identity.application.port.IdentityRepository;
 import br.com.easynr6.gestaoepi.identity.application.usecase.AssignRoleUseCase;
 import br.com.easynr6.gestaoepi.identity.application.usecase.CreateUserUseCase;
+import br.com.easynr6.gestaoepi.identity.application.usecase.DefinirUnidadeUsuarioUseCase;
 import br.com.easynr6.gestaoepi.identity.application.usecase.DeleteUserUseCase;
 import br.com.easynr6.gestaoepi.identity.application.usecase.ListUsersUseCase;
 import br.com.easynr6.gestaoepi.identity.application.usecase.RemoveRoleUseCase;
@@ -25,6 +26,7 @@ public class UserAdministrationService {
   private final SetUserStatusUseCase setUserStatusUseCase;
   private final DeleteUserUseCase deleteUserUseCase;
   private final ListUsersUseCase listUsersUseCase;
+  private final DefinirUnidadeUsuarioUseCase definirUnidadeUsuarioUseCase;
 
   public UserAdministrationService(
       IdentityRepository identityRepository,
@@ -35,7 +37,8 @@ public class UserAdministrationService {
       UpdateUserUseCase updateUserUseCase,
       SetUserStatusUseCase setUserStatusUseCase,
       DeleteUserUseCase deleteUserUseCase,
-      ListUsersUseCase listUsersUseCase) {
+      ListUsersUseCase listUsersUseCase,
+      DefinirUnidadeUsuarioUseCase definirUnidadeUsuarioUseCase) {
     this.identityRepository = identityRepository;
     this.createUserUseCase = createUserUseCase;
     this.assignRoleUseCase = assignRoleUseCase;
@@ -45,6 +48,7 @@ public class UserAdministrationService {
     this.setUserStatusUseCase = setUserStatusUseCase;
     this.deleteUserUseCase = deleteUserUseCase;
     this.listUsersUseCase = listUsersUseCase;
+    this.definirUnidadeUsuarioUseCase = definirUnidadeUsuarioUseCase;
   }
 
   public Long cadastrarUsuario(
@@ -54,7 +58,22 @@ public class UserAdministrationService {
       String senhaInicial,
       boolean ativo,
       Set<Papel> papeis) {
-    return createUserUseCase.execute(adminId, nome, login, senhaInicial, ativo, papeis);
+    return cadastrarUsuario(adminId, nome, login, senhaInicial, ativo, papeis, null);
+  }
+
+  public Long cadastrarUsuario(
+      Long adminId,
+      String nome,
+      String login,
+      String senhaInicial,
+      boolean ativo,
+      Set<Papel> papeis,
+      Long unidadeId) {
+    return createUserUseCase.execute(adminId, nome, login, senhaInicial, ativo, papeis, unidadeId);
+  }
+
+  public void definirUnidade(Long adminId, Long usuarioId, Long unidadeId) {
+    definirUnidadeUsuarioUseCase.execute(adminId, usuarioId, unidadeId);
   }
 
   public void atribuirPapel(Long adminId, Long usuarioId, Papel papel) {
@@ -132,5 +151,24 @@ public class UserAdministrationService {
   }
 
   public record UsuarioAdminResumo(
-      Long id, String nome, String login, boolean ativo, boolean trocaObrigatoria, String papeis) {}
+      Long id,
+      String nome,
+      String login,
+      boolean ativo,
+      boolean trocaObrigatoria,
+      String papeis,
+      Long unidadeId,
+      String unidadeNome,
+      String unidadeCnpj) {
+
+    public UsuarioAdminResumo(
+        Long id,
+        String nome,
+        String login,
+        boolean ativo,
+        boolean trocaObrigatoria,
+        String papeis) {
+      this(id, nome, login, ativo, trocaObrigatoria, papeis, null, null, null);
+    }
+  }
 }
