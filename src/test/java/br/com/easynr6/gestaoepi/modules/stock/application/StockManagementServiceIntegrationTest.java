@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -73,6 +74,76 @@ class StockManagementServiceIntegrationTest {
     assertEquals(10, saldo.disponivel());
     assertEquals("Vigente", saldo.situacao());
     assertEquals(1, auditSucesso(loteId, ctx.almoxId()));
+  }
+
+  @Test
+  void shouldListOnlyActiveCasForTheLot() {
+    Contexto ctx = contexto();
+
+    var ativos = estoque.listCas(ctx.almoxId(), ctx.epiId());
+
+    assertEquals(1, ativos.size());
+    assertEquals(ctx.caId(), ativos.getFirst().id());
+    jdbcTemplate.update("UPDATE epi_ca_binding SET active = 0 WHERE id = ?", ctx.caId());
+    assertTrue(estoque.listCas(ctx.almoxId(), ctx.epiId()).isEmpty());
+  }
+
+  @Test
+  void shouldReplaceTheLotCaAndKeepTheSignedNumber() {
+    Contexto ctx = contexto();
+    LocalDate validade = LocalDate.now().plusMonths(3);
+    long loteId =
+        estoque.receiveLot(
+            ctx.almoxId(),
+            ctx.unitId(),
+            ctx.epiId(),
+            ctx.caId(),
+            "CA-TROCA",
+            "Fab",
+            "M",
+            validade,
+            "10",
+            null,
+            false);
+    String antigo = caDoVinculo(ctx.caId());
+    long novo =
+        catalogo.bindCaToEpi(
+            ctx.sesmtId(),
+            ctx.epiId(),
+            String.format("%05d", Math.floorMod(System.nanoTime(), 100000)),
+            CaStatus.ACTIVE,
+            LocalDate.now().minusDays(2),
+            LocalDate.now().plusYears(1),
+            LocalDateTime.now().withNano(0),
+            "Consulta corrigida",
+            true,
+            PrintConsulta.nome(),
+            PrintConsulta.png());
+    long itemId = fichaAssinada(ctx, loteId, antigo);
+
+    estoque.corrigirCa(ctx.sesmtId(), loteId, novo);
+
+    LotBalance saldo = saldo(ctx.almoxId(), ctx.unitId(), "CA-TROCA");
+    assertEquals(novo, saldo.caBindingId());
+    assertEquals(caDoVinculo(novo), saldo.caNumber());
+    assertEquals(10, saldo.fisica());
+    assertEquals(antigo, caCitadoNaFicha(itemId));
+    assertEquals(1, auditCorrecao(loteId, ctx.sesmtId()));
+    assertThrows(
+        AuthorizationDeniedException.class,
+        () -> estoque.corrigirCa(ctx.almoxId(), loteId, ctx.caId()));
+    IllegalArgumentException igual =
+        assertThrows(
+            IllegalArgumentException.class, () -> estoque.corrigirCa(ctx.sesmtId(), loteId, novo));
+    assertTrue(igual.getMessage().startsWith("LOT-017"));
+    DataAccessException bloqueio =
+        assertThrows(
+            DataAccessException.class,
+            () ->
+                jdbcTemplate.update(
+                    "UPDATE lote_epi SET lot_code = ? WHERE id = ?", "OUTRO", loteId));
+    assertTrue(bloqueio.getMostSpecificCause().getMessage().contains("nao se edita"));
+    assertEquals("CA-TROCA", codigoOf(loteId));
   }
 
   @Test
@@ -540,6 +611,90 @@ class StockManagementServiceIntegrationTest {
   private int totalMovimentos() {
     Integer count =
         jdbcTemplate.queryForObject("SELECT COUNT(1) FROM estoque_movimento", Integer.class);
+    return count == null ? 0 : count;
+  }
+
+  private String caDoVinculo(long caId) {
+    return jdbcTemplate.queryForObject(
+        "SELECT ca_number FROM epi_ca_binding WHERE id = ?", String.class, caId);
+  }
+
+  private long fichaAssinada(Contexto ctx, long loteId, String ca) {
+    long setor =
+        empregados.createDepartment(
+            ctx.sesmtId(), "Setor " + System.nanoTime(), ctx.unitId(), true);
+    long funcao =
+        empregados.createJobRole(ctx.sesmtId(), "Oficial " + System.nanoTime(), setor, true);
+    long empregado =
+        empregados.createEmployee(
+            ctx.sesmtId(),
+            "M" + System.nanoTime(),
+            "Trabalhador da troca",
+            setor,
+            funcao,
+            null,
+            true);
+    jdbcTemplate.update(
+        """
+        INSERT INTO fornecimento_ficha (
+            employee_id, operator_user_id, employee_code, employee_name,
+            unit_name, department_name, job_role_name, confirmed_at)
+        VALUES (?, ?, 'M1', 'Trabalhador da troca', 'Unidade', 'Setor', 'Oficial', ?)
+        """,
+        empregado,
+        ctx.almoxId(),
+        LocalDateTime.now().withNano(0).toString());
+    Long fichaId =
+        jdbcTemplate.queryForObject(
+            "SELECT id FROM fornecimento_ficha WHERE employee_id = ? ORDER BY id DESC LIMIT 1",
+            Long.class,
+            empregado);
+    jdbcTemplate.update(
+        """
+        INSERT INTO fornecimento_item (
+            ficha_id, lote_id, epi_id, quantity, motivo, ciencia)
+        VALUES (?, ?, ?, 1, 'PRIMEIRA_ENTREGA', 1)
+        """,
+        fichaId,
+        loteId,
+        ctx.epiId());
+    Long itemId =
+        jdbcTemplate.queryForObject(
+            "SELECT id FROM fornecimento_item WHERE ficha_id = ?", Long.class, fichaId);
+    jdbcTemplate.update(
+        "INSERT INTO fornecimento_item_ca (item_id, ca_number) VALUES (?, ?)", itemId, ca);
+    return itemId;
+  }
+
+  private String caCitadoNaFicha(long itemId) {
+    return jdbcTemplate.queryForObject(
+        """
+        SELECT COALESCE(
+            (SELECT c.ca_number FROM fornecimento_item_ca c
+             WHERE c.item_id = i.id ORDER BY c.ca_number LIMIT 1),
+            b.ca_number)
+        FROM fornecimento_item i
+        JOIN lote_epi l ON l.id = i.lote_id
+        JOIN epi_ca_binding b ON b.id = l.epi_ca_binding_id
+        WHERE i.id = ?
+        """,
+        String.class,
+        itemId);
+  }
+
+  private int auditCorrecao(long loteId, long actorId) {
+    Integer count =
+        jdbcTemplate.queryForObject(
+            """
+            SELECT COUNT(1) FROM auditoria
+            WHERE acao = 'CA_LOTE_CORRIGIDO'
+              AND entidade = 'LOTE'
+              AND entidade_id = ?
+              AND usuario_id = ?
+              AND resultado = 'SUCESSO'
+              AND detalhes LIKE 'CA de % para %'
+            """,
+            Integer.class, String.valueOf(loteId), actorId);
     return count == null ? 0 : count;
   }
 

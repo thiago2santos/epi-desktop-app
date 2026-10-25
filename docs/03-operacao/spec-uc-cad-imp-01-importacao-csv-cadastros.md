@@ -43,6 +43,7 @@
 - Auto-criar setor/funcao **silenciosamente** a partir do CSV de trabalhadores sem passo de confirmacao.
 - Importacao de EPI/CA/lotes/matriz.
 - Agendamento/recorrencia (carga unica manual/autorizada).
+- Senha de recebimento. `trabalhadores.csv` nao tem essa coluna. Coluna `senha` no arquivo vira pendencia e nao grava hash. A senha nasce no `UC-CAD-03`.
 
 ## 3) Tela de revisao (requisitos UX normativos)
 

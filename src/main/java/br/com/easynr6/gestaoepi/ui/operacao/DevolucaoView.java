@@ -88,7 +88,8 @@ public final class DevolucaoView {
 
   private void buscar(String texto, VBox resultados) {
     try {
-      List<TrabalhadorBusca> encontrados = devolucao.buscar(usuario.id(), texto);
+      List<TrabalhadorBusca> encontrados =
+          devolucao.buscar(usuario.id(), texto, usuario.unidadeId());
       resultados.getChildren().clear();
       if (encontrados.isEmpty()) {
         resultados.getChildren().add(new Label("Nenhum trabalhador com essa matrícula ou nome."));

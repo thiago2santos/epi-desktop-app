@@ -292,8 +292,13 @@ public final class OrgStructureManagementView {
     try {
       nomeSetor.clear();
       carregarUnidades(null);
-      unidadeCombo.getSelectionModel().clearSelection();
-      unidadeCombo.setDisable(false);
+      if (usuario.unidadeId() == null) {
+        unidadeCombo.getSelectionModel().clearSelection();
+        unidadeCombo.setDisable(false);
+      } else {
+        selecionarUnidade(usuario.unidadeId());
+        unidadeCombo.setDisable(true);
+      }
       statusSetor.setValue(StatusOpcao.ATIVO);
       statusSetor.setDisable(false);
       limparMarcacaoSetor();
@@ -391,7 +396,12 @@ public final class OrgStructureManagementView {
     recarregandoSetor = true;
     try {
       Long manter = editandoSetor == null ? null : editandoSetor.id();
-      tabelaSetor.getItems().setAll(estrutura.listDepartments(usuario.id(), filtroSetor.getText()));
+      tabelaSetor
+          .getItems()
+          .setAll(
+              estrutura.listDepartments(usuario.id(), filtroSetor.getText()).stream()
+                  .filter(item -> daSessao(item.unitId()))
+                  .toList());
       if (manter != null) {
         tabelaSetor.getItems().stream()
             .filter(item -> item.id().equals(manter))
@@ -416,11 +426,17 @@ public final class OrgStructureManagementView {
   }
 
   private void carregarUnidades(DepartmentSummary atual) {
-    List<UnitOption> itens = new ArrayList<>(estrutura.listActiveUnits());
+    List<UnitOption> itens =
+        new ArrayList<>(
+            estrutura.listActiveUnits().stream().filter(item -> daSessao(item.id())).toList());
     if (atual != null && itens.stream().noneMatch(item -> item.id().equals(atual.unitId()))) {
       itens.add(new UnitOption(atual.unitId(), atual.unitName(), ""));
     }
     unidadeCombo.getItems().setAll(itens);
+  }
+
+  private boolean daSessao(Long unitId) {
+    return usuario.unidadeId() == null || usuario.unidadeId().equals(unitId);
   }
 
   private void selecionarUnidade(Long unitId) {
@@ -560,7 +576,18 @@ public final class OrgStructureManagementView {
     recarregandoFuncao = true;
     try {
       Long manter = editandoFuncao == null ? null : editandoFuncao.id();
-      tabelaFuncao.getItems().setAll(estrutura.listJobRoles(usuario.id(), filtroFuncao.getText()));
+      var setores =
+          estrutura.listDepartments(usuario.id(), "").stream()
+              .filter(item -> daSessao(item.unitId()))
+              .map(DepartmentSummary::id)
+              .collect(java.util.stream.Collectors.toSet());
+      tabelaFuncao
+          .getItems()
+          .setAll(
+              estrutura.listJobRoles(usuario.id(), filtroFuncao.getText()).stream()
+                  .filter(
+                      item -> usuario.unidadeId() == null || setores.contains(item.departmentId()))
+                  .toList());
       if (manter != null) {
         tabelaFuncao.getItems().stream()
             .filter(item -> item.id().equals(manter))
@@ -586,7 +613,11 @@ public final class OrgStructureManagementView {
   }
 
   private void carregarSetoresDaFuncao(JobRoleSummary atual) {
-    List<DepartmentOption> itens = new ArrayList<>(estrutura.listActiveDepartments());
+    List<DepartmentOption> itens =
+        new ArrayList<>(
+            estrutura.listActiveDepartments().stream()
+                .filter(item -> daSessao(item.unitId()))
+                .toList());
     boolean semSetor = itens.isEmpty();
     avisoFuncao.setVisible(semSetor);
     avisoFuncao.setManaged(semSetor);

@@ -284,6 +284,98 @@ class EmployeeManagementServiceIntegrationTest {
     assertEquals("CAD-007 Gestor invalido para este trabalhador.", inactive.getMessage());
   }
 
+  @Test
+  void shouldStoreReceiptPasswordHashWithoutTheSecret() {
+    long sesmtId = createUserWithRole("sesmt.senha", Papel.SESMT);
+    long departmentId = findDepartmentIdByName("Operacao");
+    long jobRoleId = funcaoAtiva(sesmtId, departmentId);
+
+    long employeeId =
+        employeeManagementService.createEmployee(
+            sesmtId, "MTR-SENHA", "Com senha", departmentId, jobRoleId, null, true, "capa-77");
+
+    String hash = hashDo(employeeId);
+    String detalhe =
+        jdbcTemplate.queryForObject(
+            """
+            SELECT detalhes FROM auditoria
+            WHERE acao = 'SENHA_RECEBIMENTO_DEFINIDA' AND entidade_id = ?
+            """,
+            String.class,
+            String.valueOf(employeeId));
+    assertEquals(Boolean.TRUE, passwordEncoder.matches("capa-77", hash));
+    assertEquals("Senha de recebimento definida.", detalhe);
+    assertEquals(false, detalhe.contains("capa-77"));
+    assertEquals(false, detalhe.contains(hash));
+    assertEquals(
+        Boolean.TRUE,
+        employeeManagementService.listEmployees(sesmtId, "MTR-SENHA").getFirst().senhaDefinida());
+  }
+
+  @Test
+  void shouldKeepThePreviousHashWhenThePasswordFieldIsEmpty() {
+    long adminId = createUserWithRole("admin.senha.vazia", Papel.ADMIN);
+    long departmentId = findDepartmentIdByName("Operacao");
+    long jobRoleId = funcaoAtiva(adminId, departmentId);
+    long employeeId =
+        employeeManagementService.createEmployee(
+            adminId, "MTR-VAZIA", "Sem troca", departmentId, jobRoleId, null, true, "capa-77");
+    String antes = hashDo(employeeId);
+
+    employeeManagementService.updateEmployee(
+        adminId, employeeId, "Nome novo", departmentId, jobRoleId, null, true, "   ");
+
+    assertEquals(antes, hashDo(employeeId));
+    assertEquals(Boolean.TRUE, passwordEncoder.matches("capa-77", antes));
+  }
+
+  @Test
+  void shouldReplaceTheReceiptPassword() {
+    long adminId = createUserWithRole("admin.senha.troca", Papel.ADMIN);
+    long departmentId = findDepartmentIdByName("Operacao");
+    long jobRoleId = funcaoAtiva(adminId, departmentId);
+    long employeeId =
+        employeeManagementService.createEmployee(
+            adminId, "MTR-TROCA", "Troca", departmentId, jobRoleId, null, true, "capa-77");
+
+    employeeManagementService.definirSenhaRecebimento(adminId, employeeId, "bota-88");
+
+    String hash = hashDo(employeeId);
+    assertEquals(Boolean.FALSE, passwordEncoder.matches("capa-77", hash));
+    assertEquals(Boolean.TRUE, passwordEncoder.matches("bota-88", hash));
+  }
+
+  @Test
+  void shouldRejectWarehouseChangingTheReceiptPassword() {
+    long adminId = createUserWithRole("admin.senha.almox", Papel.ADMIN);
+    long almoxId = createUserWithRole("almox.senha", Papel.ALMOXARIFE);
+    long departmentId = findDepartmentIdByName("Operacao");
+    long jobRoleId = funcaoAtiva(adminId, departmentId);
+    long employeeId =
+        employeeManagementService.createEmployee(
+            adminId, "MTR-ALMOX", "Protegido", departmentId, jobRoleId, null, true, "capa-77");
+    String antes = hashDo(employeeId);
+
+    AuthorizationDeniedException ex =
+        assertThrows(
+            AuthorizationDeniedException.class,
+            () ->
+                employeeManagementService.definirSenhaRecebimento(almoxId, employeeId, "bota-88"));
+
+    assertEquals(true, ex.getMessage().startsWith("AUTH-004"));
+    assertEquals(antes, hashDo(employeeId));
+  }
+
+  private long funcaoAtiva(long actorId, long departmentId) {
+    return employeeManagementService.createJobRole(
+        actorId, "Operador " + System.nanoTime(), departmentId, true);
+  }
+
+  private String hashDo(long employeeId) {
+    return jdbcTemplate.queryForObject(
+        "SELECT senha_recebimento_hash FROM employee WHERE id = ?", String.class, employeeId);
+  }
+
   private long createUserWithRole(String loginBase, Papel role) {
     String login = loginBase + "." + System.nanoTime();
     jdbcTemplate.update(

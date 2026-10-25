@@ -136,7 +136,7 @@ class DevolucaoManagementServiceIntegrationTest {
         cenario.almoxId(),
         new Pedido(
             cenario.employeeId(),
-            true,
+            SenhaDeTeste.RECEBIMENTO,
             List.of(
                 new ItemParaRegistrar(
                     epi(loteId),
@@ -169,6 +169,7 @@ class DevolucaoManagementServiceIntegrationTest {
             jobRoleId,
             null,
             true);
+    estrutura.definirSenhaRecebimento(adminId, employeeId, SenhaDeTeste.RECEBIMENTO);
     return new Cenario(adminId, almoxId, unitId, jobRoleId, employeeId);
   }
 

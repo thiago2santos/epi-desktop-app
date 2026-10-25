@@ -1,6 +1,10 @@
 package br.com.easynr6.gestaoepi.ui.admin;
 
 import atlantafx.base.theme.Styles;
+import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.UnitOption;
+import br.com.easynr6.gestaoepi.modules.employee.domain.UnitPolicy;
+import br.com.easynr6.gestaoepi.shared.audit.LogTroubleshooting;
+import br.com.easynr6.gestaoepi.shared.auth.EscopoUnidade;
 import br.com.easynr6.gestaoepi.shared.auth.Papel;
 import br.com.easynr6.gestaoepi.shared.auth.UserAdministrationService;
 import br.com.easynr6.gestaoepi.shared.auth.UserAdministrationService.UsuarioAdminResumo;
@@ -14,6 +18,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -44,11 +49,13 @@ public final class UserAdministrationView {
 
   private final UsuarioAutenticado operador;
   private final UserAdministrationService usuarios;
+  private final Supplier<List<UnitOption>> unidadesAtivas;
   private final TextField filtro = new TextField();
   private final TextField nome = new TextField();
   private final TextField login = new TextField();
   private final PasswordField senha = new PasswordField();
   private final ComboBox<Papel> papel = new ComboBox<>();
+  private final ComboBox<UnitOption> unidade = new ComboBox<>();
   private final TableView<UsuarioAdminResumo> tabela = new TableView<>();
   private final Button salvar = new Button("Salvar");
   private final Button resetar = new Button("Resetar senha");
@@ -63,9 +70,13 @@ public final class UserAdministrationView {
   private List<UsuarioAdminResumo> todos = List.of();
   private final MensagemTemporaria mensagens = new MensagemTemporaria();
 
-  public UserAdministrationView(UsuarioAutenticado operador, UserAdministrationService usuarios) {
+  public UserAdministrationView(
+      UsuarioAutenticado operador,
+      UserAdministrationService usuarios,
+      Supplier<List<UnitOption>> unidadesAtivas) {
     this.operador = operador;
     this.usuarios = usuarios;
+    this.unidadesAtivas = unidadesAtivas;
     ReferenciaPage page =
         ReferenciaPage.of(
             "UC-ADM-01/02",
@@ -83,7 +94,21 @@ public final class UserAdministrationView {
 
   static boolean usuarioProntoParaSalvar(
       boolean novo, String nome, String login, String senha, boolean papelSelecionado) {
+    return usuarioProntoParaSalvar(novo, nome, login, senha, papelSelecionado, false, true);
+  }
+
+  static boolean usuarioProntoParaSalvar(
+      boolean novo,
+      String nome,
+      String login,
+      String senha,
+      boolean papelSelecionado,
+      boolean unidadeObrigatoria,
+      boolean unidadeInformada) {
     if (!textoPreenchido(nome) || !textoPreenchido(login) || !papelSelecionado) {
+      return false;
+    }
+    if (unidadeObrigatoria && !unidadeInformada) {
       return false;
     }
     return !novo || textoPreenchido(senha);
@@ -130,7 +155,12 @@ public final class UserAdministrationView {
     papel.setConverter(nomes(UserAdministrationView::rotuloPapel));
     papel.setMaxWidth(Double.MAX_VALUE);
     papel.setPromptText("Papel");
-    papel.valueProperty().addListener((obs, anterior, atual) -> atualizarAcoes());
+    papel.valueProperty().addListener((obs, anterior, atual) -> ajustarUnidades());
+    unidade.setConverter(nomes(item -> item == null ? "Todas as unidades" : rotuloUnidade(item)));
+    unidade.setMaxWidth(Double.MAX_VALUE);
+    unidade.setPromptText("Unidade");
+    unidade.valueProperty().addListener((obs, anterior, atual) -> atualizarAcoes());
+    ajustarUnidades();
     salvar.getStyleClass().add(Styles.ACCENT);
     salvar.setDisable(true);
     salvar.setOnAction(event -> salvar());
@@ -157,6 +187,7 @@ public final class UserAdministrationView {
             campo("Login", login),
             campo("Senha", senha),
             campo("Papel", papel),
+            campo("Unidade", unidade),
             feedback,
             new HBox(8, salvar, resetar, bloquear, reativar, limpar));
     formulario.setPrefWidth(380);
@@ -173,6 +204,7 @@ public final class UserAdministrationView {
             coluna("Login", UsuarioAdminResumo::login),
             coluna("Nome", UsuarioAdminResumo::nome),
             coluna("Papel", UsuarioAdminResumo::papeis),
+            coluna("Unidade", UserAdministrationView::rotuloVinculo),
             coluna("Status", item -> item.ativo() ? "Ativo" : "Bloqueado"));
     tabela
         .getSelectionModel()
@@ -194,6 +226,7 @@ public final class UserAdministrationView {
       login.clear();
       senha.clear();
       papel.getSelectionModel().clearSelection();
+      unidade.setValue(null);
       limparMarcacao();
       mostrar("", Tom.AVISO);
     } finally {
@@ -211,6 +244,7 @@ public final class UserAdministrationView {
       senha.clear();
       List<Papel> papeis = papeisAtuais(usuario.papeis());
       papel.setValue(papeis.isEmpty() ? null : papeis.getFirst());
+      selecionarUnidade(usuario.unidadeId());
       limparMarcacao();
       if (limparAviso) {
         mostrar("", Tom.AVISO);
@@ -224,11 +258,13 @@ public final class UserAdministrationView {
   private void salvar() {
     limparMarcacao();
     boolean novo = editando == null;
-    if (!usuarioProntoParaSalvar(
-        novo, nome.getText(), login.getText(), senha.getText(), papel.getValue() != null)) {
-      mostrar("Informe nome, login, papel e, no cadastro novo, a senha inicial.", Tom.ERRO);
+    if (!prontoParaSalvar(novo)) {
+      mostrar(
+          "Informe nome, login, papel e, no cadastro novo, a senha inicial. Almoxarife e Consulta precisam de uma unidade.",
+          Tom.ERRO);
       return;
     }
+    Long unidadeId = unidade.getValue() == null ? null : unidade.getValue().id();
     try {
       if (novo) {
         usuarios.cadastrarUsuario(
@@ -237,10 +273,12 @@ public final class UserAdministrationView {
             login.getText(),
             senha.getText(),
             true,
-            Set.of(papel.getValue()));
+            Set.of(papel.getValue()),
+            unidadeId);
       } else {
         usuarios.editarUsuario(
             operador.id(), editando.id(), nome.getText(), login.getText(), editando.ativo());
+        usuarios.definirUnidade(operador.id(), editando.id(), unidadeId);
         sincronizarPapel(editando);
       }
       carregar();
@@ -379,9 +417,7 @@ public final class UserAdministrationView {
       return;
     }
     boolean novo = editando == null;
-    salvar.setDisable(
-        !usuarioProntoParaSalvar(
-            novo, nome.getText(), login.getText(), senha.getText(), papel.getValue() != null));
+    salvar.setDisable(!prontoParaSalvar(novo));
     boolean editandoAtivo = editando != null && editando.ativo();
     boolean proprio = editando != null && editando.id().equals(operador.id());
     bloquear.setVisible(editandoAtivo);
@@ -425,6 +461,73 @@ public final class UserAdministrationView {
     alerta.getButtonTypes().setAll(seguir, cancelar);
     Optional<ButtonType> resposta = alerta.showAndWait();
     return resposta.isPresent() && resposta.get() == seguir;
+  }
+
+  private void ajustarUnidades() {
+    UnitOption atual = unidade.getValue();
+    boolean corporativo = papel.getValue() != null && !EscopoUnidade.exigeVinculo(papel.getValue());
+    List<UnitOption> itens = new ArrayList<>();
+    if (corporativo) {
+      itens.add(null);
+    }
+    try {
+      List<UnitOption> ativas = unidadesAtivas.get();
+      if (ativas != null) {
+        itens.addAll(ativas);
+      }
+    } catch (RuntimeException ex) {
+      LogTroubleshooting.registrar("LISTAR_UNIDADES_USUARIO", operador.id(), "-", ex);
+    }
+    unidade.getItems().setAll(itens);
+    if (atual != null
+        && itens.stream().anyMatch(item -> item != null && item.id().equals(atual.id()))) {
+      unidade.setValue(atual);
+    } else {
+      unidade.setValue(null);
+    }
+    atualizarAcoes();
+  }
+
+  private void selecionarUnidade(Long unidadeId) {
+    if (unidadeId == null) {
+      unidade.setValue(null);
+      return;
+    }
+    unidade.getItems().stream()
+        .filter(item -> item != null && item.id().equals(unidadeId))
+        .findFirst()
+        .ifPresent(unidade::setValue);
+  }
+
+  private boolean prontoParaSalvar(boolean novo) {
+    return usuarioProntoParaSalvar(
+        novo,
+        nome.getText(),
+        login.getText(),
+        senha.getText(),
+        papel.getValue() != null,
+        EscopoUnidade.exigeVinculo(papel.getValue()),
+        unidade.getValue() != null);
+  }
+
+  private static String rotuloUnidade(UnitOption item) {
+    return item.name() + " · " + UnitPolicy.formatarCnpj(item.cnpj());
+  }
+
+  private static String rotuloVinculo(UsuarioAdminResumo usuario) {
+    if (usuario.unidadeId() == null) {
+      String papeis = usuario.papeis() == null ? "" : usuario.papeis();
+      boolean corporativo = papeis.contains("ADMIN") || papeis.contains("SESMT");
+      return corporativo ? "Todas" : "Sem unidade";
+    }
+    if (usuario.unidadeNome() == null || usuario.unidadeNome().isBlank()) {
+      return "Sem unidade";
+    }
+    String cnpj = usuario.unidadeCnpj();
+    if (cnpj == null || cnpj.isBlank()) {
+      return usuario.unidadeNome();
+    }
+    return usuario.unidadeNome() + " · " + UnitPolicy.formatarCnpj(cnpj);
   }
 
   static String rotuloPapel(Papel papel) {

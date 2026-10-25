@@ -24,6 +24,7 @@ public class LoginView extends BorderPane {
   private final TextField loginField;
   private final PasswordField senhaField;
   private final Label feedbackLabel;
+  private final Button entrarButton;
 
   public LoginView(
       AuthenticationProvider authenticationProvider,
@@ -46,7 +47,7 @@ public class LoginView extends BorderPane {
     Label titulo = new Label("Easy NR6 Gestao de EPI");
     titulo.getStyleClass().add(Enr6Styles.LOGIN_TITLE);
 
-    Label subtitulo = new Label("Login de acesso");
+    Label subtitulo = new Label("Entre com seu usuário. A unidade vem do perfil.");
     subtitulo.getStyleClass().add(Enr6Styles.LOGIN_SUBTITLE);
 
     loginField = new TextField();
@@ -59,12 +60,15 @@ public class LoginView extends BorderPane {
     senhaField.setPrefWidth(360);
     senhaField.setMaxWidth(Double.MAX_VALUE);
 
-    Button entrarButton = new Button("Entrar");
+    entrarButton = new Button("Entrar");
     entrarButton.getStyleClass().add(Styles.ACCENT);
     entrarButton.setDefaultButton(true);
     entrarButton.setOnAction(event -> autenticar());
     entrarButton.setPrefHeight(40);
     entrarButton.setMaxWidth(Double.MAX_VALUE);
+    entrarButton.setDisable(true);
+    loginField.textProperty().addListener((obs, anterior, atual) -> atualizarEntrar());
+    senhaField.textProperty().addListener((obs, anterior, atual) -> atualizarEntrar());
 
     feedbackLabel = new Label();
     feedbackLabel.getStyleClass().add(Enr6Styles.FEEDBACK_DANGER);
@@ -77,17 +81,23 @@ public class LoginView extends BorderPane {
     setAlignment(card, Pos.CENTER);
   }
 
+  private void atualizarEntrar() {
+    boolean pronto = !loginField.getText().isBlank() && !senhaField.getText().isBlank();
+    entrarButton.setDisable(!pronto);
+  }
+
   private void autenticar() {
     feedbackLabel.setText("");
     AuthenticationResult resultado =
         authenticationProvider.autenticar(loginField.getText(), senhaField.getText());
     senhaField.clear();
+    atualizarEntrar();
     AuthenticationStatus status = resultado.status();
-    if (status == AuthenticationStatus.SUCCESS && resultado.usuario() != null) {
+    if (resultado.usuario() != null && status == AuthenticationStatus.SUCCESS) {
       onLoginSuccess.accept(resultado.usuario());
       return;
     }
-    if (status == AuthenticationStatus.FORCE_PASSWORD_CHANGE && resultado.usuario() != null) {
+    if (resultado.usuario() != null && status == AuthenticationStatus.FORCE_PASSWORD_CHANGE) {
       onPasswordChangeRequired.accept(resultado.usuario());
       return;
     }

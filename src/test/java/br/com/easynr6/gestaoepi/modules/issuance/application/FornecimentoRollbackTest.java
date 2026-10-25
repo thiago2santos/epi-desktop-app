@@ -71,6 +71,7 @@ class FornecimentoRollbackTest {
             jobRoleId,
             null,
             true);
+    estrutura.definirSenhaRecebimento(adminId, employeeId, SenhaDeTeste.RECEBIMENTO);
     long epiId =
         catalogo.createEpi(adminId, "RBK", "Luva falha " + System.nanoTime(), AnnexGroup.F, true);
     long caId =
@@ -108,7 +109,7 @@ class FornecimentoRollbackTest {
                 almoxId,
                 new Pedido(
                     employeeId,
-                    true,
+                    SenhaDeTeste.RECEBIMENTO,
                     List.of(
                         new ItemParaRegistrar(
                             epiId,

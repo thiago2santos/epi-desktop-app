@@ -127,7 +127,7 @@ class HistoricoManagementServiceIntegrationTest {
         cenario.almoxId(),
         new Pedido(
             cenario.employeeId(),
-            true,
+            SenhaDeTeste.RECEBIMENTO,
             List.of(
                 new ItemParaRegistrar(
                     epi(loteId),
@@ -162,6 +162,7 @@ class HistoricoManagementServiceIntegrationTest {
             jobRoleId,
             null,
             true);
+    estrutura.definirSenhaRecebimento(adminId, employeeId, SenhaDeTeste.RECEBIMENTO);
     return new Cenario(adminId, sesmtId, almoxId, consultaId, unitId, jobRoleId, employeeId);
   }
 

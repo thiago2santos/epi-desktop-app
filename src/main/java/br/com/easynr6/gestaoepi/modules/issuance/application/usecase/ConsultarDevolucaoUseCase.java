@@ -20,8 +20,12 @@ public class ConsultarDevolucaoUseCase {
   }
 
   public List<TrabalhadorBusca> buscar(Long actorId, String texto) {
+    return buscar(actorId, texto, null);
+  }
+
+  public List<TrabalhadorBusca> buscar(Long actorId, String texto, Long unidadeId) {
     accessAuthorizer.assertCanRegister(actorId);
-    return devolucaoRepository.buscar(texto);
+    return devolucaoRepository.buscar(texto, unidadeId);
   }
 
   public List<ItemPendente> pendentes(Long actorId, Long employeeId) {

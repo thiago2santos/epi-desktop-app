@@ -8,6 +8,7 @@ A aplicação é **JavaFX + AtlantaFX**. A pasta `site/` é a **landing HTML est
 |---|---|
 | `heuristicas-nielsen.md` | As 10 heurísticas e o que cada uma significa no Easy NR6 |
 | `padrao-comercial.md` | Empty state, espaçamento, tabela, erro, ajuda e o contraste amador/profissional |
+| `proposta-revisao-fornecimento.md` | Passo Revisão do fornecimento: hierarquia da ficha e heurísticas |
 | `docs/02-arquitetura/easy-nr6-ux-identity.md` | Marca, tom de voz e tokens |
 | `docs/02-arquitetura/ui-ux-blueprint.md` | Mapa de telas e componentes |
 

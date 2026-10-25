@@ -19,7 +19,8 @@ public class JdbcIdentityRepository implements IdentityRepository {
 
   private static final String SELECT_USER_BY_LOGIN_SQL =
       """
-      SELECT id, nome, login, senha_hash, ativo, credencial_troca_obrigatoria, tentativas_invalidas, bloqueado_ate
+      SELECT id, nome, login, senha_hash, ativo, credencial_troca_obrigatoria,
+             tentativas_invalidas, bloqueado_ate, unidade_id
       FROM usuario
       WHERE login = :login
       """;
@@ -102,11 +103,16 @@ public class JdbcIdentityRepository implements IdentityRepository {
              u.login,
              u.ativo,
              u.credencial_troca_obrigatoria,
+             u.unidade_id,
+             un.name AS unidade_nome,
+             un.cnpj AS unidade_cnpj,
              COALESCE(GROUP_CONCAT(p.codigo, ', '), '-') AS papeis
       FROM usuario u
       LEFT JOIN usuario_papel up ON up.usuario_id = u.id
       LEFT JOIN papel p ON p.id = up.papel_id
-      GROUP BY u.id, u.nome, u.login, u.ativo, u.credencial_troca_obrigatoria
+      LEFT JOIN unit un ON un.id = u.unidade_id
+      GROUP BY u.id, u.nome, u.login, u.ativo, u.credencial_troca_obrigatoria,
+               u.unidade_id, un.name, un.cnpj
       ORDER BY u.id DESC
       """;
 
@@ -132,7 +138,8 @@ public class JdbcIdentityRepository implements IdentityRepository {
                     new CredentialState(
                         rs.getInt("credencial_troca_obrigatoria") == 1,
                         rs.getInt("tentativas_invalidas"),
-                        parseDateTime(rs.getString("bloqueado_ate")))));
+                        parseDateTime(rs.getString("bloqueado_ate"))),
+                    unidadeId(rs)));
     return rows.stream().findFirst();
   }
 
@@ -280,7 +287,35 @@ public class JdbcIdentityRepository implements IdentityRepository {
                 rs.getString("login"),
                 rs.getInt("ativo") == 1,
                 rs.getInt("credencial_troca_obrigatoria") == 1,
-                rs.getString("papeis")));
+                rs.getString("papeis"),
+                unidadeId(rs),
+                rs.getString("unidade_nome"),
+                rs.getString("unidade_cnpj")));
+  }
+
+  @Override
+  public void definirUnidade(Long userId, Long unidadeId) {
+    jdbcTemplate.update(
+        "UPDATE usuario SET unidade_id = :unidadeId WHERE id = :userId",
+        new MapSqlParameterSource().addValue("unidadeId", unidadeId).addValue("userId", userId));
+  }
+
+  @Override
+  public boolean unidadeAtiva(Long unidadeId) {
+    if (unidadeId == null) {
+      return false;
+    }
+    Integer amount =
+        jdbcTemplate.queryForObject(
+            "SELECT COUNT(1) FROM unit WHERE id = :id AND active = 1",
+            new MapSqlParameterSource().addValue("id", unidadeId),
+            Integer.class);
+    return amount != null && amount > 0;
+  }
+
+  private static Long unidadeId(java.sql.ResultSet rs) throws java.sql.SQLException {
+    long id = rs.getLong("unidade_id");
+    return rs.wasNull() ? null : id;
   }
 
   private static LocalDateTime parseDateTime(String value) {

@@ -16,9 +16,10 @@ public class JdbcStockRepository implements StockRepository {
 
   private static final String UNIT_ACTIVE_SQL =
       "SELECT COUNT(1) FROM unit WHERE id = :unitId AND active = 1";
+
   private static final String ACTIVE_CA_SQL =
       """
-      SELECT b.id, b.official_check_at
+      SELECT b.id, b.ca_number, b.official_check_at
       FROM epi_ca_binding b
       JOIN epi_catalog e ON e.id = b.epi_id
       WHERE b.id = :caBindingId
@@ -27,6 +28,7 @@ public class JdbcStockRepository implements StockRepository {
         AND b.ca_status = 'ACTIVE'
         AND e.active = 1
       """;
+
   private static final String LOT_EXISTS_SQL =
       """
       SELECT COUNT(1) FROM lote_epi
@@ -35,6 +37,7 @@ public class JdbcStockRepository implements StockRepository {
         AND lot_code = :lotCode
         AND size_label = :sizeLabel
       """;
+
   private static final String INSERT_LOT_SQL =
       """
       INSERT INTO lote_epi (
@@ -44,6 +47,7 @@ public class JdbcStockRepository implements StockRepository {
           :unitId, :epiId, :caBindingId, :lotCode, :manufacturer, :sizeLabel,
           :pieceValidUntil, :caCheckedAt, :unitCostCents)
       """;
+
   private static final String SELECT_LOT_ID_SQL =
       """
       SELECT id FROM lote_epi
@@ -52,14 +56,17 @@ public class JdbcStockRepository implements StockRepository {
         AND lot_code = :lotCode
         AND size_label = :sizeLabel
       """;
+
   private static final String INSERT_MOVEMENT_SQL =
       """
       INSERT INTO estoque_movimento (lote_id, movement_type, quantity)
       VALUES (:loteId, 'RECEBIMENTO', :quantity)
       """;
+
   private static final String LIST_LOTS_SQL =
       """
-      SELECT l.id, l.lot_code, e.description, l.size_label, l.piece_valid_until,
+      SELECT l.id, l.unit_id, u.name AS unit_name, l.epi_id, l.epi_ca_binding_id, b.ca_number,
+             l.lot_code, e.description, l.size_label, l.piece_valid_until,
              l.unit_cost_cents, l.manufacturer,
              COALESCE((
                  SELECT SUM(CASE m.movement_type
@@ -83,11 +90,15 @@ public class JdbcStockRepository implements StockRepository {
              ), 0) AS reservada
       FROM lote_epi l
       JOIN epi_catalog e ON e.id = l.epi_id
-      WHERE l.unit_id = :unitId
-      ORDER BY l.piece_valid_until, l.lot_code
+      JOIN epi_ca_binding b ON b.id = l.epi_ca_binding_id
+      JOIN unit u ON u.id = l.unit_id
+      WHERE (:unitId IS NULL OR l.unit_id = :unitId)
+      ORDER BY u.name, l.piece_valid_until, l.lot_code
       """;
+
   private static final String LIST_UNITS_SQL =
       "SELECT id, name FROM unit WHERE active = 1 ORDER BY name";
+
   private static final String LIST_EPIS_SQL =
       """
       SELECT id, epi_code, description
@@ -95,11 +106,11 @@ public class JdbcStockRepository implements StockRepository {
       WHERE active = 1
       ORDER BY description
       """;
+
   private static final String LIST_CAS_SQL =
       """
-      SELECT b.id, b.ca_number, b.official_check_at, c.manufacturer
+      SELECT b.id, b.ca_number, b.official_check_at
       FROM epi_ca_binding b
-      LEFT JOIN caepi_ca c ON c.ca_number = b.ca_number
       WHERE b.epi_id = :epiId AND b.active = 1 AND b.ca_status = 'ACTIVE'
       ORDER BY b.ca_number
       """;
@@ -128,7 +139,9 @@ public class JdbcStockRepository implements StockRepository {
                 .addValue("caBindingId", caBindingId),
             (rs, rowNum) ->
                 new CaParaRecebimento(
-                    rs.getLong("id"), dataHora(rs.getString("official_check_at"))));
+                    rs.getLong("id"),
+                    rs.getString("ca_number"),
+                    dataHora(rs.getString("official_check_at"))));
     return rows.stream().findFirst();
   }
 
@@ -196,7 +209,42 @@ public class JdbcStockRepository implements StockRepository {
                 rs.getLong("id"),
                 rs.getString("ca_number"),
                 dataHora(rs.getString("official_check_at")),
-                rs.getString("manufacturer")));
+                null));
+  }
+
+  @Override
+  public Optional<LoteParaCorrecao> findLot(Long lotId) {
+    List<LoteParaCorrecao> rows =
+        jdbc.query(
+            """
+            SELECT l.id, l.epi_id, l.epi_ca_binding_id, b.ca_number, l.lot_code
+            FROM lote_epi l
+            JOIN epi_ca_binding b ON b.id = l.epi_ca_binding_id
+            WHERE l.id = :lotId
+            """,
+            new MapSqlParameterSource("lotId", lotId),
+            (rs, rowNum) ->
+                new LoteParaCorrecao(
+                    rs.getLong("id"),
+                    rs.getLong("epi_id"),
+                    rs.getLong("epi_ca_binding_id"),
+                    rs.getString("ca_number"),
+                    rs.getString("lot_code")));
+    return rows.stream().findFirst();
+  }
+
+  @Override
+  public void updateLotCa(Long lotId, Long caBindingId, LocalDateTime caCheckedAt) {
+    jdbc.update(
+        """
+        UPDATE lote_epi
+        SET epi_ca_binding_id = :caBindingId, ca_checked_at = :caCheckedAt
+        WHERE id = :lotId
+        """,
+        new MapSqlParameterSource()
+            .addValue("lotId", lotId)
+            .addValue("caBindingId", caBindingId)
+            .addValue("caCheckedAt", caCheckedAt.toString()));
   }
 
   private static MapSqlParameterSource chave(
@@ -213,6 +261,11 @@ public class JdbcStockRepository implements StockRepository {
     Integer centavos = rs.wasNull() ? null : custo;
     return new LotStored(
         rs.getLong("id"),
+        rs.getLong("unit_id"),
+        rs.getString("unit_name"),
+        rs.getLong("epi_id"),
+        rs.getLong("epi_ca_binding_id"),
+        rs.getString("ca_number"),
         rs.getString("lot_code"),
         rs.getString("description"),
         rs.getString("size_label"),

@@ -7,6 +7,10 @@ public interface HistoricoRepository {
 
   List<TrabalhadorBusca> buscar(String texto);
 
+  default List<TrabalhadorBusca> buscar(String texto, Long unidadeId) {
+    return buscar(texto);
+  }
+
   List<Linha> listar(Long employeeId, LocalDate inicio, LocalDate fim);
 
   record TrabalhadorBusca(

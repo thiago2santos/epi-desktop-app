@@ -42,7 +42,7 @@ public class JdbcFornecimentoRepository implements FornecimentoRepository {
       """;
   private static final String LOTE_SELECT =
       """
-      SELECT l.id, l.epi_id, l.unit_id, l.lot_code, b.ca_number, l.piece_valid_until,
+      SELECT l.id, l.epi_id, l.unit_id, l.lot_code, b.ca_number, b.ca_status, l.piece_valid_until,
              l.unit_cost_cents, %s AS fisica, %s AS reservada
       FROM lote_epi l
       JOIN epi_ca_binding b ON b.id = l.epi_ca_binding_id
@@ -51,11 +51,13 @@ public class JdbcFornecimentoRepository implements FornecimentoRepository {
   private static final String TRABALHADOR_SELECT =
       """
       SELECT e.id, e.employee_code, e.full_name, e.active, e.job_role_id,
-             u.id AS unit_id, u.name AS unit_name, d.name AS department_name, j.name AS job_role_name
+             u.id AS unit_id, u.name AS unit_name, d.name AS department_name,
+             j.name AS job_role_name, m.full_name AS manager_name
       FROM employee e
       JOIN department d ON d.id = e.department_id
       JOIN unit u ON u.id = d.unit_id
       JOIN job_role j ON j.id = e.job_role_id
+      LEFT JOIN employee m ON m.id = e.manager_id
       """;
 
   private final NamedParameterJdbcTemplate jdbc;
@@ -78,21 +80,67 @@ public class JdbcFornecimentoRepository implements FornecimentoRepository {
   }
 
   @Override
-  public List<Trabalhador> buscarAtivos(String texto) {
-    String termo = texto == null ? "" : texto.trim();
-    if (termo.isEmpty()) {
-      return List.of();
+  public Optional<String> hashSenhaRecebimento(Long employeeId) {
+    if (employeeId == null) {
+      return Optional.empty();
     }
-    return jdbc.query(
-        TRABALHADOR_SELECT
-            + """
-             WHERE e.active = 1
-               AND (e.employee_code LIKE :texto OR e.full_name LIKE :texto)
-             ORDER BY e.full_name
-             LIMIT 30
-            """,
-        new MapSqlParameterSource("texto", "%" + termo + "%"),
-        (rs, rowNum) -> trabalhador(rs));
+    List<String> rows =
+        jdbc.query(
+            "SELECT senha_recebimento_hash FROM employee WHERE id = :id",
+            new MapSqlParameterSource("id", employeeId),
+            (rs, rowNum) -> rs.getString("senha_recebimento_hash"));
+    return rows.stream().filter(hash -> hash != null && !hash.isBlank()).findFirst();
+  }
+
+  @Override
+  public Pagina buscar(String texto, int pagina, int tamanho, boolean somenteAtivos, Long setorId) {
+    return buscar(texto, pagina, tamanho, somenteAtivos, setorId, null);
+  }
+
+  @Override
+  public Pagina buscar(
+      String texto, int pagina, int tamanho, boolean somenteAtivos, Long setorId, Long unidadeId) {
+    String termo = texto == null ? "" : texto.trim();
+    int limite = tamanho <= 0 ? 1 : tamanho;
+    int indice = Math.max(pagina, 0);
+    MapSqlParameterSource filtro =
+        new MapSqlParameterSource("texto", termo.isEmpty() ? "" : "%" + termo + "%")
+            .addValue("somenteAtivos", somenteAtivos ? 1 : 0)
+            .addValue("setorId", setorId == null ? 0 : setorId)
+            .addValue("unidadeId", unidadeId == null ? 0 : unidadeId);
+    String onde =
+        """
+         WHERE (:somenteAtivos = 0 OR e.active = 1)
+           AND (:setorId = 0 OR e.department_id = :setorId)
+           AND (:unidadeId = 0 OR d.unit_id = :unidadeId)
+           AND (
+             :texto = ''
+             OR e.employee_code LIKE :texto
+             OR e.full_name LIKE :texto
+           )
+        """;
+    Integer contagem =
+        jdbc.queryForObject(
+            """
+            SELECT COUNT(1)
+            FROM employee e
+            JOIN department d ON d.id = e.department_id
+            """
+                + onde,
+            filtro,
+            Integer.class);
+    int total = contagem == null ? 0 : contagem;
+    List<Trabalhador> itens =
+        jdbc.query(
+            TRABALHADOR_SELECT
+                + onde
+                + """
+                 ORDER BY e.full_name, e.id
+                 LIMIT :limite OFFSET :offset
+                """,
+            filtro.addValue("limite", limite).addValue("offset", indice * limite),
+            (rs, rowNum) -> trabalhador(rs));
+    return new Pagina(itens, total, indice, limite);
   }
 
   @Override
@@ -232,7 +280,8 @@ public class JdbcFornecimentoRepository implements FornecimentoRepository {
         rs.getString("unit_name"),
         rs.getString("department_name"),
         rs.getString("job_role_name"),
-        rs.getLong("job_role_id"));
+        rs.getLong("job_role_id"),
+        rs.getString("manager_name"));
   }
 
   private static LoteLido lote(ResultSet rs) throws SQLException {
@@ -244,10 +293,50 @@ public class JdbcFornecimentoRepository implements FornecimentoRepository {
         rs.getLong("unit_id"),
         rs.getString("lot_code"),
         rs.getString("ca_number"),
+        rs.getString("ca_status"),
         LocalDate.parse(rs.getString("piece_valid_until")),
         rs.getInt("fisica"),
         rs.getInt("reservada"),
         centavos);
+  }
+
+  @Override
+  public List<Long> episComEntregaQueConta(Long employeeId) {
+    if (employeeId == null) {
+      return List.of();
+    }
+    return jdbc.query(
+        """
+        SELECT DISTINCT i.epi_id
+        FROM fornecimento_item i
+        JOIN fornecimento_ficha f ON f.id = i.ficha_id
+        WHERE f.employee_id = :employeeId
+          AND NOT EXISTS (
+              SELECT 1 FROM fornecimento_devolucao d WHERE d.item_id = i.id)
+          AND NOT EXISTS (
+              SELECT 1 FROM fornecimento_estorno s WHERE s.item_id = i.id)
+        """,
+        new MapSqlParameterSource("employeeId", employeeId),
+        (rs, rowNum) -> rs.getLong("epi_id"));
+  }
+
+  @Override
+  public Optional<String> funcaoDaUltimaFicha(Long employeeId) {
+    if (employeeId == null) {
+      return Optional.empty();
+    }
+    List<String> nomes =
+        jdbc.query(
+            """
+            SELECT job_role_name
+            FROM fornecimento_ficha
+            WHERE employee_id = :employeeId
+            ORDER BY confirmed_at DESC, id DESC
+            LIMIT 1
+            """,
+            new MapSqlParameterSource("employeeId", employeeId),
+            (rs, rowNum) -> rs.getString("job_role_name"));
+    return nomes.stream().findFirst();
   }
 
   private static String texto(String valor) {

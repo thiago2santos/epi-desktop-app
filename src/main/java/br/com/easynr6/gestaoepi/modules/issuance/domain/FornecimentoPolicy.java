@@ -10,7 +10,7 @@ import java.util.Set;
 public class FornecimentoPolicy {
 
   public static final String TERMO_VERSAO = "TERMO-NR6-01";
-  public static final String TERMO_METODO = "ASSINATURA_MANUAL";
+  public static final String TERMO_METODO = "SENHA";
   public static final int EXCECAO_MINIMA = 10;
 
   public void exigirItens(int quantidade) {
@@ -70,10 +70,18 @@ public class FornecimentoPolicy {
     }
   }
 
-  public void termo(boolean aceito) {
-    if (!aceito) {
+  public void conferirSenhaRecebimento(String senha, boolean temHash, boolean confere) {
+    if (senha == null) {
       throw new IllegalArgumentException(
           "ENT-009 O fornecimento so conclui com o aceite do termo.");
+    }
+    if (!temHash) {
+      throw new IllegalArgumentException(
+          "ENT-014 Este trabalhador ainda nao tem senha de recebimento. O SESMT define a senha no"
+              + " cadastro.");
+    }
+    if (senha.isBlank() || !confere) {
+      throw new IllegalArgumentException("ENT-015 A senha de recebimento nao confere.");
     }
   }
 
@@ -98,8 +106,16 @@ public class FornecimentoPolicy {
     }
   }
 
-  public List<String> cas(String caDoLote, List<String> adicionais, Set<String> ativos) {
-    if (caDoLote == null || caDoLote.isBlank() || ativos == null || !ativos.contains(caDoLote)) {
+  public List<String> cas(
+      String caDoLote, boolean certificadoAtivo, List<String> adicionais, Set<String> ativos) {
+    LinkedHashSet<String> aceitos = new LinkedHashSet<>();
+    if (ativos != null) {
+      aceitos.addAll(ativos);
+    }
+    if (certificadoAtivo && caDoLote != null && !caDoLote.isBlank()) {
+      aceitos.add(caDoLote);
+    }
+    if (caDoLote == null || caDoLote.isBlank() || !aceitos.contains(caDoLote)) {
       throw new IllegalArgumentException(
           "ENT-004 Escolha um lote vigente deste EPI. Peca vencida nao pode ser fornecida.");
     }
@@ -108,7 +124,7 @@ public class FornecimentoPolicy {
     if (adicionais != null) {
       for (String extra : adicionais) {
         if (extra != null && !extra.isBlank() && !extra.equals(caDoLote)) {
-          if (!ativos.contains(extra)) {
+          if (!aceitos.contains(extra)) {
             throw new IllegalArgumentException(
                 "ENT-004 Escolha um lote vigente deste EPI. Peca vencida nao pode ser fornecida.");
           }
@@ -117,6 +133,41 @@ public class FornecimentoPolicy {
       }
     }
     return new ArrayList<>(cas);
+  }
+
+  public boolean motivoPermitido(
+      MotivoFornecimento motivo, boolean posto, boolean temEntregaQueConta, boolean funcaoMudou) {
+    if (motivo == null) {
+      return false;
+    }
+    if (posto || motivo == MotivoFornecimento.OUTRO) {
+      return true;
+    }
+    return switch (motivo) {
+      case PRIMEIRA_ENTREGA -> !temEntregaQueConta;
+      case TROCA_PERIODICA, DANO, EXTRAVIO -> temEntregaQueConta;
+      case MUDANCA_FUNCAO -> funcaoMudou;
+      case OUTRO -> true;
+    };
+  }
+
+  public boolean funcaoMudou(String funcaoAtual, String funcaoDaUltimaFicha) {
+    if (funcaoDaUltimaFicha == null || funcaoDaUltimaFicha.isBlank() || funcaoAtual == null) {
+      return false;
+    }
+    return !funcaoAtual.trim().equals(funcaoDaUltimaFicha.trim());
+  }
+
+  public MotivoFornecimento sugerirMotivo(
+      MotivoFornecimento atual, boolean posto, boolean temEntregaQueConta, boolean funcaoMudou) {
+    if (motivoPermitido(atual, posto, temEntregaQueConta, funcaoMudou)) {
+      return atual;
+    }
+    if (motivoPermitido(
+        MotivoFornecimento.PRIMEIRA_ENTREGA, posto, temEntregaQueConta, funcaoMudou)) {
+      return MotivoFornecimento.PRIMEIRA_ENTREGA;
+    }
+    return MotivoFornecimento.TROCA_PERIODICA;
   }
 
   public static String textoDoTermo(String nome) {

@@ -36,4 +36,12 @@ public class StockAccessAuthorizer {
     }
     throw new AuthorizationDeniedException(SEM_PERMISSAO);
   }
+
+  public void assertCanCorrectCa(Long actorId) {
+    Set<Papel> roles = identityRepository.loadRoles(actorId);
+    if (roles.contains(Papel.ADMIN) || roles.contains(Papel.SESMT)) {
+      return;
+    }
+    throw new AuthorizationDeniedException(SEM_PERMISSAO);
+  }
 }

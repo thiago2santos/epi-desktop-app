@@ -196,7 +196,12 @@ public final class GheManagementView {
 
   private void carregarUnidades() {
     try {
-      unidade.getItems().setAll(estrutura.listUnits(usuario.id(), ""));
+      var plantas = estrutura.listUnits(usuario.id(), "");
+      if (usuario.unidadeId() != null) {
+        plantas = plantas.stream().filter(item -> item.id().equals(usuario.unidadeId())).toList();
+      }
+      unidade.getItems().setAll(plantas);
+      unidade.setDisable(usuario.unidadeId() != null);
       if (!unidade.getItems().isEmpty()) {
         unidade.getSelectionModel().selectFirst();
       }
@@ -223,7 +228,7 @@ public final class GheManagementView {
       nome.clear();
       status.setValue(StatusOpcao.ATIVO);
       status.setDisable(false);
-      unidade.setDisable(false);
+      unidade.setDisable(usuario.unidadeId() != null);
       membros.getItems().clear();
       limparMarcacao();
       mostrar("", Tom.AVISO);

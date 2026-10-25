@@ -61,6 +61,9 @@ class RecebimentoLoteUxTest {
     assertEquals(
         "A consulta deste CA não é de hoje. Confira o número impresso na peça.",
         LotManagementView.AVISO_CONSULTA);
+    assertEquals(
+        "Este EPI não tem CA ativo. Vincule um CA antes de receber o lote.",
+        LotManagementView.SEM_CA);
   }
 
   @Test
@@ -76,6 +79,14 @@ class RecebimentoLoteUxTest {
     assertFalse(LotManagementView.exibeRecebimento(sesmt));
     assertTrue(LotManagementView.exibeRecebimento(almox));
     assertTrue(LotManagementView.exibeRecebimento(admin));
+    assertFalse(LotManagementView.exibeCorrecaoCa(consulta));
+    assertFalse(LotManagementView.exibeCorrecaoCa(almox));
+    assertTrue(LotManagementView.exibeCorrecaoCa(sesmt));
+    assertTrue(LotManagementView.exibeCorrecaoCa(admin));
+    assertEquals("Corrigir CA", LotManagementView.ACAO_CORRIGIR);
+    assertEquals(
+        "Trocar o CA deste lote? As fichas já assinadas continuam com o número daquele dia.",
+        LotManagementView.DIALOGO_CA);
     assertEquals("Nenhum lote com esse filtro.", LotManagementView.FILTRO_VAZIO);
     assertEquals(LotManagementView.FILTRO_VAZIO, LotManagementView.textoListaVazia(true));
     assertEquals(LotManagementView.LISTA_VAZIA, LotManagementView.textoListaVazia(false));
@@ -105,5 +116,13 @@ class RecebimentoLoteUxTest {
 
     assertEquals("Já existe este lote para este EPI nesta unidade.", texto);
     assertFalse(texto.contains("LOT-003"));
+    assertEquals(
+        "Este lote já está com este CA.",
+        MensagensEstoque.erro(
+            new IllegalArgumentException("LOT-017 Este lote ja esta com este CA.")));
+    assertEquals(
+        "Escolha um CA ativo deste EPI.",
+        MensagensEstoque.erro(
+            new IllegalArgumentException("LOT-018 Escolha um CA ativo deste EPI.")));
   }
 }

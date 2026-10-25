@@ -21,8 +21,12 @@ public class ConsultarHistoricoUseCase {
   }
 
   public List<TrabalhadorBusca> buscar(Long actorId, String texto) {
+    return buscar(actorId, texto, null);
+  }
+
+  public List<TrabalhadorBusca> buscar(Long actorId, String texto, Long unidadeId) {
     accessAuthorizer.assertCanRead(actorId);
-    return historicoRepository.buscar(texto);
+    return historicoRepository.buscar(texto, unidadeId);
   }
 
   public List<Linha> listar(Long actorId, Long employeeId, LocalDate inicio, LocalDate fim) {

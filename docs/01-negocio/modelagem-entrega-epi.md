@@ -106,7 +106,7 @@ Referencia da especificacao curta normativa:
 - CPF opcional se matricula for identificador principal.
 - `data_entrega <= agora`.
 - `quantidade > 0`.
-- `metodo_validacao IN ('ASSINATURA_MANUAL', 'ASSINATURA_DIGITAL', 'BIOMETRIA')`.
+- `metodo_validacao IN ('SENHA', 'ASSINATURA_DIGITAL', 'BIOMETRIA')`. Nesta versao o metodo gravado e `SENHA`: hash no trabalhador (`UC-CAD-03`), conferido na confirmacao da ficha. Assinatura digital e biometria ficam no dominio, fora do codigo.
 - `motivo_entrega` controlado por dominio.
 - Impedir devolucao anterior a entrega.
 

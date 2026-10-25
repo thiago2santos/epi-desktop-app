@@ -6,6 +6,7 @@ import br.com.easynr6.gestaoepi.modules.employee.application.port.EmployeeReposi
 import br.com.easynr6.gestaoepi.modules.employee.application.port.EmployeeRepository.EmployeeSummary;
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.DepartmentOption;
 import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.JobRoleOption;
+import br.com.easynr6.gestaoepi.shared.audit.LogTroubleshooting;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
 import br.com.easynr6.gestaoepi.ui.Enr6Styles;
 import br.com.easynr6.gestaoepi.ui.MensagemTemporaria;
@@ -27,10 +28,12 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -76,6 +79,8 @@ public final class EmployeeManagementView {
   private final ComboBox<JobRoleOption> funcaoCombo = new ComboBox<>();
   private final ComboBox<EmployeeOption> gestorCombo = new ComboBox<>();
   private final ComboBox<StatusOpcao> statusCombo = new ComboBox<>();
+  private final PasswordField senhaField = new PasswordField();
+  private final Label estadoSenha = new Label(MensagensCadastroTrabalhador.SEM_SENHA);
   private final Button salvar = new Button("Salvar");
   private final Button inativar = new Button("Inativar");
   private final Button reativar = new Button("Reativar");
@@ -173,6 +178,10 @@ public final class EmployeeManagementView {
     matriculaField.textProperty().addListener((obs, anterior, atual) -> atualizarBotaoSalvar());
     nomeField.textProperty().addListener((obs, anterior, atual) -> atualizarBotaoSalvar());
     funcaoCombo.valueProperty().addListener((obs, anterior, atual) -> atualizarBotaoSalvar());
+    senhaField.setPromptText(MensagensCadastroTrabalhador.SENHA_ROTULO);
+    senhaField.setTooltip(new Tooltip(MensagensCadastroTrabalhador.DICA_SENHA));
+    estadoSenha.setWrapText(true);
+    estadoSenha.setMaxWidth(Double.MAX_VALUE);
 
     salvar.getStyleClass().add(Styles.ACCENT);
     salvar.setDisable(true);
@@ -201,6 +210,7 @@ public final class EmployeeManagementView {
             campo("Função", funcaoCombo),
             campo("Gestor", gestorCombo),
             campo("Status", statusCombo),
+            campo(MensagensCadastroTrabalhador.SENHA_ROTULO, blocoSenha()),
             feedbackLabel,
             new HBox(8, salvar, inativar, reativar, limpar));
     return box;
@@ -274,6 +284,8 @@ public final class EmployeeManagementView {
       funcaoCombo.getSelectionModel().clearSelection();
       carregarGestores(null, null, null, null);
       statusCombo.setValue(StatusOpcao.ATIVO);
+      senhaField.clear();
+      mostrarEstadoSenha(false);
       limparMarcacoes();
     } finally {
       sincronizando = false;
@@ -295,6 +307,8 @@ public final class EmployeeManagementView {
       carregarGestores(
           empregado.unitId(), empregado.id(), empregado.managerId(), empregado.managerName());
       statusCombo.setValue(empregado.active() ? StatusOpcao.ATIVO : StatusOpcao.INATIVO);
+      senhaField.clear();
+      mostrarEstadoSenha(empregado.senhaDefinida());
       limparMarcacoes();
       if (limparAviso) {
         feedback("", Tom.AVISO);
@@ -330,18 +344,28 @@ public final class EmployeeManagementView {
     if (plano.confirmarInativacao() && atual != null && !confirmarInativacao(atual)) {
       return;
     }
+    boolean definiuSenha = !texto(senhaField).isBlank();
     try {
       executar(plano, atual, ficaAtivo);
       editando = null;
       recarregarLista();
       prepararNovo();
       tabela.getSelectionModel().clearSelection();
-      feedback(novo ? "Trabalhador cadastrado." : "Alterações salvas.", Tom.OK);
+      String mensagem =
+          definiuSenha
+              ? MensagensCadastroTrabalhador.SENHA_DEFINIDA
+              : novo ? "Trabalhador cadastrado." : "Alterações salvas.";
+      feedback(mensagem, Tom.OK);
     } catch (RuntimeException ex) {
+      LogTroubleshooting.registrar("SALVAR_TRABALHADOR", usuario.id(), texto(matriculaField), ex);
       feedback(MensagensCadastroTrabalhador.erro(ex), Tom.ERRO);
       recarregarLista();
       if (atual != null) {
         religar(atual.id());
+      }
+      String causa = ex.getMessage() == null ? "" : ex.getMessage();
+      if (causa.startsWith("CAD-008")) {
+        Enr6Styles.markFieldInvalid(senhaField, true);
       }
     }
   }
@@ -376,7 +400,8 @@ public final class EmployeeManagementView {
               departmentId,
               jobRoleId,
               managerId,
-              ficaAtivo);
+              ficaAtivo,
+              texto(senhaField));
       case ATUALIZAR ->
           empregados.updateEmployee(
               usuario.id(),
@@ -385,7 +410,8 @@ public final class EmployeeManagementView {
               departmentId,
               jobRoleId,
               managerId,
-              ativoNaEdicao);
+              ativoNaEdicao,
+              texto(senhaField));
       case INATIVAR -> empregados.setEmployeeStatus(usuario.id(), id, false);
       case REATIVAR -> empregados.setEmployeeStatus(usuario.id(), id, true);
     }
@@ -457,7 +483,12 @@ public final class EmployeeManagementView {
     recarregando = true;
     try {
       Long manter = editando == null ? null : editando.id();
-      tabela.getItems().setAll(empregados.listEmployees(usuario.id(), filtro.getText()));
+      tabela
+          .getItems()
+          .setAll(
+              empregados.listEmployees(usuario.id(), filtro.getText()).stream()
+                  .filter(item -> daSessao(item.unitId()))
+                  .toList());
       if (manter != null) {
         tabela.getItems().stream()
             .filter(item -> item.id().equals(manter))
@@ -481,9 +512,14 @@ public final class EmployeeManagementView {
   }
 
   private void atualizarAvisoSetor() {
-    boolean semSetor = empregados.listActiveDepartments().isEmpty();
+    boolean semSetor =
+        empregados.listActiveDepartments().stream().noneMatch(item -> daSessao(item.unitId()));
     avisoSetor.setVisible(semSetor);
     avisoSetor.setManaged(semSetor);
+  }
+
+  private boolean daSessao(Long unitId) {
+    return usuario.unidadeId() == null || usuario.unidadeId().equals(unitId);
   }
 
   private void atualizarVazio() {
@@ -493,7 +529,11 @@ public final class EmployeeManagementView {
   }
 
   private void carregarSetores(EmployeeSummary atual) {
-    List<DepartmentOption> itens = new ArrayList<>(empregados.listActiveDepartments());
+    List<DepartmentOption> itens =
+        new ArrayList<>(
+            empregados.listActiveDepartments().stream()
+                .filter(item -> daSessao(item.unitId()))
+                .toList());
     if (atual != null && itens.stream().noneMatch(item -> item.id().equals(atual.departmentId()))) {
       itens.add(
           new DepartmentOption(
@@ -613,7 +653,8 @@ public final class EmployeeManagementView {
         || !setor.id().equals(atual.departmentId())
         || funcao == null
         || !funcao.id().equals(atual.jobRoleId())
-        || !Objects.equals(gestorId(), atual.managerId());
+        || !Objects.equals(gestorId(), atual.managerId())
+        || !texto(senhaField).isBlank();
   }
 
   private String nomeInformado() {
@@ -628,6 +669,7 @@ public final class EmployeeManagementView {
   private void limparMarcacoes() {
     Enr6Styles.markFieldInvalid(matriculaField, false);
     Enr6Styles.markFieldInvalid(nomeField, false);
+    Enr6Styles.markFieldInvalid(senhaField, false);
     marcar(setorCombo, false);
     marcar(funcaoCombo, false);
   }
@@ -662,6 +704,20 @@ public final class EmployeeManagementView {
     TableColumn<EmployeeSummary, String> column = new TableColumn<>(titulo);
     column.setCellValueFactory(data -> new SimpleStringProperty(valor.apply(data.getValue())));
     return column;
+  }
+
+  private void mostrarEstadoSenha(boolean definida) {
+    estadoSenha.setText(
+        definida
+            ? MensagensCadastroTrabalhador.SENHA_DEFINIDA
+            : MensagensCadastroTrabalhador.SEM_SENHA);
+  }
+
+  private VBox blocoSenha() {
+    senhaField.setMaxWidth(Double.MAX_VALUE);
+    VBox bloco = new VBox(4, senhaField, estadoSenha);
+    bloco.setFillWidth(true);
+    return bloco;
   }
 
   private static VBox campo(String rotulo, Node editor) {

@@ -1,6 +1,7 @@
 package br.com.easynr6.gestaoepi.modules.issuance.application;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -13,6 +14,9 @@ import br.com.easynr6.gestaoepi.modules.epi.PrintConsulta;
 import br.com.easynr6.gestaoepi.modules.epi.application.EpiCatalogManagementService;
 import br.com.easynr6.gestaoepi.modules.epi.domain.AnnexGroup;
 import br.com.easynr6.gestaoepi.modules.epi.domain.CaStatus;
+import br.com.easynr6.gestaoepi.modules.issuance.application.port.FornecimentoRepository.Pagina;
+import br.com.easynr6.gestaoepi.modules.issuance.application.port.FornecimentoRepository.Trabalhador;
+import br.com.easynr6.gestaoepi.modules.issuance.application.usecase.ConsultarFornecimentoUseCase;
 import br.com.easynr6.gestaoepi.modules.issuance.application.usecase.RegistrarFornecimentoUseCase.ItemParaRegistrar;
 import br.com.easynr6.gestaoepi.modules.issuance.application.usecase.RegistrarFornecimentoUseCase.Pedido;
 import br.com.easynr6.gestaoepi.modules.issuance.domain.FornecimentoPolicy;
@@ -68,6 +72,82 @@ class FornecimentoManagementServiceIntegrationTest {
   @BeforeEach
   void relogio() {
     relogio.ajustar(LocalDateTime.now().withNano(0));
+  }
+
+  @Test
+  void shouldPageActiveWorkersFromTheThirdCharacter() {
+    Cenario cenario = cenario("Planta busca");
+    String marca = "Qq" + System.nanoTime();
+    long gestorId =
+        estrutura.createEmployee(
+            cenario.adminId(),
+            "G" + System.nanoTime(),
+            marca + " gestor",
+            cenario.departmentId(),
+            cenario.jobRoleId(),
+            null,
+            true);
+    for (int i = 0; i < 10; i++) {
+      estrutura.createEmployee(
+          cenario.adminId(),
+          "B" + i + System.nanoTime(),
+          marca + String.format(" %02d", i),
+          cenario.departmentId(),
+          cenario.jobRoleId(),
+          i == 0 ? gestorId : null,
+          true);
+    }
+    estrutura.createEmployee(
+        cenario.adminId(),
+        "I" + System.nanoTime(),
+        marca + " inativo",
+        cenario.departmentId(),
+        cenario.jobRoleId(),
+        null,
+        false);
+
+    long outroSetor =
+        estrutura.createDepartment(
+            cenario.adminId(), "Outro " + System.nanoTime(), cenario.unitId(), true);
+    long outraFuncao =
+        estrutura.createJobRole(cenario.adminId(), "Funcao " + System.nanoTime(), outroSetor, true);
+    estrutura.createEmployee(
+        cenario.adminId(),
+        "F" + System.nanoTime(),
+        "Fora " + System.nanoTime(),
+        outroSetor,
+        outraFuncao,
+        null,
+        true);
+
+    Pagina semTexto = fornecimento.buscar(cenario.almoxId(), "", 0, true, null);
+    Pagina curta = fornecimento.buscar(cenario.almoxId(), "Qq", 0, true, null);
+    Pagina primeira = fornecimento.buscar(cenario.almoxId(), marca, 0, true, null);
+    Pagina segunda = fornecimento.buscar(cenario.almoxId(), marca, 1, true, null);
+    Pagina comInativos = fornecimento.buscar(cenario.almoxId(), marca, 1, false, null);
+    Pagina doSetor = fornecimento.buscar(cenario.almoxId(), "", 0, false, cenario.departmentId());
+    Pagina deOutro = fornecimento.buscar(cenario.almoxId(), "", 0, true, outroSetor);
+    Trabalhador comGestor =
+        primeira.itens().stream()
+            .filter(item -> item.nome().equals(marca + " 00"))
+            .findFirst()
+            .orElseThrow();
+
+    assertEquals(semTexto.total(), curta.total());
+    assertTrue(semTexto.total() >= 11);
+    assertFalse(semTexto.itens().isEmpty());
+    assertEquals(11, primeira.total());
+    assertEquals(ConsultarFornecimentoUseCase.TAMANHO_PAGINA, primeira.itens().size());
+    assertEquals(2, primeira.paginas());
+    assertEquals(1, segunda.itens().size());
+    assertEquals(marca + " gestor", comGestor.gestor());
+    assertTrue(primeira.itens().stream().noneMatch(item -> item.nome().endsWith("inativo")));
+    assertTrue(segunda.itens().stream().noneMatch(item -> item.nome().endsWith("inativo")));
+    assertEquals(12, comInativos.total());
+    assertTrue(comInativos.itens().stream().anyMatch(item -> item.nome().endsWith("inativo")));
+    assertEquals(13, doSetor.total());
+    assertTrue(doSetor.itens().stream().allMatch(item -> item.setor().equals(cenario.setor())));
+    assertEquals(1, deOutro.total());
   }
 
   @Test
@@ -163,7 +243,10 @@ class FornecimentoManagementServiceIntegrationTest {
             () ->
                 fornecimento.registrar(
                     cenario.almoxId(),
-                    new Pedido(cenario.employeeId(), true, List.of(item(lote, 1), item(lote, 1)))));
+                    new Pedido(
+                        cenario.employeeId(),
+                        SenhaDeTeste.RECEBIMENTO,
+                        List.of(item(lote, 1), item(lote, 1)))));
 
     assertTrue(semData.getMessage().startsWith("ENT-008"));
     assertTrue(repetido.getMessage().startsWith("ENT-012"));
@@ -174,7 +257,7 @@ class FornecimentoManagementServiceIntegrationTest {
   void shouldRefuseConfirmationWithoutTheTerm() {
     Cenario cenario = cenario("Planta termo");
     Peca peca = pecaNaMatriz(cenario, "Luva termo", null, 2, LocalDate.now().plusDays(10), false);
-    Pedido semTermo = new Pedido(cenario.employeeId(), false, List.of(item(peca, 1)));
+    Pedido semTermo = new Pedido(cenario.employeeId(), null, List.of(item(peca, 1)));
 
     IllegalArgumentException ex =
         assertThrows(
@@ -182,6 +265,53 @@ class FornecimentoManagementServiceIntegrationTest {
             () -> fornecimento.registrar(cenario.almoxId(), semTermo));
 
     assertTrue(ex.getMessage().startsWith("ENT-009"));
+    assertEquals(0, fichas(cenario.employeeId()));
+    assertEquals(0, baixas(peca.loteId()));
+  }
+
+  @Test
+  void shouldRefuseWhenTheWorkerHasNoReceiptPassword() {
+    Cenario cenario = cenario("Planta sem senha");
+    jdbcTemplate.update(
+        "UPDATE employee SET senha_recebimento_hash = NULL WHERE id = ?", cenario.employeeId());
+    Peca peca =
+        pecaNaMatriz(cenario, "Luva sem senha", null, 2, LocalDate.now().plusDays(10), false);
+    Pedido pedido =
+        new Pedido(cenario.employeeId(), SenhaDeTeste.RECEBIMENTO, List.of(item(peca, 1)));
+
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> fornecimento.registrar(cenario.almoxId(), pedido));
+
+    assertTrue(ex.getMessage().startsWith("ENT-014"));
+    assertEquals(0, fichas(cenario.employeeId()));
+    assertEquals(0, baixas(peca.loteId()));
+  }
+
+  @Test
+  void shouldRefuseBlankOrWrongReceiptPassword() {
+    Cenario cenario = cenario("Planta senha errada");
+    Peca peca = pecaNaMatriz(cenario, "Luva senha", null, 2, LocalDate.now().plusDays(10), false);
+
+    IllegalArgumentException emBranco =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                fornecimento.registrar(
+                    cenario.almoxId(),
+                    new Pedido(cenario.employeeId(), "   ", List.of(item(peca, 1)))));
+    IllegalArgumentException errada =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                fornecimento.registrar(
+                    cenario.almoxId(),
+                    new Pedido(cenario.employeeId(), "outra-1", List.of(item(peca, 1)))));
+
+    assertTrue(emBranco.getMessage().startsWith("ENT-015"));
+    assertTrue(errada.getMessage().startsWith("ENT-015"));
+    assertEquals(false, emBranco.getMessage().contains("outra-1"));
     assertEquals(0, fichas(cenario.employeeId()));
     assertEquals(0, baixas(peca.loteId()));
   }
@@ -219,15 +349,36 @@ class FornecimentoManagementServiceIntegrationTest {
     long fichaId =
         fornecimento.registrar(
             cenario.almoxId(),
-            new Pedido(cenario.employeeId(), true, List.of(item(peca, 1), item(posto, 1))));
+            new Pedido(
+                cenario.employeeId(),
+                SenhaDeTeste.RECEBIMENTO,
+                List.of(item(peca, 1), item(posto, 1))));
 
     assertEquals(instante.toString(), confirmadaEm(fichaId));
     assertEquals("Vigente", situacao(cenario.employeeId(), peca.epiId()));
     assertEquals("Posto", situacao(cenario.employeeId(), posto.epiId()));
   }
 
+  @Test
+  void shouldReadDeliveryContextForTheReason() {
+    Cenario cenario = cenario("Planta motivo");
+    Peca peca = pecaNaMatriz(cenario, "Luva motivo", null, 3, LocalDate.of(2099, 1, 1), false);
+    ConsultarFornecimentoUseCase.SaidaContexto antes =
+        fornecimento.saida(cenario.almoxId(), cenario.employeeId());
+
+    assertFalse(antes.episComEntrega().contains(peca.epiId()));
+    assertNull(antes.funcaoUltimaFicha());
+
+    fornecimento.registrar(cenario.almoxId(), pedido(cenario.employeeId(), item(peca, 1)));
+    ConsultarFornecimentoUseCase.SaidaContexto depois =
+        fornecimento.saida(cenario.almoxId(), cenario.employeeId());
+
+    assertTrue(depois.episComEntrega().contains(peca.epiId()));
+    assertEquals(cenario.funcao(), depois.funcaoUltimaFicha());
+  }
+
   private Pedido pedido(long employeeId, ItemParaRegistrar item) {
-    return new Pedido(employeeId, true, List.of(item));
+    return new Pedido(employeeId, SenhaDeTeste.RECEBIMENTO, List.of(item));
   }
 
   private ItemParaRegistrar item(Peca peca, int quantidade) {
@@ -266,6 +417,7 @@ class FornecimentoManagementServiceIntegrationTest {
             jobRoleId,
             null,
             true);
+    estrutura.definirSenhaRecebimento(adminId, employeeId, SenhaDeTeste.RECEBIMENTO);
     String setor =
         jdbcTemplate.queryForObject(
             "SELECT name FROM department WHERE id = ?", String.class, departmentId);

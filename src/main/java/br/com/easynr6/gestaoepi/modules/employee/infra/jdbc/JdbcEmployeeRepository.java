@@ -37,6 +37,15 @@ public class JdbcEmployeeRepository implements EmployeeRepository {
           updated_at = CURRENT_TIMESTAMP
       WHERE id = :employeeId
       """;
+  private static final String UPDATE_RECEIPT_PASSWORD_SQL =
+      """
+      UPDATE employee
+      SET senha_recebimento_hash = :hash,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = :employeeId
+      """;
+  private static final String SELECT_CODE_SQL =
+      "SELECT employee_code FROM employee WHERE id = :employeeId";
   private static final String SET_EMPLOYEE_STATUS_SQL =
       """
       UPDATE employee
@@ -74,7 +83,11 @@ public class JdbcEmployeeRepository implements EmployeeRepository {
              e.manager_id,
              m.full_name AS manager_name,
              e.active,
-             e.updated_at
+             e.updated_at,
+             CASE
+               WHEN e.senha_recebimento_hash IS NULL OR e.senha_recebimento_hash = '' THEN 0
+               ELSE 1
+             END AS senha_definida
       FROM employee e
       JOIN department d ON d.id = e.department_id
       JOIN unit u ON u.id = d.unit_id
@@ -131,6 +144,26 @@ public class JdbcEmployeeRepository implements EmployeeRepository {
         SELECT_EMPLOYEE_ID_BY_CODE_SQL,
         new MapSqlParameterSource().addValue("employeeCode", employeeCode),
         Long.class);
+  }
+
+  @Override
+  public void gravarSenhaRecebimento(Long employeeId, String hash) {
+    jdbcTemplate.update(
+        UPDATE_RECEIPT_PASSWORD_SQL,
+        new MapSqlParameterSource().addValue("employeeId", employeeId).addValue("hash", hash));
+  }
+
+  @Override
+  public Optional<String> findCodeById(Long employeeId) {
+    if (employeeId == null) {
+      return Optional.empty();
+    }
+    List<String> rows =
+        jdbcTemplate.query(
+            SELECT_CODE_SQL,
+            new MapSqlParameterSource().addValue("employeeId", employeeId),
+            (rs, rowNum) -> rs.getString("employee_code"));
+    return rows.stream().findFirst();
   }
 
   @Override
@@ -219,7 +252,8 @@ public class JdbcEmployeeRepository implements EmployeeRepository {
                 nullableLong(rs, "manager_id"),
                 rs.getString("manager_name"),
                 rs.getInt("active") == 1,
-                rs.getString("updated_at")));
+                rs.getString("updated_at"),
+                rs.getInt("senha_definida") == 1));
   }
 
   private static Long nullableLong(ResultSet rs, String column) throws SQLException {

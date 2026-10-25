@@ -20,8 +20,12 @@ public class ConsultarEstornoUseCase {
   }
 
   public List<TrabalhadorBusca> buscar(Long actorId, String texto) {
+    return buscar(actorId, texto, null);
+  }
+
+  public List<TrabalhadorBusca> buscar(Long actorId, String texto, Long unidadeId) {
     accessAuthorizer.assertCanRegister(actorId);
-    return estornoRepository.buscar(texto);
+    return estornoRepository.buscar(texto, unidadeId);
   }
 
   public List<ItemAberto> abertos(Long actorId, Long employeeId) {

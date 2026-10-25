@@ -63,7 +63,7 @@
 
 Destino ja previsto: "Devolucao / descarte". Titulo sem codigo de caso de uso.
 
-- Busca do trabalhador e lista dos itens que ainda contam: EPI, CA, lote, data do fornecimento, quantidade.
+- Busca do trabalhador e lista dos itens que ainda contam: EPI, CA, lote, data do fornecimento, quantidade. O CA e o numero gravado na ficha, nao o CA atual do lote.
 - Formulario da linha: data e motivo.
 - Confirmar abre "Registrar esta devolucao? O saldo da prateleira nao muda." Confirmar / Voltar.
 - Vazio: "Nenhum item pendente de devolucao para este trabalhador."

@@ -28,7 +28,11 @@ public class DevolucaoManagementService {
   }
 
   public List<TrabalhadorBusca> buscar(Long actorId, String texto) {
-    return consultarDevolucaoUseCase.buscar(actorId, texto);
+    return buscar(actorId, texto, null);
+  }
+
+  public List<TrabalhadorBusca> buscar(Long actorId, String texto, Long unidadeId) {
+    return consultarDevolucaoUseCase.buscar(actorId, texto, unidadeId);
   }
 
   public List<ItemPendente> pendentes(Long actorId, Long employeeId) {

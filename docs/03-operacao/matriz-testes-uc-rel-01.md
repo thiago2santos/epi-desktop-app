@@ -10,3 +10,4 @@ Spec: `docs/03-operacao/spec-uc-rel-01-ficha.md`.
 | REL01-004 | INT | CA-04 | Ficha com funcao Operador; trabalhador hoje e Analista | Gerar PDF | Funcao impressa Operador |
 | REL01-005 | RBAC | CA-05 | `ALMOXARIFE` | Gerar | `AUTH-004`; sem arquivo |
 | REL01-006 | INT | CA-06 | Mesmo recorte duas vezes, sem fato novo | Gerar de novo | Mesmas linhas; rodape com outro instante |
+| REL01-007 | INT | CA-07 | Fornecimento confirmado com senha de recebimento | Gerar PDF | Metodo `SENHA` e o texto do termo; senha e hash ausentes |

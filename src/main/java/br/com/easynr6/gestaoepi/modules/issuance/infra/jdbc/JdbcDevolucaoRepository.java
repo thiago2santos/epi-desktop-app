@@ -15,7 +15,11 @@ public class JdbcDevolucaoRepository implements DevolucaoRepository {
 
   private static final String ITEM_SQL =
       """
-      SELECT i.id AS item_id, f.employee_id, i.epi_id, e.description AS epi, b.ca_number,
+      SELECT i.id AS item_id, f.employee_id, i.epi_id, e.description AS epi,
+             COALESCE(
+                 (SELECT c.ca_number FROM fornecimento_item_ca c
+                  WHERE c.item_id = i.id ORDER BY c.ca_number LIMIT 1),
+                 b.ca_number) AS ca_number,
              l.lot_code, i.quantity, substr(f.confirmed_at, 1, 10) AS dia,
              emp.employee_code, emp.full_name
       FROM fornecimento_item i
@@ -38,6 +42,11 @@ public class JdbcDevolucaoRepository implements DevolucaoRepository {
 
   @Override
   public List<TrabalhadorBusca> buscar(String texto) {
+    return buscar(texto, null);
+  }
+
+  @Override
+  public List<TrabalhadorBusca> buscar(String texto, Long unidadeId) {
     String termo = texto == null ? "" : texto.trim();
     if (termo.isEmpty()) {
       return List.of();
@@ -48,11 +57,13 @@ public class JdbcDevolucaoRepository implements DevolucaoRepository {
         FROM employee e
         JOIN department d ON d.id = e.department_id
         JOIN job_role j ON j.id = e.job_role_id
-        WHERE e.employee_code LIKE :texto OR e.full_name LIKE :texto
+        WHERE (e.employee_code LIKE :texto OR e.full_name LIKE :texto)
+          AND (:unidadeId = 0 OR d.unit_id = :unidadeId)
         ORDER BY e.full_name
         LIMIT 30
         """,
-        new MapSqlParameterSource("texto", "%" + termo + "%"),
+        new MapSqlParameterSource("texto", "%" + termo + "%")
+            .addValue("unidadeId", unidadeId == null ? 0 : unidadeId),
         (rs, rowNum) ->
             new TrabalhadorBusca(
                 rs.getLong("id"),

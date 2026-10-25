@@ -87,7 +87,7 @@ Referência mock: [`docs/mock/ROADMAP-SESSION-MOCK.md`](../mock/ROADMAP-SESSION-
 | Item | Mock | Java | Spec / testes | Notas |
 |------|------|------|---------------|-------|
 | UC-ENT-01 fornecimento | ✅ 02 | ✅ serviço e tela | spec + matriz | Ficha, termo e `BAIXA_FORNECIMENTO` na mesma transacao |
-| UC-ENT-02 termo | ✅ passo 4 do 02 | ✅ no fornecimento | spec + matriz | `ASSINATURA_MANUAL`, versao `TERMO-NR6-01` |
+| UC-ENT-02 termo | ✅ passo 4 do 02 | ✅ no fornecimento | spec + matriz | Metodo `SENHA`. Versao `TERMO-NR6-01` |
 | Commit entrega+lote+audit | ✅ store | ⬜ | DoR §5 transação | Mock: `createIssuance` |
 | Termo / ciência NR-6 | ✅ checkboxes | ⬜ | blueprint passo 4 | |
 | Histórico trabalhador | ✅ 05 | ⬜ | — | |

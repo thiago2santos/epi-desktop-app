@@ -32,8 +32,17 @@ public final class MensagensEstoque {
     if (mensagem.startsWith("LOT-005")) {
       return "Escolha uma unidade ativa.";
     }
+    if (mensagem.startsWith("LOT-006")) {
+      return "Selecione um lote da lista.";
+    }
     if (mensagem.startsWith("LOT-007")) {
       return "O custo unitário não pode ser negativo.";
+    }
+    if (mensagem.startsWith("LOT-017")) {
+      return "Este lote já está com este CA.";
+    }
+    if (mensagem.startsWith("LOT-018")) {
+      return "Escolha um CA ativo deste EPI.";
     }
     if (mensagem.startsWith("AUTH-004")) {
       return "Você não tem permissão para esta ação.";

@@ -666,13 +666,12 @@ Concluir entrega com segurança jurídica e velocidade operacional.
 
 #### Passo 5 — Confirmação
 
-- Resumo completo antes do commit:
-  - trabalhador, itens, lotes, CAs, quantidades, operador.
-- Botão primário: `Confirmar entrega`.
-- Pós-sucesso:
-  - número do registro;
-  - opção `Imprimir comprovante`;
-  - opção `Nova entrega`.
+Proposta fechada de hierarquia, caixa e heurísticas: `docs/02-arquitetura/usabilidade/proposta-revisao-fornecimento.md`.
+
+- Leitura da ficha antes do commit, na mesma caixa do termo: quem, peças (EPI, CA, lote, validade, quantidade, motivo), orientação e “Termo aceito.”
+- Faixa: a ficha não se edita e a quantidade sai do disponível.
+- Botão primário: `Confirmar fornecimento`, na lateral direita da caixa. Anterior na esquerda.
+- Pós-sucesso: faixa com o número da ficha. Comprovante impresso fica no `UC-REL-01`.
 
 **Critérios de aceite funcionais**
 

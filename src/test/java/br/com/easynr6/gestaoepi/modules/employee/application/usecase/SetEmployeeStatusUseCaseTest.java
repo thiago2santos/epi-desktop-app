@@ -161,6 +161,14 @@ class SetEmployeeStatusUseCaseTest {
     }
 
     @Override
+    public void gravarSenhaRecebimento(Long employeeId, String hash) {}
+
+    @Override
+    public Optional<String> findCodeById(Long employeeId) {
+      return Optional.empty();
+    }
+
+    @Override
     public void update(
         Long employeeId,
         String fullName,

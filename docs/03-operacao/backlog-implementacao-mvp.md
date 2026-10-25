@@ -121,7 +121,7 @@ Transformar as definicoes ja consolidadas em um plano executavel de implementaca
 ## M2 - Core operacional governado (Must)
 
 - **[UC]** `UC-ENT-01` Registrar fornecimento implementado (`FornecimentoWizardView`, migracao `V16`). Ficha, termo, `BAIXA_FORNECIMENTO` e auditoria na mesma transacao. Pedido e reserva esperam `UC-SOL-01` e `UC-LOT-03`. Ver `spec-uc-ent-01-fornecimento.md`.
-- **[UC]** `UC-ENT-02` Aceite do termo `TERMO-NR6-01` implementado na mesma confirmacao. Metodo `ASSINATURA_MANUAL`. Ver `spec-uc-ent-02-termo.md`.
+- **[UC]** `UC-ENT-02` Aceite do termo `TERMO-NR6-01` na mesma confirmacao. Metodo `SENHA`, conferido com o hash do `UC-CAD-03`. Ver `spec-uc-ent-02-termo.md`.
 - **[UC]** `UC-ENT-03` Historico por trabalhador implementado (`HistoricoView`). Le fornecimento, devolucao e estorno. Nao grava auditoria. Ver `spec-uc-ent-03-historico.md`.
 - **[UC]** `UC-POS-01` Devolucao ou descarte implementado (`DevolucaoView`, migracao `V17`). Nao devolve peca ao disponivel. Item estornado recusa. Ver `spec-uc-pos-01-devolucao.md`.
 - **[UC]** `UC-POS-02` Estorno implementado (`EstornoView`, migracao `V18`). Grava `ESTORNO_FORNECIMENTO` da quantidade inteira. Pedido atendido espera `UC-SOL-01`. Ver `spec-uc-pos-02-estorno.md`.
@@ -246,7 +246,7 @@ M2 (core operacional governado) so pode iniciar quando todos os itens abaixo est
 ### 2) Regras e dominios minimos definidos
 
 - [x] Dominio de motivos de entrega definido em `spec-uc-ent-01-fornecimento.md`.
-- [x] Dominio de metodos de validacao definido: `ASSINATURA_MANUAL` em `spec-uc-ent-02-termo.md`.
+- [x] Dominio de metodos de validacao definido: `SENHA` nesta versao, em `spec-uc-ent-02-termo.md`. Assinatura digital e biometria ficam no dominio.
 - [x] Politica de excecao fora da matriz definida (texto e autorizacao SESMT ou Admin).
 - [x] Politica de estorno formal definida em `spec-uc-pos-02-estorno.md`. Devolucao em `spec-uc-pos-01-devolucao.md` nao mexe no saldo.
 

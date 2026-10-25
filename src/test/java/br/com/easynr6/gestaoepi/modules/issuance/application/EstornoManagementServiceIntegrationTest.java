@@ -164,7 +164,7 @@ class EstornoManagementServiceIntegrationTest {
         cenario.almoxId(),
         new Pedido(
             cenario.employeeId(),
-            true,
+            SenhaDeTeste.RECEBIMENTO,
             List.of(
                 new ItemParaRegistrar(
                     epi(loteId),
@@ -198,6 +198,7 @@ class EstornoManagementServiceIntegrationTest {
             jobRoleId,
             null,
             true);
+    estrutura.definirSenhaRecebimento(adminId, employeeId, SenhaDeTeste.RECEBIMENTO);
     return new Cenario(adminId, sesmtId, almoxId, unitId, jobRoleId, employeeId);
   }
 

@@ -21,14 +21,21 @@ public final class ReferenciaPage extends VBox {
     setSpacing(12);
     setFillWidth(true);
     getStyleClass().add(Enr6Styles.PAGE);
-    Label tag = new Label(uc);
-    tag.getStyleClass().add(Enr6Styles.UC_TAG);
+    if (uc != null && !uc.isBlank()) {
+      Label tag = new Label(uc);
+      tag.getStyleClass().add(Enr6Styles.UC_TAG);
+      getChildren().add(tag);
+    }
     Label title = new Label(titulo);
     title.getStyleClass().add(Enr6Styles.PAGE_TITLE);
-    Label sub = new Label(subtitulo);
-    sub.getStyleClass().add(Enr6Styles.PAGE_DESCRIPTION);
-    sub.setWrapText(true);
-    getChildren().addAll(tag, title, sub, body);
+    getChildren().add(title);
+    if (subtitulo != null && !subtitulo.isBlank()) {
+      Label sub = new Label(subtitulo);
+      sub.getStyleClass().add(Enr6Styles.PAGE_DESCRIPTION);
+      sub.setWrapText(true);
+      getChildren().add(sub);
+    }
+    getChildren().add(body);
   }
 
   public static ReferenciaPage of(String uc, String titulo, String subtitulo) {

@@ -3,6 +3,7 @@ package br.com.easynr6.gestaoepi.ui.shell;
 import atlantafx.base.theme.Styles;
 import br.com.easynr6.gestaoepi.modules.caepi.application.CaepiCatalogService;
 import br.com.easynr6.gestaoepi.modules.employee.application.EmployeeManagementService;
+import br.com.easynr6.gestaoepi.modules.employee.application.port.OrgStructureRepository.UnitOption;
 import br.com.easynr6.gestaoepi.modules.epi.application.EpiCatalogManagementService;
 import br.com.easynr6.gestaoepi.modules.issuance.application.DevolucaoManagementService;
 import br.com.easynr6.gestaoepi.modules.issuance.application.EstornoManagementService;
@@ -14,6 +15,7 @@ import br.com.easynr6.gestaoepi.modules.matrix.application.PeriodicidadeManageme
 import br.com.easynr6.gestaoepi.modules.stock.application.StockManagementService;
 import br.com.easynr6.gestaoepi.shared.audit.AuditQueryService;
 import br.com.easynr6.gestaoepi.shared.audit.AuditTrail;
+import br.com.easynr6.gestaoepi.shared.audit.LogTroubleshooting;
 import br.com.easynr6.gestaoepi.shared.auth.UserAdministrationService;
 import br.com.easynr6.gestaoepi.shared.auth.UsuarioAutenticado;
 import br.com.easynr6.gestaoepi.ui.Enr6Styles;
@@ -27,6 +29,7 @@ import br.com.easynr6.gestaoepi.ui.cadastro.OrgStructureManagementView;
 import br.com.easynr6.gestaoepi.ui.cadastro.UnitManagementView;
 import br.com.easynr6.gestaoepi.ui.caepi.CaepiImportView;
 import br.com.easynr6.gestaoepi.ui.estoque.LotManagementView;
+import br.com.easynr6.gestaoepi.ui.login.EscolhaUnidadeView;
 import br.com.easynr6.gestaoepi.ui.matriz.MatrizManagementView;
 import br.com.easynr6.gestaoepi.ui.matriz.PeriodicidadeManagementView;
 import br.com.easynr6.gestaoepi.ui.operacao.DevolucaoView;
@@ -35,7 +38,9 @@ import br.com.easynr6.gestaoepi.ui.operacao.FornecimentoWizardView;
 import br.com.easynr6.gestaoepi.ui.operacao.HistoricoView;
 import br.com.easynr6.gestaoepi.ui.operacao.PendenciasView;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -90,6 +95,7 @@ public class MainShellView extends BorderPane {
       EstornoManagementService estorno,
       HistoricoManagementService historico,
       PendenciaManagementService pendencias,
+      Consumer<UnitOption> aoTrocarUnidade,
       Runnable onLogout) {
     this.usuario = usuario;
     this.auditTrail = auditTrail;
@@ -106,12 +112,12 @@ public class MainShellView extends BorderPane {
     this.estorno = estorno;
     this.historico = historico;
     this.pendencias = pendencias;
-    setTop(buildHeader(onLogout));
+    setTop(buildHeader(aoTrocarUnidade, onLogout));
     setLeft(buildSidebar());
     abrir(Destino.DASHBOARD, false);
   }
 
-  private VBox buildHeader(Runnable onLogout) {
+  private VBox buildHeader(Consumer<UnitOption> aoTrocarUnidade, Runnable onLogout) {
     VBox header = new VBox();
     header.getStyleClass().add(Enr6Styles.SHELL_HEADER);
 
@@ -140,24 +146,67 @@ public class MainShellView extends BorderPane {
     perfilItem.setDisable(true);
     MenuItem logoutItem = new MenuItem("Sair");
     logoutItem.setOnAction(event -> onLogout.run());
-    sessaoMenu.getItems().addAll(perfilItem, new SeparatorMenuItem(), logoutItem);
+    sessaoMenu
+        .getItems()
+        .addAll(perfilItem, itemUnidade(aoTrocarUnidade), new SeparatorMenuItem(), logoutItem);
     menuBar.getMenus().addAll(arquivoMenu, modulosMenu, sessaoMenu);
 
     BorderPane topLine = new BorderPane();
     topLine.setPadding(new Insets(8, 16, 12, 16));
     Label produto = new Label("Easy NR6 · Gestão de EPI");
     produto.getStyleClass().add(Enr6Styles.SHELL_BRAND);
+    Label unidadeInfo = new Label(textoUnidade());
+    unidadeInfo.getStyleClass().add(Enr6Styles.SHELL_META);
     Label usuarioInfo = new Label(usuario.nome() + " (" + usuario.login() + ")");
     usuarioInfo.getStyleClass().add(Enr6Styles.SHELL_META);
-    topLine.setLeft(produto);
+    topLine.setLeft(new VBox(2, produto, unidadeInfo));
     topLine.setRight(usuarioInfo);
     header.getChildren().addAll(menuBar, topLine);
 
     Label status = new Label(caepi.faixaStatus());
     status.getStyleClass().add(Enr6Styles.STATUS_STRIP);
     status.setMaxWidth(Double.MAX_VALUE);
-    VBox chrome = new VBox(header, status);
-    return chrome;
+    return new VBox(header, status);
+  }
+
+  private MenuItem itemUnidade(Consumer<UnitOption> aoTrocarUnidade) {
+    List<UnitOption> acessiveis = unidadesAcessiveis();
+    if (acessiveis.size() < 2) {
+      MenuItem unica = new MenuItem("Unidade: " + textoUnidade());
+      unica.setDisable(true);
+      return unica;
+    }
+    Menu menu = new Menu("Trocar unidade");
+    for (UnitOption opcao : acessiveis) {
+      MenuItem item = new MenuItem(EscolhaUnidadeView.rotulo(opcao));
+      boolean atual = opcao.id().equals(usuario.unidadeId());
+      item.setDisable(atual);
+      item.setOnAction(event -> aoTrocarUnidade.accept(opcao));
+      menu.getItems().add(item);
+    }
+    return menu;
+  }
+
+  private List<UnitOption> unidadesAcessiveis() {
+    try {
+      List<UnitOption> ativas = empregados.listActiveUnits();
+      if (usuario.veTodasAsUnidades()) {
+        return ativas;
+      }
+      Long vinculo = usuario.unidadeVinculoId();
+      if (vinculo == null) {
+        return List.of();
+      }
+      return ativas.stream().filter(item -> vinculo.equals(item.id())).toList();
+    } catch (RuntimeException ex) {
+      LogTroubleshooting.registrar("LISTAR_UNIDADES_SESSAO", usuario.id(), usuario.login(), ex);
+      return List.of();
+    }
+  }
+
+  private String textoUnidade() {
+    String nome = usuario.unidadeNome();
+    return nome == null || nome.isBlank() ? "Unidade não informada" : nome;
   }
 
   private ScrollPane buildSidebar() {
@@ -261,7 +310,7 @@ public class MainShellView extends BorderPane {
       return new AuditTrailView(auditoria).root();
     }
     if (destino == Destino.USUARIOS) {
-      return new UserAdministrationView(usuario, usuarios).root();
+      return new UserAdministrationView(usuario, usuarios, empregados::listActiveUnits).root();
     }
     if (destino == Destino.LOTES) {
       return new LotManagementView(usuario, estoque).root();
@@ -276,7 +325,7 @@ public class MainShellView extends BorderPane {
       return new PeriodicidadeManagementView(usuario, periodicidade).root();
     }
     if (destino == Destino.ENTREGA) {
-      return new FornecimentoWizardView(usuario, fornecimento, periodicidade).root();
+      return new FornecimentoWizardView(usuario, fornecimento, periodicidade, empregados).root();
     }
     if (destino == Destino.DEVOLUCAO) {
       Long item = itemDevolucao;

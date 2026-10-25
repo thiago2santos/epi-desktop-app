@@ -16,10 +16,21 @@ public class EmployeeAccessAuthorizer {
   }
 
   public void assertCanManageEmployees(Long actorId) {
-    Set<Papel> roles = identityRepository.loadRoles(actorId);
-    if (!roles.contains(Papel.ADMIN) && !roles.contains(Papel.SESMT)) {
+    if (!podeDefinirSenha(actorId)) {
       throw new AuthorizationDeniedException(
           "AUTH-004 Voce nao tem permissao para executar esta acao.");
     }
+  }
+
+  public void assertCanDefineReceiptPassword(Long actorId) {
+    if (!podeDefinirSenha(actorId)) {
+      throw new AuthorizationDeniedException(
+          "AUTH-004 Voce nao tem permissao para definir a senha de recebimento.");
+    }
+  }
+
+  private boolean podeDefinirSenha(Long actorId) {
+    Set<Papel> roles = identityRepository.loadRoles(actorId);
+    return roles.contains(Papel.ADMIN) || roles.contains(Papel.SESMT);
   }
 }
