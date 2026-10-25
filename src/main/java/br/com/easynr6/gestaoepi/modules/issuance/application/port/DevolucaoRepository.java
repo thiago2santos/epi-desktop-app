@@ -10,6 +10,10 @@ public interface DevolucaoRepository {
 
   List<TrabalhadorBusca> buscar(String texto);
 
+  default List<TrabalhadorBusca> buscar(String texto, Long unidadeId) {
+    return buscar(texto);
+  }
+
   List<ItemPendente> listarPendentes(Long employeeId);
 
   Optional<ItemPendente> findPendente(Long itemId);

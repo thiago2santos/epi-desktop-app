@@ -25,7 +25,11 @@ public class EstornoManagementService {
   }
 
   public List<TrabalhadorBusca> buscar(Long actorId, String texto) {
-    return consultarEstornoUseCase.buscar(actorId, texto);
+    return buscar(actorId, texto, null);
+  }
+
+  public List<TrabalhadorBusca> buscar(Long actorId, String texto, Long unidadeId) {
+    return consultarEstornoUseCase.buscar(actorId, texto, unidadeId);
   }
 
   public List<ItemAberto> abertos(Long actorId, Long employeeId) {

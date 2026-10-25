@@ -17,7 +17,11 @@ public class HistoricoManagementService {
   }
 
   public List<TrabalhadorBusca> buscar(Long actorId, String texto) {
-    return consultarHistoricoUseCase.buscar(actorId, texto);
+    return buscar(actorId, texto, null);
+  }
+
+  public List<TrabalhadorBusca> buscar(Long actorId, String texto, Long unidadeId) {
+    return consultarHistoricoUseCase.buscar(actorId, texto, unidadeId);
   }
 
   public List<Linha> listar(Long actorId, Long employeeId, LocalDate inicio, LocalDate fim) {

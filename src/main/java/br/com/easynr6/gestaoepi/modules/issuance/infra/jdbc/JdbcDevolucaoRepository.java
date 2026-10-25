@@ -42,6 +42,11 @@ public class JdbcDevolucaoRepository implements DevolucaoRepository {
 
   @Override
   public List<TrabalhadorBusca> buscar(String texto) {
+    return buscar(texto, null);
+  }
+
+  @Override
+  public List<TrabalhadorBusca> buscar(String texto, Long unidadeId) {
     String termo = texto == null ? "" : texto.trim();
     if (termo.isEmpty()) {
       return List.of();
@@ -52,11 +57,13 @@ public class JdbcDevolucaoRepository implements DevolucaoRepository {
         FROM employee e
         JOIN department d ON d.id = e.department_id
         JOIN job_role j ON j.id = e.job_role_id
-        WHERE e.employee_code LIKE :texto OR e.full_name LIKE :texto
+        WHERE (e.employee_code LIKE :texto OR e.full_name LIKE :texto)
+          AND (:unidadeId = 0 OR d.unit_id = :unidadeId)
         ORDER BY e.full_name
         LIMIT 30
         """,
-        new MapSqlParameterSource("texto", "%" + termo + "%"),
+        new MapSqlParameterSource("texto", "%" + termo + "%")
+            .addValue("unidadeId", unidadeId == null ? 0 : unidadeId),
         (rs, rowNum) ->
             new TrabalhadorBusca(
                 rs.getLong("id"),

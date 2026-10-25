@@ -94,17 +94,25 @@ public class JdbcFornecimentoRepository implements FornecimentoRepository {
 
   @Override
   public Pagina buscar(String texto, int pagina, int tamanho, boolean somenteAtivos, Long setorId) {
+    return buscar(texto, pagina, tamanho, somenteAtivos, setorId, null);
+  }
+
+  @Override
+  public Pagina buscar(
+      String texto, int pagina, int tamanho, boolean somenteAtivos, Long setorId, Long unidadeId) {
     String termo = texto == null ? "" : texto.trim();
     int limite = tamanho <= 0 ? 1 : tamanho;
     int indice = Math.max(pagina, 0);
     MapSqlParameterSource filtro =
         new MapSqlParameterSource("texto", termo.isEmpty() ? "" : "%" + termo + "%")
             .addValue("somenteAtivos", somenteAtivos ? 1 : 0)
-            .addValue("setorId", setorId == null ? 0 : setorId);
+            .addValue("setorId", setorId == null ? 0 : setorId)
+            .addValue("unidadeId", unidadeId == null ? 0 : unidadeId);
     String onde =
         """
          WHERE (:somenteAtivos = 0 OR e.active = 1)
            AND (:setorId = 0 OR e.department_id = :setorId)
+           AND (:unidadeId = 0 OR d.unit_id = :unidadeId)
            AND (
              :texto = ''
              OR e.employee_code LIKE :texto
@@ -112,7 +120,15 @@ public class JdbcFornecimentoRepository implements FornecimentoRepository {
            )
         """;
     Integer contagem =
-        jdbc.queryForObject("SELECT COUNT(1) FROM employee e " + onde, filtro, Integer.class);
+        jdbc.queryForObject(
+            """
+            SELECT COUNT(1)
+            FROM employee e
+            JOIN department d ON d.id = e.department_id
+            """
+                + onde,
+            filtro,
+            Integer.class);
     int total = contagem == null ? 0 : contagem;
     List<Trabalhador> itens =
         jdbc.query(

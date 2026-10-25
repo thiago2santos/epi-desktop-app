@@ -45,6 +45,11 @@ public class ConsultarFornecimentoUseCase {
 
   public Pagina buscar(
       Long actorId, String texto, int pagina, boolean somenteAtivos, Long setorId) {
+    return buscar(actorId, texto, pagina, somenteAtivos, setorId, null);
+  }
+
+  public Pagina buscar(
+      Long actorId, String texto, int pagina, boolean somenteAtivos, Long setorId, Long unidadeId) {
     accessAuthorizer.assertCanRegister(actorId);
     if (pagina < 0) {
       return new Pagina(List.of(), 0, 0, TAMANHO_PAGINA);
@@ -53,7 +58,8 @@ public class ConsultarFornecimentoUseCase {
     if (termo.length() < MINIMO_BUSCA) {
       termo = "";
     }
-    return fornecimentoRepository.buscar(termo, pagina, TAMANHO_PAGINA, somenteAtivos, setorId);
+    return fornecimentoRepository.buscar(
+        termo, pagina, TAMANHO_PAGINA, somenteAtivos, setorId, unidadeId);
   }
 
   public List<LinhaMatriz> itensDaFuncao(Long actorId, Long employeeId) {

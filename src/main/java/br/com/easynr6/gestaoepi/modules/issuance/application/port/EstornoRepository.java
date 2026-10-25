@@ -9,6 +9,10 @@ public interface EstornoRepository {
 
   List<TrabalhadorBusca> buscar(String texto);
 
+  default List<TrabalhadorBusca> buscar(String texto, Long unidadeId) {
+    return buscar(texto);
+  }
+
   List<ItemAberto> listarAbertos(Long employeeId);
 
   Optional<ItemAberto> findAberto(Long itemId);

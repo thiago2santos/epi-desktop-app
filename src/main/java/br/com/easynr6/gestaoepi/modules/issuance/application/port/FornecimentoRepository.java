@@ -14,6 +14,11 @@ public interface FornecimentoRepository {
 
   Pagina buscar(String texto, int pagina, int tamanho, boolean somenteAtivos, Long setorId);
 
+  default Pagina buscar(
+      String texto, int pagina, int tamanho, boolean somenteAtivos, Long setorId, Long unidadeId) {
+    return buscar(texto, pagina, tamanho, somenteAtivos, setorId);
+  }
+
   /** Página da busca de trabalhador. Com total zero ainda conta uma página. */
   record Pagina(List<Trabalhador> itens, int total, int pagina, int tamanho) {
     public int paginas() {

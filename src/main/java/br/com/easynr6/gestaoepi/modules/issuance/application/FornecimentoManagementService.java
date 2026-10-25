@@ -31,7 +31,13 @@ public class FornecimentoManagementService {
 
   public Pagina buscar(
       Long actorId, String texto, int pagina, boolean somenteAtivos, Long setorId) {
-    return consultarFornecimentoUseCase.buscar(actorId, texto, pagina, somenteAtivos, setorId);
+    return buscar(actorId, texto, pagina, somenteAtivos, setorId, null);
+  }
+
+  public Pagina buscar(
+      Long actorId, String texto, int pagina, boolean somenteAtivos, Long setorId, Long unidadeId) {
+    return consultarFornecimentoUseCase.buscar(
+        actorId, texto, pagina, somenteAtivos, setorId, unidadeId);
   }
 
   public List<LinhaMatriz> itensDaFuncao(Long actorId, Long employeeId) {
