@@ -16,6 +16,7 @@ public class JdbcStockRepository implements StockRepository {
 
   private static final String UNIT_ACTIVE_SQL =
       "SELECT COUNT(1) FROM unit WHERE id = :unitId AND active = 1";
+
   private static final String ACTIVE_CA_SQL =
       """
       SELECT b.id, b.ca_number, b.official_check_at
@@ -27,6 +28,7 @@ public class JdbcStockRepository implements StockRepository {
         AND b.ca_status = 'ACTIVE'
         AND e.active = 1
       """;
+
   private static final String LOT_EXISTS_SQL =
       """
       SELECT COUNT(1) FROM lote_epi
@@ -35,6 +37,7 @@ public class JdbcStockRepository implements StockRepository {
         AND lot_code = :lotCode
         AND size_label = :sizeLabel
       """;
+
   private static final String INSERT_LOT_SQL =
       """
       INSERT INTO lote_epi (
@@ -44,6 +47,7 @@ public class JdbcStockRepository implements StockRepository {
           :unitId, :epiId, :caBindingId, :lotCode, :manufacturer, :sizeLabel,
           :pieceValidUntil, :caCheckedAt, :unitCostCents)
       """;
+
   private static final String SELECT_LOT_ID_SQL =
       """
       SELECT id FROM lote_epi
@@ -52,11 +56,13 @@ public class JdbcStockRepository implements StockRepository {
         AND lot_code = :lotCode
         AND size_label = :sizeLabel
       """;
+
   private static final String INSERT_MOVEMENT_SQL =
       """
       INSERT INTO estoque_movimento (lote_id, movement_type, quantity)
       VALUES (:loteId, 'RECEBIMENTO', :quantity)
       """;
+
   private static final String LIST_LOTS_SQL =
       """
       SELECT l.id, l.unit_id, u.name AS unit_name, l.epi_id, l.epi_ca_binding_id, b.ca_number,
@@ -89,8 +95,10 @@ public class JdbcStockRepository implements StockRepository {
       WHERE (:unitId IS NULL OR l.unit_id = :unitId)
       ORDER BY u.name, l.piece_valid_until, l.lot_code
       """;
+
   private static final String LIST_UNITS_SQL =
       "SELECT id, name FROM unit WHERE active = 1 ORDER BY name";
+
   private static final String LIST_EPIS_SQL =
       """
       SELECT id, epi_code, description
@@ -98,6 +106,7 @@ public class JdbcStockRepository implements StockRepository {
       WHERE active = 1
       ORDER BY description
       """;
+
   private static final String LIST_CAS_SQL =
       """
       SELECT b.id, b.ca_number, b.official_check_at
