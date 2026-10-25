@@ -91,14 +91,25 @@ public final class PendenciasView {
 
   private Node filtros() {
     ComboBox<UnitOption> unidades = new ComboBox<>();
-    unidades.getItems().add(null);
+    boolean presa = usuario.unidadeId() != null;
+    if (!presa) {
+      unidades.getItems().add(null);
+    }
     try {
-      unidades.getItems().addAll(estrutura.listActiveUnits());
+      List<UnitOption> plantas = estrutura.listActiveUnits();
+      if (presa) {
+        plantas = plantas.stream().filter(item -> usuario.unidadeId().equals(item.id())).toList();
+      }
+      unidades.getItems().addAll(plantas);
     } catch (RuntimeException ex) {
       LogTroubleshooting.registrar("LISTAR_UNIDADES_PENDENCIA", usuario.id(), "-", ex);
     }
-    unidades.setConverter(nomes(unidade -> unidade == null ? "Todas as unidades" : unidade.name()));
+    unidades.setConverter(nomes(item -> item == null ? "Todas as unidades" : item.name()));
+    if (presa && !unidades.getItems().isEmpty()) {
+      unidade = unidades.getItems().getFirst();
+    }
     unidades.setValue(unidade);
+    unidades.setDisable(presa);
     unidades.setOnAction(event -> unidade = unidades.getValue());
     DatePicker de = new DatePicker(inicio);
     DatePicker ate = new DatePicker(fim);

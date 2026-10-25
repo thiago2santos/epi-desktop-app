@@ -303,7 +303,12 @@ public final class LotManagementView {
   private void carregarOpcoes() {
     sincronizando = true;
     try {
-      unidade.getItems().setAll(estoque.listUnits(usuario.id()));
+      var unidades = estoque.listUnits(usuario.id());
+      if (usuario.unidadeId() != null) {
+        unidades = unidades.stream().filter(item -> item.id().equals(usuario.unidadeId())).toList();
+      }
+      unidade.getItems().setAll(unidades);
+      unidade.setDisable(usuario.unidadeId() != null);
       epi.getItems().setAll(estoque.listEpis(usuario.id()));
       if (!unidade.getItems().isEmpty()) {
         unidade.getSelectionModel().selectFirst();

@@ -264,7 +264,9 @@ public final class FornecimentoWizardView {
         nomes(item -> item == null ? "Todos os setores" : item.unitName() + " · " + item.name()));
     setor.getItems().add(null);
     try {
-      setor.getItems().addAll(empregados.listActiveDepartments());
+      setor
+          .getItems()
+          .addAll(empregados.listActiveDepartments().stream().filter(this::daSessao).toList());
     } catch (RuntimeException ex) {
       LogTroubleshooting.registrar("LISTAR_SETORES_FORNECIMENTO", usuario.id(), "-", ex);
     }
@@ -338,7 +340,8 @@ public final class FornecimentoWizardView {
               texto,
               paginacao.getCurrentPageIndex(),
               somenteAtivos.isSelected(),
-              setorId());
+              setorId(),
+              usuario.unidadeId());
       tabela.getItems().setAll(pagina.itens());
       if (pagina.total() == 0) {
         vazioBusca.setText(
@@ -356,6 +359,10 @@ public final class FornecimentoWizardView {
   private Long setorId() {
     DepartmentOption escolhido = setor.getValue();
     return escolhido == null ? null : escolhido.id();
+  }
+
+  private boolean daSessao(DepartmentOption setor) {
+    return usuario.unidadeId() == null || usuario.unidadeId().equals(setor.unitId());
   }
 
   private void ajustarPaginas(int paginas) {

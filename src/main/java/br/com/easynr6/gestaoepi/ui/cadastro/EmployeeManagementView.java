@@ -483,7 +483,12 @@ public final class EmployeeManagementView {
     recarregando = true;
     try {
       Long manter = editando == null ? null : editando.id();
-      tabela.getItems().setAll(empregados.listEmployees(usuario.id(), filtro.getText()));
+      tabela
+          .getItems()
+          .setAll(
+              empregados.listEmployees(usuario.id(), filtro.getText()).stream()
+                  .filter(item -> daSessao(item.unitId()))
+                  .toList());
       if (manter != null) {
         tabela.getItems().stream()
             .filter(item -> item.id().equals(manter))
@@ -507,9 +512,14 @@ public final class EmployeeManagementView {
   }
 
   private void atualizarAvisoSetor() {
-    boolean semSetor = empregados.listActiveDepartments().isEmpty();
+    boolean semSetor =
+        empregados.listActiveDepartments().stream().noneMatch(item -> daSessao(item.unitId()));
     avisoSetor.setVisible(semSetor);
     avisoSetor.setManaged(semSetor);
+  }
+
+  private boolean daSessao(Long unitId) {
+    return usuario.unidadeId() == null || usuario.unidadeId().equals(unitId);
   }
 
   private void atualizarVazio() {
@@ -519,7 +529,11 @@ public final class EmployeeManagementView {
   }
 
   private void carregarSetores(EmployeeSummary atual) {
-    List<DepartmentOption> itens = new ArrayList<>(empregados.listActiveDepartments());
+    List<DepartmentOption> itens =
+        new ArrayList<>(
+            empregados.listActiveDepartments().stream()
+                .filter(item -> daSessao(item.unitId()))
+                .toList());
     if (atual != null && itens.stream().noneMatch(item -> item.id().equals(atual.departmentId()))) {
       itens.add(
           new DepartmentOption(

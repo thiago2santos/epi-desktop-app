@@ -79,7 +79,7 @@ public final class EstornoView {
 
   private void buscar(String texto, VBox resultados) {
     try {
-      List<TrabalhadorBusca> encontrados = estorno.buscar(usuario.id(), texto);
+      List<TrabalhadorBusca> encontrados = estorno.buscar(usuario.id(), texto, usuario.unidadeId());
       resultados.getChildren().clear();
       if (encontrados.isEmpty()) {
         resultados.getChildren().add(new Label("Nenhum trabalhador com essa matrícula ou nome."));

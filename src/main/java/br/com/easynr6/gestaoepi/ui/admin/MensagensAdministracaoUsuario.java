@@ -28,6 +28,9 @@ public final class MensagensAdministracaoUsuario {
     if (mensagem.startsWith("AUTH-017")) {
       return "Este usuário não tem o papel selecionado.";
     }
+    if (mensagem.startsWith("AUTH-018")) {
+      return "Escolha uma unidade ativa.";
+    }
     if (erro instanceof IllegalArgumentException && !mensagem.isBlank()) {
       return mensagem.trim().replaceFirst("^[A-Z]+-\\d+\\s+", "");
     }
